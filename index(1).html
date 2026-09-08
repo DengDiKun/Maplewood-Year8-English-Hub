@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b3b54">
+<title>Maplewood International School — Year 8 English</title>
+<style>
+:root{
+  --navy:#0b2f47; --navy2:#154d68; --teal:#159aa8; --aqua:#cceff0; --cream:#fffaf1;
+  --paper:#fffefb; --gold:#d8a43a; --rose:#e8899c; --lav:#a99bd7; --sky:#8bc5e8;
+  --ink:#163041; --muted:#647785; --line:rgba(18,67,88,.14); --shadow:0 22px 60px rgba(17,55,73,.12);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(180deg,#fffdf8 0%,#f5fbfb 46%,#fffaf3 100%);overflow-x:hidden}
+a{color:inherit}
+button,input{font:inherit}
+button{touch-action:manipulation}
+.sitebar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px clamp(16px,4vw,56px);background:rgba(255,253,248,.87);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;min-width:0}
+.seal{width:42px;height:42px;border-radius:50% 50% 48% 52%;display:grid;place-items:center;background:linear-gradient(145deg,var(--navy),var(--teal));color:white;font-weight:900;font-family:Georgia,serif;box-shadow:0 8px 22px rgba(11,47,71,.2);flex:none}
+.brandtext{line-height:1.05;min-width:0}.brandtext small{display:block;color:var(--teal);font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:.67rem}.brandtext strong{font-family:Georgia,"Times New Roman",serif;font-size:.98rem;color:var(--navy)}
+.navpills{display:flex;gap:8px;align-items:center}.navpills a{padding:9px 12px;border-radius:999px;text-decoration:none;font-weight:800;font-size:.88rem;color:var(--navy)}.navpills a:hover{background:#eaf7f7}
+.hero{position:relative;min-height:620px;padding:clamp(58px,8vw,100px) clamp(20px,7vw,100px) 78px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);align-items:center;gap:48px;isolation:isolate}
+.hero:before{content:"";position:absolute;width:690px;height:690px;border-radius:45% 55% 59% 41%/48% 42% 58% 52%;background:radial-gradient(circle at 35% 35%,#d7f5f3,transparent 52%),linear-gradient(135deg,#e8f7f4,#fdf4e9);right:-190px;top:-160px;z-index:-2;transform:rotate(12deg)}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:62% 38% 51% 49%/38% 60% 40% 62%;background:rgba(232,137,156,.14);left:-110px;bottom:35px;z-index:-2}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:999px;background:#ecf8f6;color:#146b74;font-weight:850;letter-spacing:.055em;text-transform:uppercase;font-size:.76rem;border:1px solid #d6ece8}
+.hero h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(3rem,7vw,6.3rem);line-height:.92;letter-spacing:-.045em;margin:20px 0 22px;color:var(--navy);max-width:780px}
+.hero h1 em{font-style:italic;color:var(--teal);font-weight:500}.hero p{font-size:clamp(1.05rem,1.65vw,1.28rem);line-height:1.75;max-width:690px;color:#526976;margin:0 0 28px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}.cta{display:inline-flex;align-items:center;gap:10px;padding:14px 20px;border-radius:999px;text-decoration:none;font-weight:900;border:1px solid transparent;transition:.2s}.cta.primary{background:linear-gradient(135deg,var(--navy),#0d6071);color:#fff;box-shadow:0 15px 34px rgba(13,71,91,.22)}.cta.secondary{background:#fff;border-color:var(--line);color:var(--navy)}.cta:hover{transform:translateY(-2px)}
+.hero-art{position:relative;min-height:460px;display:grid;place-items:center}.art-orbit{position:absolute;width:420px;height:420px;border-radius:50%;border:1px dashed rgba(21,154,168,.28);animation:spin 30s linear infinite}.art-orbit:before,.art-orbit:after{content:"✦";position:absolute;color:var(--gold);font-size:24px}.art-orbit:before{top:25px;left:78px}.art-orbit:after{right:25px;bottom:92px;color:var(--rose)}@keyframes spin{to{transform:rotate(360deg)}}
+.anime-scene{width:min(500px,100%);filter:drop-shadow(0 28px 30px rgba(16,50,65,.14))}
+.floating-note{position:absolute;display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:20px;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.9);box-shadow:0 13px 28px rgba(31,70,84,.12);font-weight:800;color:var(--navy);backdrop-filter:blur(8px);animation:float 4.5s ease-in-out infinite}.n1{left:2%;top:12%}.n2{right:-2%;top:28%;animation-delay:-1.1s}.n3{left:8%;bottom:7%;animation-delay:-2.2s}@keyframes float{50%{transform:translateY(-9px) rotate(1deg)}}
+.wave{width:100%;height:42px;display:block;margin-top:-2px}
+.section{padding:78px clamp(18px,6vw,86px)}
+.section-head{max-width:1100px;margin:0 auto 36px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}.section-head .eyebrow{color:var(--teal);font-weight:900;text-transform:uppercase;letter-spacing:.12em;font-size:.78rem}.section-head h2{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.2rem,5vw,4.4rem);line-height:1;margin:9px 0 0;color:var(--navy);letter-spacing:-.035em}.section-head p{max-width:530px;color:var(--muted);line-height:1.65;margin:0}
+.tools{max-width:1100px;margin:0 auto 34px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.search{flex:1;min-width:240px;position:relative}.search input{width:100%;border:1px solid var(--line);border-radius:999px;padding:13px 17px 13px 44px;background:rgba(255,255,255,.78);outline:none;font-size:1rem}.search span{position:absolute;left:17px;top:50%;transform:translateY(-50%)}.search input:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(21,154,168,.1)}
+.filter{border:1px solid var(--line);background:#fff;padding:11px 14px;border-radius:999px;font-weight:850;color:var(--navy);cursor:pointer}.filter.active{background:var(--navy);color:white;border-color:var(--navy)}
+.journey{max-width:1100px;margin:auto;position:relative}.journey:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(var(--teal),rgba(21,154,168,.05));transform:translateX(-50%)}
+.unit{width:calc(50% - 38px);position:relative;margin-bottom:34px;transition:.25s}.unit:nth-child(odd){margin-right:auto}.unit:nth-child(even){margin-left:auto}.unit:before{content:"";position:absolute;top:42px;width:38px;height:2px;background:var(--teal);opacity:.35}.unit:nth-child(odd):before{right:-38px}.unit:nth-child(even):before{left:-38px}.dot{position:absolute;top:31px;width:22px;height:22px;border-radius:50%;background:var(--cream);border:5px solid var(--teal);box-shadow:0 0 0 7px rgba(21,154,168,.09)}.unit:nth-child(odd) .dot{right:-49px}.unit:nth-child(even) .dot{left:-49px}
+.unit-shell{position:relative;padding:26px 27px 22px;border-radius:36px 16px 36px 16px;background:rgba(255,255,255,.84);border:1px solid rgba(15,74,93,.11);box-shadow:0 14px 42px rgba(22,63,78,.08);overflow:hidden}.unit:nth-child(3n+1) .unit-shell{border-radius:18px 42px 18px 42px}.unit:nth-child(3n+2) .unit-shell{border-radius:42px 18px 42px 18px}.unit-shell:after{content:"";position:absolute;width:140px;height:140px;border-radius:50%;right:-75px;top:-80px;background:var(--tint,#d7f3f1);opacity:.62}.unit-top{display:flex;align-items:flex-start;gap:15px;position:relative;z-index:1}.unit-num{min-width:58px;height:58px;border-radius:22px 12px 22px 12px;background:var(--accent,var(--teal));color:white;display:grid;place-items:center;font-family:Georgia,serif;font-size:1.55rem;font-weight:900;box-shadow:0 8px 20px rgba(18,72,91,.16)}.unit-name{min-width:0;flex:1}.unit-name small{display:block;color:var(--muted);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.unit-name h3{font-family:Georgia,"Times New Roman",serif;font-size:1.65rem;line-height:1.1;margin:5px 0 0;color:var(--navy)}.unit-name h3 em{font-style:normal;color:var(--accent,var(--teal))}
+.peek{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 8px;position:relative;z-index:1}.tag{padding:6px 9px;border-radius:999px;background:#f3f8f8;color:#45616d;font-size:.76rem;font-weight:800}.launch{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;border-radius:999px;background:linear-gradient(135deg,var(--accent,var(--teal)),var(--navy));color:#fff;text-decoration:none;font-size:.88rem;font-weight:900;position:relative;z-index:2}.launch:hover{transform:translateY(-1px)}
+.expand{width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;color:var(--navy);font-weight:900;padding:14px 0 2px;cursor:pointer;position:relative;z-index:2}.expand .chev{width:30px;height:30px;border-radius:50%;background:#eef6f6;display:grid;place-items:center;transition:.2s}.unit.open .chev{transform:rotate(180deg);background:var(--accent,var(--teal));color:#fff}.details{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s ease;position:relative;z-index:2}.unit.open .details{grid-template-rows:1fr}.details-inner{overflow:hidden}.curriculum{padding-top:18px;display:grid;gap:17px}.strand{position:relative;padding-left:24px}.strand:before{content:"";position:absolute;left:0;top:4px;width:8px;height:calc(100% - 4px);border-radius:99px;background:var(--strand,#cbeaec)}.strand h4{margin:0 0 6px;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.strand p{margin:0;line-height:1.55;color:#2c4858;font-size:.94rem}.strand.reading{--strand:#81c9d2}.strand.writing{--strand:#e9b769}.strand.speaking{--strand:#b6a7df}.strand.language{--strand:#e7a1ae}.strand.skills{--strand:#9ecf9b}
+.feature{max-width:1100px;margin:78px auto 0;display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:center;padding:clamp(28px,5vw,54px);border-radius:56px 22px 56px 22px;background:linear-gradient(135deg,#0b344c,#0d6975);color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow)}.feature:before{content:"";position:absolute;width:360px;height:360px;border-radius:50%;background:rgba(255,255,255,.055);right:-120px;top:-130px}.feature h3{font-family:Georgia,serif;font-size:clamp(2rem,4.2vw,3.8rem);line-height:1.02;margin:8px 0 15px}.feature p{color:#dff6f6;line-height:1.65}.feature .cta.primary{background:#fff;color:var(--navy);box-shadow:none}.feature-art{min-height:250px;position:relative;display:grid;place-items:center}.casket-row{display:flex;gap:14px;align-items:end;transform:rotate(-2deg)}.casket{width:112px;height:92px;border-radius:20px 20px 11px 11px;display:grid;place-items:center;font-family:Georgia,serif;font-weight:900;font-size:1.1rem;color:#2b3640;box-shadow:0 18px 25px rgba(0,0,0,.2);border:3px solid rgba(255,255,255,.35)}.cg{background:linear-gradient(#f7dc89,#c18d23)}.cs{background:linear-gradient(#f2f5f8,#aab6c4)}.cl{background:linear-gradient(#a9c8d3,#648999);color:#fff;height:82px}
+.footer{padding:52px 20px 70px;text-align:center;color:#647986}.footer strong{font-family:Georgia,serif;color:var(--navy)}
+.empty{display:none;text-align:center;padding:50px 20px;color:var(--muted)}
+@media(max-width:920px){.navpills{display:none}.hero{grid-template-columns:1fr;padding-top:55px}.hero-art{min-height:390px}.section-head{grid-template-columns:1fr}.journey:before{left:12px}.unit,.unit:nth-child(odd),.unit:nth-child(even){width:calc(100% - 42px);margin-left:42px;margin-right:0}.unit:before,.unit:nth-child(odd):before,.unit:nth-child(even):before{left:-30px;width:30px;right:auto}.dot,.unit:nth-child(odd) .dot,.unit:nth-child(even) .dot{left:-41px;right:auto}.feature{grid-template-columns:1fr}.feature-art{min-height:220px}}
+@media(max-width:560px){.hero{padding-left:18px;padding-right:18px;min-height:auto}.hero h1{font-size:3.4rem}.hero-art{min-height:320px}.floating-note{font-size:.78rem;padding:8px 10px}.n2{right:0}.section{padding:58px 16px}.unit-shell{padding:21px 18px 18px}.unit-name h3{font-size:1.35rem}.unit-num{min-width:50px;height:50px;font-size:1.3rem}.feature{border-radius:34px 16px 34px 16px;padding:28px 20px}.casket{width:88px;height:76px;font-size:.9rem}.casket-row{gap:7px}.brandtext small{font-size:.6rem}.brandtext strong{font-size:.83rem}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="sitebar">
+  <a class="brand" href="#top" aria-label="Maplewood Year 8 English home">
+    <span class="seal">M</span>
+    <span class="brandtext"><small>Maplewood International School</small><strong>Year 8 English</strong></span>
+  </a>
+  <nav class="navpills" aria-label="Primary navigation"><a href="#journey">Curriculum Journey</a><a href="#featured">Current Quest</a></nav>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div>
+    <span class="kicker">✦ Year 8 • English Learning Journey</span>
+    <h1>MAPLEWOOD <em>ENGLISH</em></h1>
+    <p>One beautiful home for your Year 8 reading, writing, speaking, language and creative challenges — from <i>Nature and Humans</i> to <i>Endings</i>.</p>
+    <div class="hero-actions">
+      <a class="cta primary" href="#journey">Explore the curriculum <span>→</span></a>
+      <a class="cta secondary" href="unit8-1.html">Play Unit 8.1 🎭</a>
+    </div>
+  </div>
+  <div class="hero-art" aria-label="Original anime-inspired students studying English">
+    <div class="art-orbit" aria-hidden="true"></div>
+    <div class="floating-note n1">📚 Reading Quest</div><div class="floating-note n2">✨ + Creativity</div><div class="floating-note n3">💬 Speak • Think • Create</div>
+    <svg class="anime-scene" viewBox="0 0 540 500" role="img" aria-label="Two original anime-inspired students with books">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="1"><stop stop-color="#0b3b54"/><stop offset="1" stop-color="#197f8d"/></linearGradient>
+        <linearGradient id="g2" x1="0" x2="1"><stop stop-color="#f2c9ad"/><stop offset="1" stop-color="#efb998"/></linearGradient>
+        <linearGradient id="g3" x1="0" x2="1"><stop stop-color="#e89aa7"/><stop offset="1" stop-color="#c76f86"/></linearGradient>
+      </defs>
+      <path d="M70 420 Q120 315 220 335 Q305 292 455 400 Q474 435 438 454 L101 454 Q59 447 70 420Z" fill="#d6eeee"/>
+      <ellipse cx="190" cy="202" rx="74" ry="86" fill="url(#g2)"/>
+      <path d="M118 210 Q119 102 194 98 Q274 102 266 210 Q244 149 196 144 Q147 145 118 210Z" fill="#17384d"/>
+      <path d="M124 165 Q102 118 151 92 Q202 56 258 104 Q231 85 192 87 Q145 89 124 165Z" fill="#17384d"/>
+      <circle cx="163" cy="205" r="7" fill="#18384c"/><circle cx="217" cy="205" r="7" fill="#18384c"/><circle cx="165" cy="202" r="2.4" fill="white"/><circle cx="219" cy="202" r="2.4" fill="white"/>
+      <path d="M177 231 Q191 240 205 231" stroke="#b36167" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M140 277 Q192 255 242 279 L272 413 L111 413Z" fill="url(#g1)"/>
+      <path d="M161 274 L191 308 L221 274" fill="#fffaf2"/>
+      <path d="M185 300 L198 300 L205 362 L179 362Z" fill="#d29a36"/>
+      <path d="M92 346 Q132 314 171 349 L161 375 Q121 359 92 346Z" fill="#f0bd9d"/>
+      <rect x="135" y="345" width="124" height="88" rx="12" transform="rotate(-8 197 389)" fill="#fffdf9" stroke="#d8e3e5" stroke-width="3"/>
+      <path d="M198 352 L198 425" stroke="#dfe6e8" stroke-width="3"/>
+      <path d="M156 370 H187 M154 386 H185 M210 372 H239 M210 389 H235" stroke="#7fb8bf" stroke-width="4" stroke-linecap="round"/>
+      <ellipse cx="363" cy="206" rx="70" ry="82" fill="url(#g2)"/>
+      <path d="M294 207 Q293 110 361 101 Q428 99 438 187 Q425 151 391 141 Q331 128 294 207Z" fill="#553f4c"/>
+      <path d="M297 173 Q273 127 320 100 Q344 77 388 88 Q438 98 438 161 Q400 119 350 127 Q316 132 297 173Z" fill="#553f4c"/>
+      <path d="M421 164 Q460 191 435 246 Q428 212 410 192Z" fill="#553f4c"/>
+      <circle cx="339" cy="207" r="7" fill="#493b4a"/><circle cx="390" cy="207" r="7" fill="#493b4a"/><circle cx="341" cy="204" r="2.4" fill="white"/><circle cx="392" cy="204" r="2.4" fill="white"/>
+      <path d="M351 233 Q364 242 378 232" stroke="#b36167" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M316 279 Q364 257 410 282 L446 413 L286 413Z" fill="url(#g3)"/>
+      <path d="M337 275 L363 309 L388 275" fill="#fffaf2"/>
+      <path d="M357 301 L371 301 L377 362 L350 362Z" fill="#0d6574"/>
+      <path d="M395 350 Q431 326 463 350 L452 373 Q423 361 395 350Z" fill="#efbd9d"/>
+      <rect x="298" y="352" width="121" height="82" rx="12" transform="rotate(8 359 393)" fill="#fff7dc" stroke="#e9d799" stroke-width="3"/>
+      <path d="M317 373 H391 M321 389 H390 M327 405 H382" stroke="#d5a64a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="101" cy="101" r="10" fill="#d8a43a"/><path d="M93 101 H109 M101 93 V109" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <path d="M468 115 l9 18 20 3-15 14 4 20-18-9-18 9 4-20-15-14 20-3Z" fill="#e99aaa" opacity=".8"/>
+    </svg>
+  </div>
+</section>
+<svg class="wave" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0,25 C300,90 520,5 780,42 C1020,76 1190,80 1440,18 L1440,100 L0,100Z" fill="#f4fbfb"/></svg>
+
+<section class="section" id="journey">
+  <div class="section-head">
+    <div><div class="eyebrow">Curriculum at a glance</div><h2>Your Year 8 learning journey</h2></div>
+    <p>The curriculum overview from your coursebook, redesigned as an interactive journey. Tap any unit to reveal the reading, writing, speaking/listening, language focus and 21st-century skills.</p>
+  </div>
+  <div class="tools">
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Search a title, text, skill or unit…" aria-label="Search curriculum"></label>
+    <button class="filter active" data-filter="all">All</button><button class="filter" data-filter="reading">Reading</button><button class="filter" data-filter="writing">Writing</button><button class="filter" data-filter="speaking">Speaking</button><button class="filter" data-filter="language">Language</button>
+  </div>
+  <div class="journey" id="unitList"></div>
+  <div class="empty" id="empty">No matching unit yet. Try a different keyword.</div>
+
+  <section class="feature" id="featured">
+    <div>
+      <div class="eyebrow" style="color:#9ee6e4">CURRENT INTERACTIVE QUEST • UNIT 8.1</div>
+      <h3>The Merchant of Venice</h3>
+      <p>Enter the casket challenge, compare the suitors, hunt for the strongest evidence and earn XP while completing Activities 4 and 5.</p>
+      <a class="cta primary" href="unit8-1.html">Launch the lesson 🎮</a>
+    </div>
+    <div class="feature-art" aria-hidden="true"><div class="casket-row"><div class="casket cg">GOLD</div><div class="casket cs">SILVER</div><div class="casket cl">LEAD</div></div></div>
+  </section>
+</section>
+</main>
+<footer class="footer"><strong>MAPLEWOOD INTERNATIONAL SCHOOL</strong><br>Year 8 English • Read boldly. Think deeply. Create beautifully.</footer>
+
+<script>
+const units = [
+{page:8,unit:"1",title:"Nature and humans",accent:"#1b8792",tint:"#dff4ef",types:"Contemporary fiction; non-fiction (travel writing); poetry; non-fiction (science topic); personal account",reading:"When the Mountains Roared; Higher into the Hills; ‘The Eagle’; poetry by Tu Fu ‘Loneliness’, ‘Visitors’, ‘Written on the Wall at Chang’s Hermitage’; ‘Climate change: a natural process’; ‘We’re destroying our home’; ‘Tsunami witness: I saw the sea start to rise. There was terror and anguish’",writing:"Audio drama; writing informally; imaginative accounts",speaking:"Pair discussion and prediction; script reading; discussing views; audio biography; reading a poem aloud; discussing text structure",language:"Verb tenses for effect; features of poetry: end-stopping/enjambment/caesura; formal and informal language; strategies for working out unfamiliar words",skills:"Creativity; collaboration"},
+{page:38,unit:"2",title:"‘Grandmother’s Song’",accent:"#a4788e",tint:"#f4e8ee",types:"Short story (moral tale); poem",reading:"‘Grandmother’s Song’; ‘Jessie Emily Schofield’",writing:"Combining techniques; analysis of structure; writing dialogue; analysing theme; biographical account",speaking:"Pair and group discussion; unseen dialogue",language:"Figurative language; reporting verbs to show character and mood",skills:"Critical thinking; communication"},
+{page:64,unit:"3",title:"Strange islands",accent:"#2b849b",tint:"#e1f0f4",types:"Non-fiction for different audiences; pre-20th century prose; modern drama; contemporary prose",reading:"‘The Oak Island mystery’; ‘The kool kidz diggin’ for Kidd’s treasure’; ‘Odd Islands Around the Globe’; Treasure Island; The Lost Isle of Tamarind",writing:"Writing a monologue; writing a play; account from a character’s viewpoint",speaking:"Pair discussion; individual speaking; performing a play",language:"Punctuation for effect; dialogue in play scripts; strategies for spelling unfamiliar words",skills:"Collaboration; creativity"},
+{page:91,unit:"4",title:"This is the modern world",accent:"#537aaf",tint:"#e9eff8",types:"Non-fiction articles; argumentative texts; entertaining articles; text summaries; contemporary fiction",reading:"‘How the web was born’; Sir Tim Berners-Lee: a brief guide; two views: a blog; ‘The future is here!’ article; ‘Rise of the Machines’; The Queue; Leila; ‘Why we love terrible stories’; The Maze Runner",writing:"An article for an older audience; a persuasive speech; a story submission; describing setting",speaking:"Pair and group discussion",language:"Placement of sentence types for effect; clarity of language; choice of synonyms",skills:"Creativity; critical thinking"},
+{page:120,unit:"5",title:"Heroes",accent:"#c17d58",tint:"#faeee6",types:"Discursive writing; argumentative writing; contemporary prose; newspaper article; online advice text; newspaper accounts; drama",reading:"‘Modern heroes’; ‘The age of false heroes’; Tokyo; ‘Life as a young carer’; ‘Supporting Young Carers’; ‘A super-real type of film’; ‘Stan Lee’s final creation was a Chinese superhero’; ‘Enviros’",writing:"Writing a counter-argument; a character in a challenging setting; a blog from a character’s point of view; film script",speaking:"Pair discussion; script performance; debating views",language:"Coordinating conjunctions and subordinating conjunctions in argument writing; imperatives and modal verbs in advice texts",skills:"Social responsibility; collaboration"},
+{page:148,unit:"6",title:"Monsters",accent:"#6b759f",tint:"#eeeeF7",types:"Non-fiction magazine article; online article; pre-20th century prose; poetry; newspaper article",reading:"‘The Hunt for Chupacabra’; ‘How Monsters Under the Bed Became a Common Childhood Fear’; ‘The Selfish Giant’; ‘The Scorpion’; ‘Shadow of the Scorpion’; ‘Monster fatbergs weighing more than 1000 tonnes cleared from London sewers’",writing:"Account writing; design a leaflet; write a fable; comparing poems; imaginative account",speaking:"Pair and group discussion",language:"Emotive language; extended metaphors",skills:"Critical thinking; learning to learn"},
+{page:174,unit:"7",title:"‘The Plantation’",accent:"#5d8b66",tint:"#eaf3ea",types:"Short story (tragedy)",reading:"‘The Plantation’",writing:"Diary entries; understanding characters; monologues; analysing technique combination; personal account from character’s perspective; report writing",speaking:"Pair and group discussion; monologue; news report",language:"Adjectives to show specific qualities; active and passive voice",skills:"Social responsibility; creativity"},
+{page:200,unit:"8",title:"Choices and decisions",accent:"#d29a36",tint:"#fbf0d8",types:"Pre-20th century drama; poetry; short story; analytical article; newspaper account; blog; argumentative writing",reading:"The Merchant of Venice; ‘The Road Not Taken’; ‘No Going Back’; ‘Top 10 ways to make better decisions’; ‘Tourist feared he would die’; ‘To be a refugee is to make impossible choices’; ‘Do developed countries have a responsibility to welcome refugees?’",writing:"Writing a drama scene; writing a poem; account writing; personal response; writing an argument",speaking:"Pair, group reading/performance and individual discussion",language:"Adverbs of manner and degree; adverbs of time; linking adverbs; prepositional phrases",skills:"Learning to learn; communication",live:true},
+{page:225,unit:"9",title:"Endings",accent:"#9a6aa4",tint:"#f2e9f4",types:"Personal writing; poetry; autobiography; contemporary fiction",reading:"‘I was the sun, and the kids were my planets’; ‘To a Daughter Leaving Home’; ‘Home For Thanksgiving’; Taming the Tiger; When the Mountains Roared",writing:"Responding to feelings; comparing poems; trailer script writing; debating heroism",speaking:"Pair, group and individual discussion",language:"Coordinating conjunctions; present participles",skills:"Creativity; collaboration"}
+];
+const list=document.getElementById('unitList'), empty=document.getElementById('empty'), search=document.getElementById('search');let activeFilter='all';
+function unitHTML(u){return `<article class="unit" style="--accent:${u.accent};--tint:${u.tint}" data-text="${[u.unit,u.title,u.types,u.reading,u.writing,u.speaking,u.language,u.skills].join(' ').toLowerCase().replaceAll('"','&quot;')}"><span class="dot"></span><div class="unit-shell"><div class="unit-top"><div class="unit-num">${u.unit}</div><div class="unit-name"><small>Page ${u.page}</small><h3>${u.title}</h3></div></div><div class="peek"><span class="tag">📖 Reading</span><span class="tag">✍️ Writing</span><span class="tag">💬 Speaking</span><span class="tag">🧠 Language</span></div>${u.live?'<a class="launch" href="unit8-1.html">🎮 Enter 8.1: The Merchant of Venice</a>':''}<button class="expand" type="button" aria-expanded="false"><span>View curriculum details</span><span class="chev">⌄</span></button><div class="details"><div class="details-inner"><div class="curriculum"><div class="strand"><h4>Text types</h4><p>${u.types}</p></div><div class="strand reading"><h4>Reading</h4><p>${u.reading}</p></div><div class="strand writing"><h4>Writing</h4><p>${u.writing}</p></div><div class="strand speaking"><h4>Speaking / Listening</h4><p>${u.speaking}</p></div><div class="strand language"><h4>Language focus</h4><p>${u.language}</p></div><div class="strand skills"><h4>21st century skills</h4><p>${u.skills}</p></div></div></div></div></div></article>`}
+function render(){const q=search.value.trim().toLowerCase();let shown=0;[...list.children].forEach((el,i)=>{const u=units[i];const filterText=activeFilter==='all'?'':u[activeFilter]||'';const okq=!q||el.dataset.text.includes(q);const okf=activeFilter==='all'||filterText.length>0;el.style.display=okq&&okf?'block':'none';if(okq&&okf)shown++});empty.style.display=shown?'none':'block'}
+list.innerHTML=units.map(unitHTML).join('');
+list.addEventListener('click',e=>{const btn=e.target.closest('.expand');if(!btn)return;const unit=btn.closest('.unit');unit.classList.toggle('open');btn.setAttribute('aria-expanded',unit.classList.contains('open'));btn.querySelector('span:first-child').textContent=unit.classList.contains('open')?'Hide curriculum details':'View curriculum details';});
+search.addEventListener('input',render);document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');activeFilter=btn.dataset.filter;render()}));
+</script>
+</body>
+</html>
