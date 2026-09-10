@@ -127,14 +127,16 @@ Once you have made your notes, write two paragraphs comparing the texts. Use quo
 
 <footer class="footer"><strong>MAPLEWOOD INTERNATIONAL SCHOOL</strong><br>Year 8 English • Unit 8.2 Life choices</footer>
 <script>
-const profile=JSON.parse(localStorage.getItem('maplewood_y8_code_profile')||'{}');document.getElementById('studentProfile').textContent=`👤 ${profile.name} • ${profile.classroom} • #${profile.code}`;
-document.getElementById('switchStudent').addEventListener('click',()=>{sessionStorage.removeItem('mw_hub_verified');localStorage.removeItem('maplewood_y8_code_profile');location.href='index.html'});
+const profile=JSON.parse(localStorage.getItem('maplewood_y8_code_profile')||'{}');
+const teacherMode=profile.role==='teacher'||String(profile.classroom||'').toLowerCase()==='teacher'||sessionStorage.getItem('mw_teacher_mode')==='true';
+document.getElementById('studentProfile').textContent=teacherMode?`👩‍🏫 Teacher mode • ${profile.name}`:`👤 ${profile.name} • ${profile.classroom} • #${profile.code}`;
+document.getElementById('switchStudent').addEventListener('click',()=>{sessionStorage.removeItem('mw_hub_verified');sessionStorage.removeItem('mw_teacher_mode');localStorage.removeItem('maplewood_y8_code_profile');location.href='index.html'});
 document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('selected')));
 document.querySelectorAll('.paraText').forEach(t=>t.addEventListener('input',()=>{const n=t.value.trim()?t.value.trim().split(/\s+/).length:0;t.parentElement.querySelector('.count').textContent=n+' words'}));
-const preKey='mw_pre_82_'+profile.code,lesson=document.getElementById('lessonContent'),preStatus=document.getElementById('preStatus');
+const preKey='mw_pre_82_'+profile.code,lesson=document.getElementById('lessonContent'),preStatus=document.getElementById('preStatus'),unlockBtn=document.getElementById('unlock');
 function unlockLesson(){localStorage.setItem(preKey,'done');lesson.classList.remove('locked');preStatus.className='pre-status good';preStatus.textContent='✓ Pre-learning complete. Unit 8.2 is unlocked!';setTimeout(()=>document.getElementById('plan').scrollIntoView({behavior:'smooth'}),350)}
-if(localStorage.getItem(preKey)==='done'){lesson.classList.remove('locked');preStatus.className='pre-status good';preStatus.textContent='✓ You have already completed this pre-learning mission.'}
-document.getElementById('unlock').addEventListener('click',()=>{const watched=document.getElementById('watched').checked,q1=document.querySelector('input[name=q1]:checked')?.value,q2=document.querySelector('input[name=q2]:checked')?.value,q3=document.querySelector('input[name=q3]:checked')?.value;if(!watched||!q1||!q2||!q3){preStatus.className='pre-status bad';preStatus.textContent='Watch the video and answer all three questions first.';return}if(q1!=='b'||q2!=='a'||q3!=='a'){preStatus.className='pre-status bad';preStatus.textContent='Not quite. Review your answers and try again.';return}unlockLesson()});
+if(teacherMode){lesson.classList.remove('locked');preStatus.className='pre-status good';preStatus.textContent='👩‍🏫 Teacher mode — lesson unlocked. Pre-learning is optional.';unlockBtn.textContent='Teacher mode • lesson already unlocked';unlockBtn.disabled=true}else if(localStorage.getItem(preKey)==='done'){lesson.classList.remove('locked');preStatus.className='pre-status good';preStatus.textContent='✓ You have already completed this pre-learning mission.'}
+unlockBtn.addEventListener('click',()=>{if(teacherMode)return;const watched=document.getElementById('watched').checked,q1=document.querySelector('input[name=q1]:checked')?.value,q2=document.querySelector('input[name=q2]:checked')?.value,q3=document.querySelector('input[name=q3]:checked')?.value;if(!watched||!q1||!q2||!q3){preStatus.className='pre-status bad';preStatus.textContent='Watch the video and answer all three questions first.';return}if(q1!=='b'||q2!=='a'||q3!=='a'){preStatus.className='pre-status bad';preStatus.textContent='Not quite. Review your answers and try again.';return}unlockLesson()});
 </script>
 </body>
 </html>
