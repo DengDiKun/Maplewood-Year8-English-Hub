@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b2f47">
+<title>Teacher Access — Maplewood Year 8 English</title>
+<style>
+:root{--navy:#0b2f47;--teal:#159aa8;--gold:#d8a43a;--ink:#17384b;--muted:#667985;--good:#23714a;--bad:#a6424b;--line:rgba(18,67,88,.14)}*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(circle at 18% 15%,rgba(21,154,168,.28),transparent 32%),radial-gradient(circle at 85% 82%,rgba(216,164,58,.22),transparent 32%),linear-gradient(135deg,#08293c,#0b5560);display:grid;place-items:center;padding:18px}.card{width:min(570px,100%);background:linear-gradient(180deg,#fffefb,#f8fbfa);border-radius:48px 20px 48px 20px;padding:clamp(28px,5vw,46px);box-shadow:0 30px 90px rgba(0,0,0,.32);position:relative;overflow:hidden}.card:after{content:"✦";position:absolute;right:24px;top:10px;font-size:6rem;color:rgba(21,154,168,.08)}.eyebrow{color:var(--teal);font-weight:900;text-transform:uppercase;letter-spacing:.12em;font-size:.74rem}.card h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.6rem,7vw,4.4rem);line-height:.94;color:var(--navy);margin:12px 0 14px}.card p{color:var(--muted);line-height:1.65}.field{margin-top:18px}.field label{display:block;font-weight:900;color:var(--navy);margin-bottom:8px}.code{width:100%;min-height:64px;border:1px solid #cbdcdf;border-radius:18px;background:#fff;padding:12px 16px;outline:none;color:var(--navy);font:900 2rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3em;text-align:center}.code:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(21,154,168,.1)}.btn{width:100%;margin-top:20px;border:0;border-radius:999px;min-height:54px;background:linear-gradient(135deg,var(--navy),#0e6874);color:#fff;font-weight:950;font-size:1rem;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.status{min-height:26px;text-align:center;margin-top:12px;font-weight:850}.status.good{color:var(--good)}.status.bad{color:var(--bad)}.note{margin-top:18px;padding:14px 16px;border-radius:18px;background:#eef8f7;color:#41616d;line-height:1.5;font-size:.9rem}.back{display:block;text-align:center;margin-top:16px;color:#51707c;text-decoration:none;font-weight:800}.back:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="eyebrow">Maplewood International School • Teacher Access</div>
+<h1>Teacher mode</h1>
+<p>Use your teacher code to enter the Year 8 English Hub without student learning restrictions. Teacher mode skips compulsory pre-learning gates and is kept separate from student progress records.</p>
+<div class="field"><label for="teacherCode">4-digit Teacher Code</label><input id="teacherCode" class="code" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="one-time-code"></div>
+<div class="status" id="status"></div>
+<button class="btn" id="enter" type="button">Enter Teacher Mode →</button>
+<div class="note">Teacher mode is intended for lesson preparation, demonstrations and checking activities. Student responses should still be tested using a student profile when you want to verify progress tracking.</div>
+<a class="back" href="index.html">← Return to student login</a>
+</div>
+<script>
+const WEB_APP_URL='https://script.google.com/macros/s/AKfycbz0KfRexC2OtoWqAYwXOFbnGReN10dmyvqL-ex8d3rW0-PUFprZY77gEfVl4Lv_55Dh/exec';
+const codeInput=document.getElementById('teacherCode'),status=document.getElementById('status'),enter=document.getElementById('enter');
+function jsonpLookup(code){return new Promise((resolve,reject)=>{const cb='mwTeacher_'+Date.now()+'_'+Math.random().toString(36).slice(2),s=document.createElement('script');let timer;window[cb]=data=>{clearTimeout(timer);delete window[cb];s.remove();resolve(data)};s.onerror=()=>{clearTimeout(timer);delete window[cb];s.remove();reject(new Error('registry unavailable'))};s.src=`${WEB_APP_URL}?action=lookup&code=${encodeURIComponent(code)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;document.body.appendChild(s);timer=setTimeout(()=>{delete window[cb];s.remove();reject(new Error('timeout'))},12000)})}
+async function login(){const code=codeInput.value.replace(/\D/g,'').slice(0,4);codeInput.value=code;if(!/^\d{4}$/.test(code)){status.className='status bad';status.textContent='Please enter all 4 digits.';return}enter.disabled=true;status.className='status';status.textContent='Checking teacher access…';try{const data=await jsonpLookup(code);if(!data||!data.ok||!data.valid){status.className='status bad';status.textContent='Teacher code not recognised.';return}if(String(data.student.classroom||'').toLowerCase()!=='teacher'){status.className='status bad';status.textContent='This code belongs to a student profile, not a teacher profile.';return}const p={code:String(data.student.code).padStart(4,'0'),name:data.student.name,classroom:'Teacher',role:'teacher'};localStorage.setItem('maplewood_y8_code_profile',JSON.stringify(p));sessionStorage.setItem('mw_hub_verified',p.code);sessionStorage.setItem('mw_teacher_mode','true');for(let n=81;n<=89;n++)localStorage.setItem(`mw_pre_${n}_${p.code}`,'done');status.className='status good';status.textContent=`Welcome, ${p.name}. Teacher mode enabled.`;setTimeout(()=>location.href='index.html',500)}catch(e){status.className='status bad';status.textContent='Could not reach the teacher registry. Please try again.'}finally{enter.disabled=false}}
+codeInput.addEventListener('input',()=>{codeInput.value=codeInput.value.replace(/\D/g,'').slice(0,4);status.textContent=''});codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')login()});enter.addEventListener('click',login);
+</script>
+</body>
+</html>
