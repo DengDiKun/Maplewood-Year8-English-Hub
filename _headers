@@ -1,6 +1,14 @@
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
 /unit8-1
   Cache-Control: no-cache, no-store, must-revalidate
 /unit8-1.html
   Cache-Control: no-cache, no-store, must-revalidate
 /unit8-1-core.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/unit8-2.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/unit8-3.html
   Cache-Control: no-cache, no-store, must-revalidate
