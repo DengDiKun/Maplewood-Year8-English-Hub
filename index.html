@@ -113,7 +113,23 @@ const login=document.getElementById('login'),nameInput=document.getElementById('
 function normName(v){return String(v||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g,'')}
 function saveProfile(p){localStorage.setItem('maplewood_y8_code_profile',JSON.stringify(p));sessionStorage.setItem('mw_hub_verified',p.code);profilePill.textContent=`👤 ${p.name} • ${p.classroom} • #${p.code}`;profilePill.style.display='inline-flex'}
 function getProfile(){try{return JSON.parse(localStorage.getItem('maplewood_y8_code_profile')||'{}')}catch(e){return{}}}
-function jsonpLookup(code){return new Promise((resolve,reject)=>{const cb='mwHub_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');let timer;window[cb]=data=>{clearTimeout(timer);delete window[cb];s.remove();resolve(data)};s.onerror=()=>{clearTimeout(timer);delete window[cb];s.remove();reject(new Error('registry unavailable'))};s.src=`${WEB_APP_URL}?action=lookup&code=${encodeURIComponent(code)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;document.body.appendChild(s);timer=setTimeout(()=>{delete window[cb];s.remove();reject(new Error('timeout'))},12000)})}
+async function jsonpLookup(code){
+  let lastError;
+  for(let attempt=0;attempt<2;attempt++){
+    try{return await new Promise((resolve,reject)=>{
+      const cb='mwHub_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      const s=document.createElement('script');
+      let timer,settled=false;
+      const finish=(error,data)=>{if(settled)return;settled=true;clearTimeout(timer);delete window[cb];s.remove();if(error)reject(error);else resolve(data)};
+      window[cb]=data=>finish(null,data);
+      s.onerror=()=>finish(new Error('script load failed'));
+      s.src=`${WEB_APP_URL}?action=lookup&code=${encodeURIComponent(code)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;
+      timer=setTimeout(()=>finish(new Error('registry timeout')),25000);
+      document.body.appendChild(s);
+    })}catch(error){lastError=error}
+  }
+  throw lastError;
+}
 async function verifyLogin(){
   const typedName=nameInput.value.trim(),code=codeInput.value.replace(/\D/g,'').slice(0,4);codeInput.value=code;
   if(typedName.length<3){loginStatus.className='login-status bad';loginStatus.textContent='Please enter your full registered name.';return}
@@ -127,7 +143,7 @@ async function verifyLogin(){
     saveProfile(p);loginStatus.className='login-status good';loginStatus.textContent=`Welcome, ${p.name}!`;
     const next=new URLSearchParams(location.search).get('next');
     setTimeout(()=>{if(next && /^unit8-[123]\.html$/.test(next)) location.href=next; else login.classList.add('hidden')},350);
-  }catch(e){loginStatus.className='login-status bad';loginStatus.textContent='Could not reach the Student Registry. Please tell your teacher.'}
+  }catch(e){loginStatus.className='login-status bad';loginStatus.textContent='Could not load the Student Registry after two attempts. Please try again or use another browser.'}
   finally{loginBtn.disabled=false}
 }
 codeInput.addEventListener('input',()=>{codeInput.value=codeInput.value.replace(/\D/g,'').slice(0,4)});

@@ -23,8 +23,24 @@
 <script>
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbz0KfRexC2OtoWqAYwXOFbnGReN10dmyvqL-ex8d3rW0-PUFprZY77gEfVl4Lv_55Dh/exec';
 const codeInput=document.getElementById('teacherCode'),status=document.getElementById('status'),enter=document.getElementById('enter');
-function jsonpLookup(code){return new Promise((resolve,reject)=>{const cb='mwTeacher_'+Date.now()+'_'+Math.random().toString(36).slice(2),s=document.createElement('script');let timer;window[cb]=data=>{clearTimeout(timer);delete window[cb];s.remove();resolve(data)};s.onerror=()=>{clearTimeout(timer);delete window[cb];s.remove();reject(new Error('registry unavailable'))};s.src=`${WEB_APP_URL}?action=lookup&code=${encodeURIComponent(code)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;document.body.appendChild(s);timer=setTimeout(()=>{delete window[cb];s.remove();reject(new Error('timeout'))},12000)})}
-async function login(){const code=codeInput.value.replace(/\D/g,'').slice(0,4);codeInput.value=code;if(!/^\d{4}$/.test(code)){status.className='status bad';status.textContent='Please enter all 4 digits.';return}enter.disabled=true;status.className='status';status.textContent='Checking teacher access…';try{const data=await jsonpLookup(code);if(!data||!data.ok||!data.valid){status.className='status bad';status.textContent='Teacher code not recognised.';return}if(String(data.student.classroom||'').toLowerCase()!=='teacher'){status.className='status bad';status.textContent='This code belongs to a student profile, not a teacher profile.';return}const p={code:String(data.student.code).padStart(4,'0'),name:data.student.name,classroom:'Teacher',role:'teacher'};localStorage.setItem('maplewood_y8_code_profile',JSON.stringify(p));sessionStorage.setItem('mw_hub_verified',p.code);sessionStorage.setItem('mw_teacher_mode','true');for(let n=81;n<=89;n++)localStorage.setItem(`mw_pre_${n}_${p.code}`,'done');status.className='status good';status.textContent=`Welcome, ${p.name}. Teacher mode enabled.`;setTimeout(()=>location.href='teacher-dashboard.html',500)}catch(e){status.className='status bad';status.textContent='Could not reach the teacher registry. Please try again.'}finally{enter.disabled=false}}
+async function jsonpLookup(code){
+  let lastError;
+  for(let attempt=0;attempt<2;attempt++){
+    try{return await new Promise((resolve,reject)=>{
+      const cb='mwTeacher_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      const s=document.createElement('script');
+      let timer,settled=false;
+      const finish=(error,data)=>{if(settled)return;settled=true;clearTimeout(timer);delete window[cb];s.remove();if(error)reject(error);else resolve(data)};
+      window[cb]=data=>finish(null,data);
+      s.onerror=()=>finish(new Error('script load failed'));
+      s.src=`${WEB_APP_URL}?action=lookup&code=${encodeURIComponent(code)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;
+      timer=setTimeout(()=>finish(new Error('registry timeout')),25000);
+      document.body.appendChild(s);
+    })}catch(error){lastError=error}
+  }
+  throw lastError;
+}
+async function login(){const code=codeInput.value.replace(/\D/g,'').slice(0,4);codeInput.value=code;if(!/^\d{4}$/.test(code)){status.className='status bad';status.textContent='Please enter all 4 digits.';return}enter.disabled=true;status.className='status';status.textContent='Checking teacher access…';try{const data=await jsonpLookup(code);if(!data||!data.ok||!data.valid){status.className='status bad';status.textContent='Teacher code not recognised.';return}if(String(data.student.classroom||'').toLowerCase()!=='teacher'){status.className='status bad';status.textContent='This code belongs to a student profile, not a teacher profile.';return}const p={code:String(data.student.code).padStart(4,'0'),name:data.student.name,classroom:'Teacher',role:'teacher'};localStorage.setItem('maplewood_y8_code_profile',JSON.stringify(p));sessionStorage.setItem('mw_hub_verified',p.code);sessionStorage.setItem('mw_teacher_mode','true');for(let n=81;n<=89;n++)localStorage.setItem(`mw_pre_${n}_${p.code}`,'done');status.className='status good';status.textContent=`Welcome, ${p.name}. Teacher mode enabled.`;setTimeout(()=>location.href='teacher-dashboard.html',500)}catch(e){status.className='status bad';status.textContent='Could not load the teacher registry after two attempts. Please try again or use another browser.'}finally{enter.disabled=false}}
 codeInput.addEventListener('input',()=>{codeInput.value=codeInput.value.replace(/\D/g,'').slice(0,4);status.textContent=''});codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')login()});enter.addEventListener('click',login);
 </script>
 </body>
