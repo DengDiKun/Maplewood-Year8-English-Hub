@@ -1,0 +1,75 @@
+name: One-time login reliability patch
+on:
+  push:
+    paths:
+      - .github/workflows/one-time-login-reliability.yml
+permissions:
+  contents: write
+jobs:
+  patch-login:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch student and teacher login to retry registry requests
+        run: |
+          python3 - <<'PY'
+          import pathlib, re
+          for filename, prefix, error_text in [
+              ('index.html', 'mwHub_', 'Could not load the Student Registry response after two attempts. Please try again, or use a different browser.'),
+              ('teacher.html', 'mwTeacher_', 'Could not load the teacher registry response after two attempts. Please try again, or use a different browser.')
+          ]:
+              path = pathlib.Path(filename)
+              content = path.read_text(encoding='utf-8')
+              replacement = '''async function jsonpLookup(code){
+            let lastError;
+            for(let attempt=0;attempt<2;attempt++){
+              try{return await new Promise((resolve,reject)=>{
+                const cb='PREFIX'+Date.now()+'_'+Math.random().toString(36).slice(2);
+                const s=document.createElement('script');
+                let timer,settled=false;
+                const finish=(error,data)=>{if(settled)return;settled=true;clearTimeout(timer);delete window[cb];s.remove();if(error)reject(error);else resolve(data)};
+                window[cb]=data=>finish(null,data);
+                s.onerror=()=>finish(new Error('script load failed'));
+                s.src=`${WEB_APP_URL}?action=lookup&code=${encodeURIComponent(code)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;
+                timer=setTimeout(()=>finish(new Error('registry timeout')),25000);
+                document.body.appendChild(s);
+              })}catch(error){lastError=error}
+            }
+            throw lastError;
+          }
+          '''.replace('PREFIX',prefix)
+              pattern = r'function jsonpLookup\(code\)\{return new Promise\(.*?\}\)\}\n(?=async function )'
+              updated, count = re.subn(pattern, lambda _: replacement, content, count=1, flags=re.S)
+              if count != 1:
+                  raise SystemExit('Login function not found exactly once in '+filename)
+              if filename == 'index.html':
+                  old = "loginStatus.textContent='Could not reach the Student Registry. Please tell your teacher.'"
+                  new = "loginStatus.textContent='Could not load the Student Registry after two attempts. Please try again or use another browser.'"
+              else:
+                  old = "status.textContent='Could not reach the teacher registry. Please try again.'"
+                  new = "status.textContent='Could not load the teacher registry after two attempts. Please try again or use another browser.'"
+              if updated.count(old) != 1:
+                  raise SystemExit('Error message not found exactly once in '+filename)
+              updated = updated.replace(old,new,1)
+              path.write_text(updated,encoding='utf-8')
+              print(filename, 'patched; 25-second timeout and one retry')
+          PY
+      - name: Verify page scripts parse
+        run: |
+          python3 - <<'PY'
+          import pathlib, re
+          for filename in ('index.html','teacher.html'):
+              source=pathlib.Path(filename).read_text()
+              scripts=re.findall(r'<script[^>]*>(.*?)</script>',source,flags=re.S)
+              assert scripts,filename
+              pathlib.Path('/tmp/'+filename+'.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/index.html.js
+          node --check /tmp/teacher.html.js
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html teacher.html
+          git commit -m "Retry registry lookups and extend student and teacher login timeout" || exit 0
+          git push
