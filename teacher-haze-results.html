@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b2f47">
+<title>Haze Practice Results — Maplewood Year 8 English</title>
+<style>
+:root{--navy:#0b2f47;--teal:#159aa8;--gold:#d8a43a;--ink:#17384b;--muted:#687b84;--line:#d8e5e6;--good:#247349;--paper:#fffefb;--shadow:0 18px 48px rgba(15,54,70,.11)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(180deg,#fffdf8,#f4fbfb)}button,input,textarea{font:inherit}.topbar{position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px clamp(12px,4vw,42px);background:rgba(255,254,250,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}.seal{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;font:bold 22px Georgia}.brand small{display:block;color:var(--teal);font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:.6rem}.brand strong{font-family:Georgia,serif}.btn{min-height:44px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--navy);padding:9px 13px;font-weight:900;text-decoration:none;cursor:pointer}.hero{max-width:1180px;margin:auto;padding:52px clamp(14px,5vw,60px) 28px}.eyebrow{color:var(--teal);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;font-weight:950}.hero h1{font-family:Georgia,serif;font-size:clamp(2.5rem,6vw,4.8rem);line-height:.95;margin:10px 0}.hero p{color:var(--muted);line-height:1.6}.main{max-width:1180px;margin:auto;padding:0 clamp(14px,5vw,60px) 70px}.card{background:white;border:1px solid var(--line);border-radius:28px 12px 28px 12px;box-shadow:var(--shadow);padding:22px;margin-bottom:24px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.status{font-weight:850;color:var(--muted);min-height:24px}.table-wrap{overflow:auto;margin-top:16px;border:1px solid var(--line);border-radius:16px}table{border-collapse:collapse;width:100%;min-width:880px}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#eef7f7;color:var(--navy);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0}tr:last-child td{border-bottom:0}.view{border:0;background:var(--navy);color:white;padding:8px 11px;border-radius:999px;font-weight:850;cursor:pointer}.score{font-weight:950}.changed{color:var(--good)}.detail{display:none}.detail.show{display:block}.detail-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.sum{background:#f5faf9;border:1px solid var(--line);border-radius:14px;padding:12px}.sum span{display:block;font-size:.74rem;color:var(--muted)}.sum b{font-size:1.2rem}.section-title{font-family:Georgia,serif;color:var(--navy);font-size:1.7rem;margin:28px 0 10px}.response{border:1px solid var(--line);border-radius:18px;padding:16px;margin:10px 0;background:#fff}.rhead{display:flex;justify-content:space-between;gap:12px;align-items:center}.qid{font-weight:950;color:var(--navy)}.ao{font-size:.76rem;font-weight:900;color:var(--teal);background:#eef8f7;border-radius:999px;padding:5px 8px}.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900;margin-top:12px}.answerbox{margin-top:5px;padding:11px 12px;background:#f8fbfb;border-radius:12px;line-height:1.5;white-space:pre-wrap}.accepted{background:#fff9e8}.markrow{display:grid;grid-template-columns:120px 160px 1fr;gap:10px;margin-top:12px;align-items:end}.markrow label{font-size:.8rem;font-weight:900;color:var(--muted)}.markrow input,.markrow textarea{width:100%;border:1px solid #c9dadd;border-radius:11px;padding:9px}.markrow textarea{min-height:46px;resize:vertical}.save{width:100%;margin-top:18px;border:0;border-radius:999px;min-height:50px;background:linear-gradient(135deg,var(--navy),var(--teal));color:white;font-weight:950;cursor:pointer}.empty{padding:30px;text-align:center;color:var(--muted)}
+@media(max-width:760px){.summary{grid-template-columns:1fr 1fr}.markrow{grid-template-columns:1fr}.brand strong{font-size:.78rem}.topbar .btn:first-of-type{display:none}}
+</style>
+<script>
+(function(){try{const p=JSON.parse(localStorage.getItem('maplewood_y8_code_profile')||'{}');const ok=p.role==='teacher'||String(p.classroom||'').toLowerCase()==='teacher'||sessionStorage.getItem('mw_teacher_mode')==='true';if(!ok)location.replace('teacher.html')}catch(e){location.replace('teacher.html')}})();
+</script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="teacher-dashboard.html"><span class="seal">M</span><span><small>Maplewood International School</small><strong>Haze Practice Results</strong></span></a><div><a class="btn" href="haze-practice.html">Open student practice</a> <a class="btn" href="teacher-dashboard.html">Teaching Guide</a></div></header>
+<section class="hero"><div class="eyebrow">Teacher review • 9 October 2026</div><h1>The Haze Strikes Back 🌫️</h1><p>View each student’s answers directly in the Learning Hub. Automatic marks remain visible, and your teacher mark overrides the automatic mark when you choose to change it.</p></section>
+<main class="main">
+<section class="card">
+<div class="toolbar"><div><strong>Class overview</strong><div class="status" id="status">Loading submissions…</div></div><button class="btn" id="refreshBtn" type="button">Refresh</button></div>
+<div class="table-wrap"><table><thead><tr><th>Student</th><th>Submitted</th><th>A /17</th><th>B /21</th><th>C /6</th><th>D /6</th><th>Auto</th><th>Final</th><th>Status</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+</section>
+<section class="card detail" id="detail">
+<div class="detail-head"><div><div class="eyebrow">Individual paper</div><h2 id="studentTitle" style="font-family:Georgia,serif;margin:6px 0"></h2><div id="submissionMeta" class="status"></div></div><button class="btn" id="closeBtn" type="button">Close paper</button></div>
+<div class="summary"><div class="sum"><span>Section A</span><b id="sA">—</b></div><div class="sum"><span>Section B</span><b id="sB">—</b></div><div class="sum"><span>Section C</span><b id="sC">—</b></div><div class="sum"><span>Section D</span><b id="sD">—</b></div><div class="sum"><span>Final</span><b id="sTotal">—</b></div></div>
+<div id="responses"></div>
+<button class="save" id="saveBtn" type="button">Save Teacher Marks & Comments</button>
+<div class="status" id="saveStatus"></div>
+</section>
+</main>
+<script>
+const WEB_APP_URL='https://script.google.com/macros/s/AKfycbz0KfRexC2OtoWqAYwXOFbnGReN10dmyvqL-ex8d3rW0-PUFprZY77gEfVl4Lv_55Dh/exec';
+function profile(){try{return JSON.parse(localStorage.getItem('maplewood_y8_code_profile')||'{}')}catch(e){return{}}}
+const teacher=profile();let currentSubmission='',currentCode='';
+async function jsonp(params){
+ let last;
+ for(let attempt=0;attempt<2;attempt++){
+  try{return await new Promise((resolve,reject)=>{
+   const cb='mwHaze_'+Date.now()+'_'+Math.random().toString(36).slice(2),s=document.createElement('script');let settled=false,timer;
+   const finish=(e,d)=>{if(settled)return;settled=true;clearTimeout(timer);delete window[cb];s.remove();e?reject(e):resolve(d)};
+   window[cb]=d=>finish(null,d);s.onerror=()=>finish(new Error('Network error'));timer=setTimeout(()=>finish(new Error('Timeout')),25000);
+   s.src=WEB_APP_URL+'?'+new URLSearchParams({...params,callback:cb}).toString();document.body.appendChild(s);
+  })}catch(e){last=e}
+ }
+ throw last||new Error('Could not load results');
+}
+function fmtDate(v){if(!v)return '—';try{return new Date(v).toLocaleString()}catch(e){return String(v)}}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function loadOverview(){
+ const status=document.getElementById('status');status.textContent='Loading submissions…';
+ try{
+  const d=await jsonp({action:'hazeresults',teacherCode:teacher.code});
+  if(!d||!d.ok){status.textContent=(d&&d.message)||'The Haze results backend is not available yet. If the Apps Script code was just updated, publish the new deployment first.';return}
+  const latest={};(d.summaries||[]).forEach(s=>{if(!latest[s.studentCode])latest[s.studentCode]=s});
+  const list=Object.values(latest).sort((a,b)=>a.studentName.localeCompare(b.studentName));const body=document.getElementById('rows');body.innerHTML='';
+  if(!list.length){body.innerHTML='<tr><td colspan="10" class="empty">No Haze Practice submissions yet.</td></tr>';status.textContent='No submissions yet.';return}
+  list.forEach(s=>{const tr=document.createElement('tr');const changed=s.finalTotal!==s.autoTotal;tr.innerHTML='<td><strong>'+esc(s.studentName)+'</strong><br><small>'+esc(s.classroom)+' • #'+esc(s.studentCode)+'</small></td><td>'+esc(fmtDate(s.submittedAt))+'</td><td>'+s.sectionAFinal+'/17</td><td>'+s.sectionBFinal+'/21</td><td>'+s.sectionCFinal+'/6</td><td>'+s.sectionDFinal+'/6</td><td class="score">'+s.autoTotal+'/50</td><td class="score '+(changed?'changed':'')+'">'+s.finalTotal+'/50</td><td>'+esc(s.status||'')+'</td><td><button class="view" data-code="'+esc(s.studentCode)+'" data-id="'+esc(s.submissionId)+'">View paper</button></td>';body.appendChild(tr)});
+  body.querySelectorAll('.view').forEach(b=>b.addEventListener('click',()=>loadDetail(b.dataset.code,b.dataset.id)));status.textContent=list.length+' latest student submission'+(list.length===1?'':'s')+' shown.';
+ }catch(e){status.textContent='Could not load results. '+e.message}
+}
+async function loadDetail(code,id){
+ const detail=document.getElementById('detail');detail.classList.add('show');detail.scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('responses').innerHTML='<div class="empty">Loading paper…</div>';currentCode=code;currentSubmission=id;
+ try{
+  const d=await jsonp({action:'hazeresults',teacherCode:teacher.code,submissionId:id});
+  if(!d||!d.ok||!d.selected){document.getElementById('responses').innerHTML='<div class="empty">Could not load this paper.</div>';return}
+  const s=d.selected;document.getElementById('studentTitle').textContent=s.studentName+' • '+s.classroom;document.getElementById('submissionMeta').textContent='Submitted '+fmtDate(s.submittedAt)+' • '+s.status;
+  document.getElementById('sA').textContent=s.sectionAFinal+'/17';document.getElementById('sB').textContent=s.sectionBFinal+'/21';document.getElementById('sC').textContent=s.sectionCFinal+'/6';document.getElementById('sD').textContent=s.sectionDFinal+'/6';document.getElementById('sTotal').textContent=s.finalTotal+'/50';
+  const wrap=document.getElementById('responses');wrap.innerHTML='';['A','B','C','D'].forEach(sec=>{const items=(d.responses||[]).filter(r=>r.section===sec);if(!items.length)return;const h=document.createElement('h3');h.className='section-title';h.textContent='Section '+sec;wrap.appendChild(h);items.forEach(r=>{const div=document.createElement('div');div.className='response';const value=r.teacherMark===''?'':r.teacherMark;div.innerHTML='<div class="rhead"><div class="qid">'+esc(r.questionId)+' • '+r.finalMark+'/'+r.maxMark+'</div><div class="ao">'+esc(r.ao)+'</div></div><div class="label">Student answer</div><div class="answerbox">'+esc(r.studentAnswer||'(blank)')+'</div><div class="label">Correct / accepted answer</div><div class="answerbox accepted">'+esc(r.correctAnswer)+'</div><div class="markrow"><div><label>Auto mark</label><input value="'+r.autoMark+'/'+r.maxMark+'" disabled></div><div><label>Teacher mark (optional)</label><input class="tmark" type="number" min="0" max="'+r.maxMark+'" step="1" value="'+esc(value)+'" data-q="'+esc(r.questionId)+'" data-max="'+r.maxMark+'"></div><div><label>Teacher comment</label><textarea class="tcomment" data-q="'+esc(r.questionId)+'" placeholder="Optional comment">'+esc(r.teacherComment||'')+'</textarea></div></div>';wrap.appendChild(div)})});
+ }catch(e){document.getElementById('responses').innerHTML='<div class="empty">Could not load this paper. '+esc(e.message)+'</div>'}
+}
+async function saveMarks(){
+ if(!currentSubmission)return;const btn=document.getElementById('saveBtn'),st=document.getElementById('saveStatus');btn.disabled=true;st.textContent='Saving…';
+ const updates=[...document.querySelectorAll('.tmark')].map(inp=>{const q=inp.dataset.q,comment=document.querySelector('.tcomment[data-q="'+q+'"]');let mark=inp.value;if(mark!=='')mark=Math.max(0,Math.min(Number(inp.dataset.max),Number(mark)));return{questionId:q,teacherMark:mark,teacherComment:comment?comment.value:''}});
+ try{
+  await fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveHazeTeacherMarks',teacherCode:teacher.code,submissionId:currentSubmission,updates})});
+  st.textContent='Teacher marks sent. Refreshing the final score…';setTimeout(async()=>{await loadDetail(currentCode,currentSubmission);await loadOverview();st.textContent='Saved.';btn.disabled=false},1400);
+ }catch(e){st.textContent='Could not send teacher marks. '+e.message;btn.disabled=false}
+}
+document.getElementById('refreshBtn').addEventListener('click',loadOverview);document.getElementById('closeBtn').addEventListener('click',()=>document.getElementById('detail').classList.remove('show'));document.getElementById('saveBtn').addEventListener('click',saveMarks);loadOverview();
+</script>
+</body>
+</html>
