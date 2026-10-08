@@ -16,3 +16,7 @@
   Cache-Control: no-cache, no-store, must-revalidate
 /reading-exam-practice.html
   Cache-Control: no-cache, no-store, must-revalidate
+/haze-practice.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/teacher-haze-results.html
+  Cache-Control: no-cache, no-store, must-revalidate
