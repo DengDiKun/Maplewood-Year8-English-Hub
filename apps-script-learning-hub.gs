@@ -44,6 +44,18 @@ const SPEAKING_HISTORY_HEADERS = [
   'timestamp','student_code','student_name','class','action','topic_id','category','topic'
 ];
 
+const HAZE_RESPONSE_HEADERS = [
+  'submission_id','submitted_at','student_code','student_name','class','section','question_id','ao',
+  'max_mark','student_answer','correct_or_accepted_answer','auto_mark','teacher_mark','final_mark','teacher_comment'
+];
+
+const HAZE_MARK_HEADERS = [
+  'submission_id','submitted_at','student_code','student_name','class',
+  'section_a_auto','section_a_final','section_b_auto','section_b_final',
+  'section_c_auto','section_c_final','section_d_auto','section_d_final',
+  'auto_total','final_total','percentage','status','last_teacher_update'
+];
+
 const SPEAKING_TOPIC_CATALOG = [
   ['T01','Strange Islands & Mysterious Places','Hashima Island, Japan'],
   ['T02','Strange Islands & Mysterious Places','Easter Island, Chile'],
@@ -129,6 +141,13 @@ function doGet(e) {
       const callback = safeCallback_(e.parameter.callback);
       return output_(selectSpeakingTopic_(code, topicId), callback);
     }
+    if (action === 'hazeresults') {
+      const teacherCode = normaliseCode_(e.parameter.teacherCode);
+      const studentCode = safe_(e.parameter.studentCode) ? normaliseCode_(e.parameter.studentCode) : '';
+      const submissionId = safe_(e.parameter.submissionId);
+      const callback = safeCallback_(e.parameter.callback);
+      return output_(getHazeResults_(teacherCode, studentCode, submissionId), callback);
+    }
     return output_({ok:true, service:'Maplewood Year 8 English Learning Hub', status:'ready'}, safeCallback_(e && e.parameter && e.parameter.callback));
   } catch (err) {
     return output_({ok:false,error:String(err && err.message ? err.message : err)}, safeCallback_(e && e.parameter && e.parameter.callback));
@@ -140,6 +159,9 @@ function doPost(e) {
   lock.waitLock(20000);
   try {
     const data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (safe_(data.action).toLowerCase() === 'savehazeteachermarks') {
+      return json_(saveHazeTeacherMarks_(data));
+    }
     if (!data.submissionId) throw new Error('Missing submissionId.');
     if (!data.studentCode) throw new Error('Missing studentCode.');
     if (!data.lesson) throw new Error('Missing lesson.');
@@ -195,6 +217,10 @@ function doPost(e) {
     ]);
     if (itemRows.length) {
       items.getRange(items.getLastRow()+1, 1, itemRows.length, ITEM_HEADERS.length).setValues(itemRows);
+    }
+
+    if (safe_(data.lesson) === 'Haze Practice 2026-10-09' && Array.isArray(data.hazeResponses)) {
+      saveHazePractice_(ss, data, student, serverTime);
     }
 
     updateStudentProgress_(ss, data, itemRows, serverTime);
@@ -462,6 +488,134 @@ function selectSpeakingTopic_(code, topicId) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function verifyTeacher_(ss, code) {
+  const registry = ensureSheet_(ss, 'Student Registry', REGISTRY_HEADERS);
+  const teacher = findStudentByCode_(registry, code);
+  return !!(teacher && teacher.active && String(teacher.classroom).toLowerCase() === 'teacher');
+}
+
+function saveHazePractice_(ss, data, student, serverTime) {
+  const responseSheet = ensureSheet_(ss, 'Haze Practice Responses', HAZE_RESPONSE_HEADERS);
+  const marksSheet = ensureSheet_(ss, 'Haze Practice Marks', HAZE_MARK_HEADERS);
+  const responses = Array.isArray(data.hazeResponses) ? data.hazeResponses : [];
+  if (responses.length) {
+    const rows = responses.map(r => [
+      data.submissionId, serverTime, student.code, student.name, student.classroom,
+      safe_(r.section), safe_(r.questionId), safe_(r.ao), number_(r.maxMark),
+      safe_(r.studentAnswer), safe_(r.correctAnswer), number_(r.autoMark), '',
+      number_(r.autoMark), ''
+    ]);
+    responseSheet.getRange(responseSheet.getLastRow()+1,1,rows.length,HAZE_RESPONSE_HEADERS.length).setValues(rows);
+  }
+
+  const s = data.hazeSummary || {};
+  const a = number_(s.sectionA), b = number_(s.sectionB), c = number_(s.sectionC), d = number_(s.sectionD);
+  const total = number_(s.autoTotal || (a+b+c+d));
+  marksSheet.appendRow([
+    data.submissionId, serverTime, student.code, student.name, student.classroom,
+    a,a,b,b,c,c,d,d,total,total,total/50,'Auto-marked',''
+  ]);
+  if (marksSheet.getLastRow()>1) marksSheet.getRange(2,16,marksSheet.getLastRow()-1,1).setNumberFormat('0.0%');
+}
+
+function getHazeResults_(teacherCode, studentCode, submissionId) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  if (!verifyTeacher_(ss, teacherCode)) return {ok:false, message:'Teacher access not recognised.'};
+  const marksSheet = ensureSheet_(ss, 'Haze Practice Marks', HAZE_MARK_HEADERS);
+  const responseSheet = ensureSheet_(ss, 'Haze Practice Responses', HAZE_RESPONSE_HEADERS);
+
+  const mLast = marksSheet.getLastRow();
+  const markRows = mLast >= 2 ? marksSheet.getRange(2,1,mLast-1,HAZE_MARK_HEADERS.length).getValues() : [];
+  let summaries = markRows.map(r => ({
+    submissionId:safe_(r[0]), submittedAt:r[1] instanceof Date ? r[1].toISOString() : safe_(r[1]),
+    studentCode:String(r[2]).trim().padStart(4,'0'), studentName:safe_(r[3]), classroom:safe_(r[4]),
+    sectionAAuto:number_(r[5]), sectionAFinal:number_(r[6]), sectionBAuto:number_(r[7]), sectionBFinal:number_(r[8]),
+    sectionCAuto:number_(r[9]), sectionCFinal:number_(r[10]), sectionDAuto:number_(r[11]), sectionDFinal:number_(r[12]),
+    autoTotal:number_(r[13]), finalTotal:number_(r[14]), percentage:number_(r[15]), status:safe_(r[16]),
+    lastTeacherUpdate:r[17] instanceof Date ? r[17].toISOString() : safe_(r[17])
+  })).sort((x,y)=>String(y.submittedAt).localeCompare(String(x.submittedAt)));
+
+  if (studentCode) summaries = summaries.filter(s => s.studentCode === studentCode);
+  if (submissionId) summaries = summaries.filter(s => s.submissionId === submissionId);
+
+  let selected = summaries[0] || null;
+  let responses = [];
+  if (selected) {
+    const rLast = responseSheet.getLastRow();
+    const rows = rLast >= 2 ? responseSheet.getRange(2,1,rLast-1,HAZE_RESPONSE_HEADERS.length).getValues() : [];
+    responses = rows.filter(r => safe_(r[0]) === selected.submissionId).map(r => ({
+      submissionId:safe_(r[0]), section:safe_(r[5]), questionId:safe_(r[6]), ao:safe_(r[7]), maxMark:number_(r[8]),
+      studentAnswer:safe_(r[9]), correctAnswer:safe_(r[10]), autoMark:number_(r[11]),
+      teacherMark:r[12] === '' ? '' : number_(r[12]), finalMark:number_(r[13]), teacherComment:safe_(r[14])
+    }));
+  }
+
+  return {ok:true, summaries:summaries, selected:selected, responses:responses};
+}
+
+function saveHazeTeacherMarks_(data) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const teacherCode = normaliseCode_(data.teacherCode);
+  if (!verifyTeacher_(ss, teacherCode)) return {ok:false, message:'Teacher access not recognised.'};
+  const submissionId = safe_(data.submissionId);
+  if (!submissionId) return {ok:false, message:'Missing submission ID.'};
+
+  const responseSheet = ensureSheet_(ss, 'Haze Practice Responses', HAZE_RESPONSE_HEADERS);
+  const marksSheet = ensureSheet_(ss, 'Haze Practice Marks', HAZE_MARK_HEADERS);
+  const updates = Array.isArray(data.updates) ? data.updates : [];
+  const last = responseSheet.getLastRow();
+  if (last < 2) return {ok:false, message:'No responses found.'};
+  const rows = responseSheet.getRange(2,1,last-1,HAZE_RESPONSE_HEADERS.length).getValues();
+  let changed = 0;
+
+  updates.forEach(u => {
+    const q = safe_(u.questionId);
+    for (let i=0;i<rows.length;i++) {
+      if (safe_(rows[i][0]) === submissionId && safe_(rows[i][6]) === q) {
+        const rowNo = i+2;
+        const max = number_(rows[i][8]);
+        const autoMark = number_(rows[i][11]);
+        const raw = u.teacherMark;
+        const hasOverride = raw !== '' && raw !== null && raw !== undefined;
+        const teacherMark = hasOverride ? Math.max(0,Math.min(max,number_(raw))) : '';
+        const finalMark = hasOverride ? teacherMark : autoMark;
+        responseSheet.getRange(rowNo,13).setValue(teacherMark);
+        responseSheet.getRange(rowNo,14).setValue(finalMark);
+        responseSheet.getRange(rowNo,15).setValue(safe_(u.teacherComment));
+        changed++;
+        break;
+      }
+    }
+  });
+
+  const freshLast = responseSheet.getLastRow();
+  const fresh = responseSheet.getRange(2,1,freshLast-1,HAZE_RESPONSE_HEADERS.length).getValues().filter(r=>safe_(r[0])===submissionId);
+  const sectionTotals = {A:0,B:0,C:0,D:0};
+  fresh.forEach(r=>{const s=safe_(r[5]); if(sectionTotals.hasOwnProperty(s)) sectionTotals[s]+=number_(r[13]);});
+  const finalTotal = sectionTotals.A+sectionTotals.B+sectionTotals.C+sectionTotals.D;
+
+  const mLast = marksSheet.getLastRow();
+  if (mLast >= 2) {
+    const ids = marksSheet.getRange(2,1,mLast-1,1).getDisplayValues();
+    for (let i=0;i<ids.length;i++) {
+      if (safe_(ids[i][0]) === submissionId) {
+        const rowNo=i+2;
+        marksSheet.getRange(rowNo,7).setValue(sectionTotals.A);
+        marksSheet.getRange(rowNo,9).setValue(sectionTotals.B);
+        marksSheet.getRange(rowNo,11).setValue(sectionTotals.C);
+        marksSheet.getRange(rowNo,13).setValue(sectionTotals.D);
+        marksSheet.getRange(rowNo,15).setValue(finalTotal);
+        marksSheet.getRange(rowNo,16).setValue(finalTotal/50).setNumberFormat('0.0%');
+        marksSheet.getRange(rowNo,17).setValue('Teacher reviewed');
+        marksSheet.getRange(rowNo,18).setValue(new Date());
+        break;
+      }
+    }
+  }
+  SpreadsheetApp.flush();
+  return {ok:true, changed:changed, finalTotal:finalTotal, percentage:finalTotal/50};
 }
 
 function normaliseCode_(v){return safe_(v).replace(/\D/g,'').slice(0,4).padStart(4,'0');}
