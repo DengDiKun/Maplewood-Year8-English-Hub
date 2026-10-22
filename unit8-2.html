@@ -71,5 +71,5 @@ const submittedKey='mw_submitted_82_'+profile.code;if(!teacherMode&&localStorage
 document.getElementById('submitWork').addEventListener('click',async()=>{if(!requiredComplete()){submitStatus.className='submit-status bad';submitStatus.textContent='Please complete all Activity 2 and Activity 3 response boxes before submitting.';document.getElementById('activity2').scrollIntoView({behavior:'smooth'});return}const b=document.getElementById('submitWork');b.disabled=true;b.textContent='Submitting…';submitStatus.className='submit-status';submitStatus.textContent='Sending your work to your teacher…';try{await fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(makePayload())});localStorage.setItem(submittedKey,'done');submitStatus.className='submit-status good';submitStatus.textContent='✓ Submitted. Your answer guide and worked examples are now unlocked below.';b.textContent='Submitted ✓';showReview()}catch(e){b.disabled=false;b.textContent='Submit to Teacher & Unlock Review →';submitStatus.className='submit-status bad';submitStatus.textContent='Submission failed. Please check your connection and try again.'}});
 document.getElementById('teacherReview').addEventListener('click',showReview);
 </script>
-</body>
+<script src="activity-tracker.js"></script>\n</body>
 </html>
