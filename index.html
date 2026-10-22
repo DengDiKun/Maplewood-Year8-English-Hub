@@ -81,7 +81,7 @@
     <span class="kicker">✦ Year 8 • English Learning Journey</span>
     <h1>MAPLEWOOD <em>ENGLISH</em></h1>
     <p>One beautiful home for Year 8 reading, writing, speaking, language and creative challenges — from <i>Nature and Humans</i> to <i>Endings</i>.</p>
-    <div class="hero-actions"><a class="cta primary" href="#journey">Explore the curriculum →</a><a class="cta secondary" href="unit8-3.html">Continue Unit 8.3 🧠</a><a class="cta secondary" href="reading-exam-practice.html">Reading Exam Practice 📝</a><a class="cta secondary" href="haze-practice.html">The Haze Strikes Back 🌫️</a><a class="cta secondary" href="speaking-assessment.html">Research Showcase 🎤</a></div>
+    <div class="hero-actions"><a class="cta primary" href="#journey">Explore the curriculum →</a><a class="cta secondary" href="unit8-3.html">Continue Unit 8.3 🧠</a><a class="cta secondary" href="reading-exam-practice.html">Reading Exam Practice 📝</a><a class="cta secondary" href="haze-practice.html">The Haze Strikes Back 🌫️</a><a class="cta secondary" href="vocabulary-arena.html">Vocabulary Arena ⚔️</a><a class="cta secondary" href="speaking-assessment.html">Research Showcase 🎤</a></div>
   </div>
   <div class="hero-art" aria-label="Original anime-inspired students studying English">
     <div class="orbit"></div><div class="note n1">📚 Reading Quest</div><div class="note n2">✨ + Creativity</div><div class="note n3">💬 Speak • Think • Create</div>
@@ -168,7 +168,9 @@ function render(){
   unitList.innerHTML='';
   units.filter(u=>{const hay=Object.values(u).flat().join(' ').toLowerCase();const filterOk=activeFilter==='all'||String(u[activeFilter]||'').length>0;return filterOk&&(!q||hay.includes(q))}).forEach(u=>{
     const el=document.createElement('article');el.className='unit';el.style.setProperty('--accent',u.accent);el.style.setProperty('--tint',u.tint);
-    const links=(u.links||[]).map((l,i)=>`<a class="launch ${i===2?'new':''}" href="${l[1]}">${l[0]} ${i===2?'🧠':'→'}</a>`).join('');
+    const courseLink=[`Unit ${u.unit} Course & Lesson Plans`,`unit-course.html?unit=${u.unit}`];
+    const lessonLinks=u.links?[courseLink,...u.links]:[courseLink];
+    const links=lessonLinks.map((l,i)=>`<a class="launch ${i===0?'new':''}" href="${l[1]}">${l[0]} ${i===0?'📘':'→'}</a>`).join('');
     el.innerHTML=`<div class="unit-shell"><div class="unit-top"><div class="unit-num">${u.unit}</div><div class="unit-name"><small>Page ${u.page}</small><h3>${u.title}</h3></div></div><div class="peek"><span class="tag">${u.types.split(';')[0]}</span><span class="tag">${u.skills.split(';')[0]}</span></div>${links?`<div class="lesson-links">${links}</div>`:''}<button class="expand" type="button">View curriculum details <span class="chev">⌄</span></button><div class="details"><div class="details-inner"><div class="curriculum"><div class="strand reading"><h4>Reading</h4><p>${u.reading}</p></div><div class="strand writing"><h4>Writing</h4><p>${u.writing}</p></div><div class="strand speaking"><h4>Speaking / Listening</h4><p>${u.speaking}</p></div><div class="strand language"><h4>Language focus</h4><p>${u.language}</p></div><div class="strand skills"><h4>21st-century skills</h4><p>${u.skills}</p></div></div></div></div></div>`;
     el.querySelector('.expand').addEventListener('click',()=>el.classList.toggle('open'));unitList.appendChild(el)
   })
