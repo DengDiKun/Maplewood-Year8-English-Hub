@@ -305,6 +305,7 @@ function findStudentByCode_(registry, code) {
 
 function saveSubmissionSummary_(ss, data, student, serverTime) {
   const sheet = ensureSheet_(ss, 'Submission Summary', SUMMARY_HEADERS);
+  styleTeacherDataSheet_(sheet, SUMMARY_HEADERS.length);
   sheet.appendRow([
     data.submissionId, serverTime, student.name, student.classroom,
     safe_(data.lesson), safe_(data.lessonTitle), number_(data.autoCorrect),
@@ -333,7 +334,21 @@ function saveSubunitResponses_(ss, data, itemRows) {
   const sheetName = subunitResponseSheetName_(data.lesson);
   if (!sheetName) return; // Haze has its own richer response/marking tables.
   const sheet = ensureSheet_(ss, sheetName, SUBUNIT_RESPONSE_HEADERS);
+  styleTeacherDataSheet_(sheet, SUBUNIT_RESPONSE_HEADERS.length);
   sheet.getRange(sheet.getLastRow()+1,1,itemRows.length,SUBUNIT_RESPONSE_HEADERS.length).setValues(itemRows);
+}
+
+function styleTeacherDataSheet_(sheet, width) {
+  if (!sheet || width < 1) return;
+  sheet.setFrozenRows(1);
+  const header = sheet.getRange(1,1,1,width);
+  header.setBackground('#0b3d50').setFontColor('#ffffff').setFontWeight('bold').setWrap(true);
+  if (sheet.getLastRow() <= 2) {
+    try { sheet.autoResizeColumns(1,width); } catch (e) {}
+  }
+  if (!sheet.getFilter() && sheet.getMaxRows() > 1) {
+    try { sheet.getRange(1,1,Math.max(2,sheet.getLastRow()),width).createFilter(); } catch (e) {}
+  }
 }
 
 function updateRegistryProgress_(ss, code, serverTime) {
