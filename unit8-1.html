@@ -60,5 +60,5 @@ function payload(s){let correct=0;const items=[];for(const k of ['morocco','arag
 submit.onclick=()=>{if(teacherMode)return;const s=snapshot();if(!s){alert('Please wait for the lesson to finish loading.');return}result.innerHTML=`<h2>Ready to submit?</h2><p><b>${P.name}</b><br>${P.classroom} • #${P.code}</p><p>Your Unit 8.1 responses will be sent to your teacher.</p><div class="actions"><button id="send" class="primary">Send my work</button><button id="cancel" class="secondary">Cancel</button></div>`;panel.classList.add('show');$('cancel').onclick=()=>panel.classList.remove('show');$('send').onclick=async()=>{const b=$('send');b.disabled=true;b.textContent='Sending…';try{await fetch(URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload(s))});result.innerHTML='<h2>Submitted ✓</h2><p>Your work has been sent to your teacher.</p><div class="actions"><button id="close" class="primary">Return to lesson</button></div>';$('close').onclick=()=>panel.classList.remove('show');submit.disabled=true;submit.textContent='Submitted ✓'}catch(e){b.disabled=false;b.textContent='Send my work';alert('Submission failed. Please try again.')}}};
 panel.onclick=e=>{if(e.target===panel)panel.classList.remove('show')};
 </script>
-</body>
+<script src="activity-tracker.js"></script>\n</body>
 </html>
