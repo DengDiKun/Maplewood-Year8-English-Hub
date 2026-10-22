@@ -47,6 +47,16 @@ const U={
 };
 const n=Math.max(1,Math.min(9,Number(new URLSearchParams(location.search).get('unit')||1))),u=U[n];
 document.getElementById('unitNav').innerHTML=Array.from({length:9},(_,i)=>'<a class="'+((i+1)===n?'active':'')+'" href="unit-course.html?unit='+(i+1)+'">'+(i+1)+'</a>').join('');
+const exactSubunits={
+1:['The leopard','The mysterious figure','The wildness of eagles','The poetry of Tu Fu','Destroying the planet','Tsunami'],
+2:['Life in the village','Making progress','Growing up','Climbing the mountains alone','Celebrating grandparents','Comparing texts'],
+3:['The mystery of Oak Island','Strange islands','Treasure Island: Meeting Ben Gunn','Treasure Island: The play','Singing sand','Helix'],
+4:['The birth of the internet','Phone problems','Predicting the future','A dystopian future','The Glade','Closing doors'],
+5:['Defining heroes','Looking for Charlie','Danger?','Young Heroes','Superheroes','Film scripting'],
+7:['The Broken Pipe','Namidi’s Family','Namidi and Mama Efe'],
+8:['The Merchant of Venice','Life choices','Making decisions']
+};
+const lessonList=exactSubunits[n]||u.reading;
 const sourceMap={
   3:[['Unit 3.1 Oak Island Mystery','unit3-1-oak-island.html']],
   6:[['Unit 6 Writer’s Effect Challenge','unit6-writers-effect.html']],
