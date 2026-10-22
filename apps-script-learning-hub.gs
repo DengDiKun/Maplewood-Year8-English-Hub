@@ -22,6 +22,16 @@ const ITEM_HEADERS = [
   'response','expected_answer','auto_result','attempts','remedial_focus','student_code'
 ];
 
+const SUMMARY_HEADERS = [
+  'submission_id','submitted_at','student_name','class','sub_unit','lesson_title',
+  'score','total','percentage','student_code'
+];
+
+const SUBUNIT_RESPONSE_HEADERS = [
+  'submission_id','submitted_at','student_name','class','sub_unit','activity','item_id','skill',
+  'student_response','expected_answer','auto_result','attempts','remedial_focus','student_code'
+];
+
 const PROGRESS_HEADERS = [
   'student_name','class','lessons_submitted','last_submission','avg_auto_percentage','activity4_accuracy',
   'evidence_selection_accuracy','strengths','priority_needs','teacher_notes','student_code'
@@ -219,6 +229,10 @@ function doPost(e) {
       items.getRange(items.getLastRow()+1, 1, itemRows.length, ITEM_HEADERS.length).setValues(itemRows);
     }
 
+    // Teacher-facing storage: keep a clean master summary and separate detailed answers by sub-unit.
+    saveSubmissionSummary_(ss, data, student, serverTime);
+    saveSubunitResponses_(ss, data, itemRows);
+
     if (safe_(data.lesson) === 'Haze Practice 2026-10-09' && Array.isArray(data.hazeResponses)) {
       saveHazePractice_(ss, data, student, serverTime);
     }
@@ -274,6 +288,39 @@ function findStudentByCode_(registry, code) {
     }
   }
   return null;
+}
+
+function saveSubmissionSummary_(ss, data, student, serverTime) {
+  const sheet = ensureSheet_(ss, 'Submission Summary', SUMMARY_HEADERS);
+  sheet.appendRow([
+    data.submissionId, serverTime, student.name, student.classroom,
+    safe_(data.lesson), safe_(data.lessonTitle), number_(data.autoCorrect),
+    number_(data.autoTotal), number_(data.autoPercentage), student.code
+  ]);
+  if (sheet.getLastRow() > 1) sheet.getRange(2,9,sheet.getLastRow()-1,1).setNumberFormat('0.0%');
+}
+
+function subunitResponseSheetName_(lesson) {
+  const name = safe_(lesson).trim();
+  const fixed = {
+    '8.1':'8.1 Responses',
+    '8.2':'8.2 Responses',
+    '8.3':'8.3 Responses',
+    'Reading Practice 1':'Reading Practice Responses'
+  };
+  if (fixed[name]) return fixed[name];
+  if (name === 'Haze Practice 2026-10-09') return '';
+  const cleaned = name.replace(/[\\\/\?\*\[\]:]/g,' ').replace(/\s+/g,' ').trim();
+  if (!cleaned) return 'Other Responses';
+  return (cleaned + ' Responses').slice(0,100);
+}
+
+function saveSubunitResponses_(ss, data, itemRows) {
+  if (!itemRows || !itemRows.length) return;
+  const sheetName = subunitResponseSheetName_(data.lesson);
+  if (!sheetName) return; // Haze has its own richer response/marking tables.
+  const sheet = ensureSheet_(ss, sheetName, SUBUNIT_RESPONSE_HEADERS);
+  sheet.getRange(sheet.getLastRow()+1,1,itemRows.length,SUBUNIT_RESPONSE_HEADERS.length).setValues(itemRows);
 }
 
 function updateRegistryProgress_(ss, code, serverTime) {
