@@ -148,7 +148,7 @@ async function verifyLogin(){
 }
 codeInput.addEventListener('input',()=>{codeInput.value=codeInput.value.replace(/\D/g,'').slice(0,4)});
 codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')verifyLogin()});nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')verifyLogin()});loginBtn.addEventListener('click',verifyLogin);
-document.getElementById('switchStudent').addEventListener('click',()=>{sessionStorage.removeItem('mw_hub_verified');localStorage.removeItem('maplewood_y8_code_profile');profilePill.style.display='none';nameInput.value='';codeInput.value='';loginStatus.textContent='';login.classList.remove('hidden');nameInput.focus()});
+document.getElementById('switchStudent').addEventListener('click',()=>{sessionStorage.removeItem('mw_hub_verified');['mw_activity_session_id','mw_activity_session_code','mw_activity_session_start','mw_activity_active_ms','mw_activity_idle_ms','mw_activity_away_ms','mw_activity_focus_losses'].forEach(k=>sessionStorage.removeItem(k));localStorage.removeItem('maplewood_y8_code_profile');location.reload()});
 (function initLogin(){const p=getProfile(),verified=sessionStorage.getItem('mw_hub_verified');if(p&&/^\d{4}$/.test(p.code||'')&&p.name&&p.classroom&&verified===p.code){saveProfile(p);login.classList.add('hidden')}else{login.classList.remove('hidden')}})();
 
 const units=[
