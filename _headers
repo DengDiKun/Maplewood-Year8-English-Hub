@@ -20,3 +20,11 @@
   Cache-Control: no-cache, no-store, must-revalidate
 /teacher-haze-results.html
   Cache-Control: no-cache, no-store, must-revalidate
+/vocabulary-arena.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/teacher-activity.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/unit-course.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/activity-tracker.js
+  Cache-Control: no-cache, no-store, must-revalidate
