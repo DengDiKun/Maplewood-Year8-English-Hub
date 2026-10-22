@@ -66,6 +66,11 @@ const HAZE_MARK_HEADERS = [
   'auto_total','final_total','percentage','status','last_teacher_update'
 ];
 
+const ACTIVITY_HEADERS = [
+  'server_time','student_code','student_name','class','session_id','event_type','page','page_title',
+  'client_time','active_ms','idle_ms','away_ms','focus_losses'
+];
+
 const SPEAKING_TOPIC_CATALOG = [
   ['T01','Strange Islands & Mysterious Places','Hashima Island, Japan'],
   ['T02','Strange Islands & Mysterious Places','Easter Island, Chile'],
@@ -158,6 +163,11 @@ function doGet(e) {
       const callback = safeCallback_(e.parameter.callback);
       return output_(getHazeResults_(teacherCode, studentCode, submissionId), callback);
     }
+    if (action === 'activitysummary') {
+      const teacherCode = normaliseCode_(e.parameter.teacherCode);
+      const callback = safeCallback_(e.parameter.callback);
+      return output_(getActivitySummary_(teacherCode), callback);
+    }
     return output_({ok:true, service:'Maplewood Year 8 English Learning Hub', status:'ready'}, safeCallback_(e && e.parameter && e.parameter.callback));
   } catch (err) {
     return output_({ok:false,error:String(err && err.message ? err.message : err)}, safeCallback_(e && e.parameter && e.parameter.callback));
@@ -171,6 +181,9 @@ function doPost(e) {
     const data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (safe_(data.action).toLowerCase() === 'savehazeteachermarks') {
       return json_(saveHazeTeacherMarks_(data));
+    }
+    if (safe_(data.action).toLowerCase() === 'activityevent') {
+      return json_(saveActivityEvent_(data));
     }
     if (!data.submissionId) throw new Error('Missing submissionId.');
     if (!data.studentCode) throw new Error('Missing studentCode.');
@@ -535,6 +548,48 @@ function selectSpeakingTopic_(code, topicId) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function saveActivityEvent_(data) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const registry = ensureSheet_(ss, 'Student Registry', REGISTRY_HEADERS);
+  const student = findStudentByCode_(registry, normaliseCode_(data.studentCode));
+  if (!student || !student.active || String(student.classroom).toLowerCase() === 'teacher') {
+    return {ok:false, message:'Student profile not recognised.'};
+  }
+  const sheet = ensureSheet_(ss, 'Activity Log', ACTIVITY_HEADERS);
+  sheet.appendRow([
+    new Date(), student.code, student.name, student.classroom, safe_(data.sessionId), safe_(data.eventType),
+    safe_(data.page), safe_(data.pageTitle), safe_(data.clientTime), number_(data.activeMs), number_(data.idleMs),
+    number_(data.awayMs), number_(data.focusLosses)
+  ]);
+  const reg = findStudentByCode_(registry, student.code);
+  if (reg) registry.getRange(reg.row,7).setValue(new Date());
+  return {ok:true};
+}
+
+function getActivitySummary_(teacherCode) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  if (!verifyTeacher_(ss, teacherCode)) return {ok:false, message:'Teacher access not recognised.'};
+  const sheet = ensureSheet_(ss, 'Activity Log', ACTIVITY_HEADERS);
+  const last = sheet.getLastRow();
+  if (last < 2) return {ok:true, sessions:[]};
+  const rows = sheet.getRange(Math.max(2,last-4999),1,Math.min(last-1,4999),ACTIVITY_HEADERS.length).getValues();
+  const map = {};
+  rows.forEach(r=>{
+    const sid=safe_(r[4]); if(!sid)return;
+    const server=r[0] instanceof Date?r[0]:new Date(r[0]);
+    if(!map[sid]) map[sid]={sessionId:sid,studentCode:String(r[1]).trim().padStart(4,'0'),studentName:safe_(r[2]),classroom:safe_(r[3]),startedAt:server,lastSeen:server,lastEvent:safe_(r[5]),activeMs:0,idleMs:0,awayMs:0,focusLosses:0,pages:[]};
+    const s=map[sid]; if(server<s.startedAt)s.startedAt=server;if(server>s.lastSeen){s.lastSeen=server;s.lastEvent=safe_(r[5]);}
+    s.activeMs=Math.max(s.activeMs,number_(r[9]));s.idleMs=Math.max(s.idleMs,number_(r[10]));s.awayMs=Math.max(s.awayMs,number_(r[11]));s.focusLosses=Math.max(s.focusLosses,number_(r[12]));
+    const p=safe_(r[6]);if(p&&!s.pages.includes(p))s.pages.push(p);
+  });
+  const sessions=Object.values(map).sort((a,b)=>b.lastSeen-a.lastSeen).map(s=>({
+    sessionId:s.sessionId,studentCode:s.studentCode,studentName:s.studentName,classroom:s.classroom,
+    startedAt:s.startedAt.toISOString(),lastSeen:s.lastSeen.toISOString(),lastEvent:s.lastEvent,
+    activeMs:s.activeMs,idleMs:s.idleMs,awayMs:s.awayMs,focusLosses:s.focusLosses,pages:s.pages
+  }));
+  return {ok:true, sessions:sessions};
 }
 
 function verifyTeacher_(ss, code) {
