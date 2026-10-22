@@ -41,11 +41,11 @@
   function start(p){
     if(started||!isStudent(p))return;profile=p;started=true;initSession(p);lastInteraction=Date.now();lastTick=Date.now();addBadge();if(newSession)send('session_start');send('page_view');
     ['mousemove','mousedown','keydown','touchstart','scroll','pointerdown'].forEach(ev=>window.addEventListener(ev,interact,{passive:true}));
-    document.addEventListener('visibilitychange',()=>{tick();if(document.hidden){focusLosses++;send('away_start')}else{lastInteraction=Date.now();send('away_end')}});
+    document.addEventListener('visibilitychange',()=>{tick();if(document.hidden){send('away_start')}else{lastInteraction=Date.now();send('away_end')}});
     window.addEventListener('blur',()=>{tick();focusLosses++;send('focus_lost')});
     window.addEventListener('focus',()=>{tick();lastInteraction=Date.now();send('focus_return')});
     setInterval(()=>{const wasIdle=idle;tick();if(idle&&!wasIdle)send('idle_start')},TICK_MS);
-    setInterval(()=>{tick();send('heartbeat')},HEARTBEAT_MS);
+    setInterval(()=>{tick();send(away?'away_heartbeat':idle?'idle_heartbeat':'heartbeat')},HEARTBEAT_MS);
     window.addEventListener('pagehide',()=>{tick();send('page_exit',true)});
   }
   let attempts=0;const timer=setInterval(()=>{attempts++;const p=readProfile();if(isStudent(p)){clearInterval(timer);start(p)}else if(attempts>120)clearInterval(timer)},1000);
