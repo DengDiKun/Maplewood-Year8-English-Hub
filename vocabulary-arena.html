@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b2f47">
+<title>Vocabulary Arena — Maplewood Year 8 English</title>
+<style>
+:root{--navy:#0b2f47;--teal:#159aa8;--gold:#d8a43a;--ink:#17384b;--muted:#667985;--line:#d8e5e6;--good:#28764d;--bad:#a6424b;--paper:#fffefb;--shadow:0 18px 50px rgba(17,55,73,.11)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(180deg,#fffdf8,#f4fbfb 55%,#fffaf2)}button,select{font:inherit}.top{position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px clamp(12px,4vw,44px);background:rgba(255,254,250,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}.seal{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;font:bold 22px Georgia}.brand small{display:block;color:var(--teal);font-weight:900;font-size:.61rem;letter-spacing:.08em;text-transform:uppercase}.brand strong{font-family:Georgia,serif}.profile{font-weight:850;color:#17616a;background:#edf8f7;border-radius:999px;padding:8px 11px;max-width:43vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero{max-width:1100px;margin:auto;padding:55px clamp(15px,5vw,58px) 28px}.hero-card{padding:clamp(28px,5vw,50px);border-radius:44px 16px 44px 16px;background:linear-gradient(135deg,#0b344c,#14727b);color:white;box-shadow:var(--shadow);position:relative;overflow:hidden}.hero-card:after{content:"Aa";position:absolute;right:4%;top:5%;font:900 clamp(6rem,18vw,12rem) Georgia,serif;opacity:.08}.eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;font-weight:950;color:#a8ece8}.hero h1{font-family:Georgia,serif;font-size:clamp(2.8rem,7vw,5.5rem);line-height:.95;margin:10px 0}.hero p{max-width:720px;line-height:1.65;color:#e3f4f3}.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.tag{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-weight:850;font-size:.8rem}
+main{max-width:1100px;margin:auto;padding:0 clamp(15px,5vw,58px) 70px}.control{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:10px;padding:18px;background:white;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);margin-bottom:22px}.control label{font-size:.76rem;font-weight:900;color:var(--muted);display:block;margin-bottom:5px}.control select{width:100%;min-height:45px;border:1px solid #c8dadc;border-radius:12px;background:white;padding:8px}.start{align-self:end;min-height:45px;border:0;border-radius:999px;background:var(--navy);color:white;padding:9px 18px;font-weight:950;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:18px}.stat{background:white;border:1px solid var(--line);border-radius:16px;padding:13px}.stat span{display:block;font-size:.74rem;color:var(--muted);font-weight:850}.stat b{font-size:1.35rem;color:var(--navy)}
+.card{background:white;border:1px solid var(--line);border-radius:30px 12px 30px 12px;box-shadow:var(--shadow);overflow:hidden}.qhead{padding:18px 22px;background:#eff8f7;display:flex;justify-content:space-between;gap:10px;font-weight:900}.question{padding:clamp(22px,5vw,38px)}.word{font-family:Georgia,serif;font-size:clamp(2.5rem,8vw,5rem);color:var(--navy);margin:0 0 10px}.prompt{font-size:1.05rem;line-height:1.6;color:#4e626a}.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.option{min-height:54px;border:1px solid var(--line);border-radius:16px;background:#fbfefe;padding:12px;text-align:left;font-weight:800;cursor:pointer}.option:hover{border-color:var(--teal)}.option.correct{background:#edf8f1;border-color:#9bc8aa;color:#20613e}.option.wrong{background:#fff0f0;border-color:#e1a8ae;color:#7f3940}.feedback{min-height:46px;margin-top:15px;padding:12px 14px;border-radius:14px;background:#f7fbfb;line-height:1.45;color:#4c626a}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.next,.finish{border:0;border-radius:999px;min-height:46px;padding:10px 17px;font-weight:950;cursor:pointer}.next{background:var(--teal);color:white}.finish{background:#fff7df;color:#72591d;border:1px solid #ecd18b}.result{display:none;margin-top:20px;padding:22px;background:linear-gradient(135deg,#0b344c,#14727b);color:white;border-radius:26px}.result.show{display:block}.result strong{font:900 2.6rem Georgia,serif}.history{margin-top:24px}.history h2{font-family:Georgia,serif;color:var(--navy)}.missed{display:flex;flex-wrap:wrap;gap:7px}.chip{padding:7px 10px;border-radius:999px;background:#fff3df;border:1px solid #ecd6a8;font-size:.82rem;font-weight:800}.empty{text-align:center;padding:35px;color:var(--muted)}
+@media(max-width:760px){.control{grid-template-columns:1fr 1fr}.start{grid-column:1/-1}.stats{grid-template-columns:1fr 1fr}.options{grid-template-columns:1fr}.profile{display:none}}@media(max-width:440px){.control{grid-template-columns:1fr}.start{grid-column:auto}.hero h1{font-size:3.2rem}}
+</style>
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html"><span class="seal">M</span><span><small>Maplewood International School</small><strong>Year 8 English</strong></span></a><div class="profile" id="profile">Vocabulary Arena</div></header>
+<section class="hero"><div class="hero-card"><div class="eyebrow">Unlimited practice • A2–B2</div><h1>Vocabulary Arena ⚔️</h1><p>Every round is generated from a curated Year 8 word bank. Change the level, question type and round length, then keep generating fresh combinations for as long as you want.</p><div class="meta"><span class="tag">Definitions</span><span class="tag">Context</span><span class="tag">Synonyms</span><span class="tag">Antonyms</span><span class="tag">Word families</span><span class="tag">Instant feedback</span></div></div></section>
+<main>
+<section class="control">
+<div><label>Difficulty</label><select id="level"><option value="A2">A2</option><option value="B1" selected>B1</option><option value="B2">B2</option><option value="ALL">Mixed A2–B2</option></select></div>
+<div><label>Question type</label><select id="mode"><option value="mixed" selected>Mixed</option><option value="definition">Definition</option><option value="context">Context sentence</option><option value="synonym">Synonym</option><option value="antonym">Antonym</option><option value="family">Word family</option></select></div>
+<div><label>Round length</label><select id="length"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></div>
+<button id="start" class="start" type="button">Generate Round ✨</button>
+</section>
+<section class="stats"><div class="stat"><span>Round score</span><b id="score">0</b></div><div class="stat"><span>Answered</span><b id="answered">0</b></div><div class="stat"><span>Accuracy</span><b id="accuracy">0%</b></div><div class="stat"><span>Streak</span><b id="streak">0</b></div></section>
+<section class="card" id="card"><div class="empty">Choose your settings and press <strong>Generate Round</strong>.</div></section>
+<section class="result" id="result"><strong id="finalScore">0/10</strong><div id="finalText"></div><div class="actions"><button class="next" id="again" type="button">Generate Another Round ↻</button></div></section>
+<section class="history"><h2>Words to revisit</h2><div class="missed" id="missed"><span class="chip">None yet — keep going!</span></div></section>
+</main>
+<script src="activity-tracker.js"></script>
+<script>
+const WEB_APP_URL='https://script.google.com/macros/s/AKfycbz0KfRexC2OtoWqAYwXOFbnGReN10dmyvqL-ex8d3rW0-PUFprZY77gEfVl4Lv_55Dh/exec';
+function getProfile(){try{return JSON.parse(localStorage.getItem('maplewood_y8_code_profile')||'{}')}catch(e){return{}}}
+const profile=getProfile();if(profile.name)document.getElementById('profile').textContent='👤 '+profile.name+' • '+profile.classroom;
+
+const bank=[
+{w:'observe',l:'A2',d:'to watch or notice something carefully',s:'notice',a:'ignore',f:'observation',c:'The students carefully ___ the changes in the experiment.'},
+{w:'attempt',l:'A2',d:'an effort to do or achieve something',s:'effort',a:'avoidance',f:'attempted',c:'Her first ___ at the puzzle was unsuccessful.'},
+{w:'ordinary',l:'A2',d:'normal and not unusual',s:'normal',a:'unusual',f:'ordinarily',c:'The writer turns an ___ setting into something mysterious.'},
+{w:'approach',l:'A2',d:'a way of dealing with a task or problem',s:'method',a:'avoidance',f:'approachable',c:'They tried a different ___ to solve the problem.'},
+{w:'predict',l:'A2',d:'to say what you think will happen in the future',s:'forecast',a:'review',f:'prediction',c:'From the dark clouds, we can ___ that rain is coming.'},
+{w:'evidence',l:'A2',d:'information that helps prove an idea or claim',s:'proof',a:'guess',f:'evident',c:'Use a quotation as ___ for your interpretation.'},
+{w:'respond',l:'A2',d:'to answer or react to something',s:'reply',a:'ignore',f:'response',c:'Explain how the character might ___ to the news.'},
+{w:'contrast',l:'A2',d:'a clear difference between two things',s:'difference',a:'similarity',f:'contrasting',c:'The writer creates a strong ___ between light and darkness.'},
+{w:'reveal',l:'A2',d:'to make something known or visible',s:'show',a:'hide',f:'revelation',c:'The dialogue helps ___ the character’s true feelings.'},
+{w:'anxious',l:'A2',d:'worried or nervous about something',s:'worried',a:'calm',f:'anxiety',c:'He felt ___ while waiting for the result.'},
+{w:'hesitate',l:'A2',d:'to pause before doing or saying something because you are unsure',s:'pause',a:'decide',f:'hesitation',c:'She began to ___ before choosing the final answer.'},
+{w:'consequence',l:'A2',d:'a result of an action or decision',s:'result',a:'cause',f:'consequently',c:'Every major decision can have a ___.'},
+{w:'persuade',l:'B1',d:'to make someone agree to do or believe something',s:'convince',a:'discourage',f:'persuasive',c:'The speaker uses evidence to ___ the audience.'},
+{w:'significant',l:'B1',d:'important or large enough to be noticed',s:'important',a:'minor',f:'significance',c:'The final sentence marks a ___ change in tone.'},
+{w:'interpret',l:'B1',d:'to explain the meaning of something',s:'explain',a:'misunderstand',f:'interpretation',c:'Students should ___ the image rather than only describe it.'},
+{w:'imply',l:'B1',d:'to suggest something without saying it directly',s:'suggest',a:'state',f:'implication',c:'What does the phrase ___ about the narrator’s attitude?'},
+{w:'emphasise',l:'B1',d:'to give special importance or attention to something',s:'highlight',a:'downplay',f:'emphasis',c:'Short sentences can ___ a moment of tension.'},
+{w:'reluctant',l:'B1',d:'unwilling and hesitant to do something',s:'unwilling',a:'eager',f:'reluctance',c:'The character seems ___ to leave home.'},
+{w:'justify',l:'B1',d:'to give a good reason for an answer or action',s:'explain',a:'dismiss',f:'justification',c:'Use evidence to ___ your opinion.'},
+{w:'perspective',l:'B1',d:'a particular way of viewing a situation',s:'viewpoint',a:'certainty',f:'perspectival',c:'The story is told from the child’s ___.'},
+{w:'convey',l:'B1',d:'to communicate an idea, feeling or meaning',s:'communicate',a:'conceal',f:'conveyance',c:'The writer uses imagery to ___ fear.'},
+{w:'evaluate',l:'B1',d:'to judge the quality or value of something carefully',s:'assess',a:'ignore',f:'evaluation',c:'You should ___ both arguments before deciding.'},
+{w:'sequence',l:'B1',d:'the order in which events or ideas happen',s:'order',a:'disorder',f:'sequential',c:'The events are presented in chronological ___.'},
+{w:'infer',l:'B1',d:'to reach a conclusion from evidence rather than a direct statement',s:'deduce',a:'state',f:'inference',c:'Readers can ___ that the character feels unsafe.'},
+{w:'vivid',l:'B1',d:'producing very clear and strong images in the mind',s:'striking',a:'dull',f:'vividly',c:'The writer uses ___ sensory details.'},
+{w:'structure',l:'B1',d:'the way the parts of a text are organised',s:'organisation',a:'disorder',f:'structural',c:'Consider how the ___ of the passage affects the reader.'},
+{w:'atmosphere',l:'B1',d:'the mood or feeling created in a place or text',s:'mood',a:'neutrality',f:'atmospheric',c:'The setting creates a tense ___.'},
+{w:'reflect',l:'B1',d:'to think carefully about something',s:'consider',a:'ignore',f:'reflection',c:'At the end, the narrator begins to ___ on the decision.'},
+{w:'subtle',l:'B2',d:'not obvious and therefore requiring careful attention to notice',s:'delicate',a:'obvious',f:'subtlety',c:'The writer makes a ___ change in tone.'},
+{w:'ambiguous',l:'B2',d:'having more than one possible meaning',s:'unclear',a:'definite',f:'ambiguity',c:'The final line is deliberately ___.'},
+{w:'coherent',l:'B2',d:'logical, clear and well organised',s:'logical',a:'confused',f:'coherence',c:'A strong report should have a ___ structure.'},
+{w:'manipulate',l:'B2',d:'to control or influence something skilfully',s:'control',a:'release',f:'manipulation',c:'The writer can ___ sentence length to change pace.'},
+{w:'reinforce',l:'B2',d:'to strengthen an idea, feeling or effect',s:'strengthen',a:'weaken',f:'reinforcement',c:'Repetition can ___ the central message.'},
+{w:'juxtapose',l:'B2',d:'to place two things close together to emphasise their differences',s:'contrast',a:'separate',f:'juxtaposition',c:'The writer may ___ calm and chaotic scenes.'},
+{w:'foreshadow',l:'B2',d:'to give an early hint of something that will happen later',s:'signal',a:'conceal',f:'foreshadowing',c:'The dark clouds ___ the trouble that follows.'},
+{w:'connotation',l:'B2',d:'an idea or feeling suggested by a word in addition to its literal meaning',s:'association',a:'denotation',f:'connotative',c:'Consider the negative ___ of the word “swallowed”.'},
+{w:'synthesise',l:'B2',d:'to combine ideas from different sources into a new understanding',s:'combine',a:'separate',f:'synthesis',c:'The final paragraph should ___ the main ideas.'},
+{w:'rhetorical',l:'B2',d:'used for effect or persuasion rather than to receive a literal answer',s:'persuasive',a:'literal',f:'rhetoric',c:'The speech opens with a ___ question.'},
+{w:'nuance',l:'B2',d:'a small but important difference in meaning or feeling',s:'subtlety',a:'simplicity',f:'nuanced',c:'A strong analysis notices the ___ in the character’s tone.'},
+{w:'credible',l:'B2',d:'able to be believed or trusted',s:'believable',a:'unreliable',f:'credibility',c:'A report should use ___ sources.'},
+{w:'counterargument',l:'B2',d:'an argument that opposes another argument',s:'objection',a:'support',f:'counter',c:'A balanced response may address a ___.'},
+{w:'resilient',l:'B2',d:'able to recover after difficulty or change',s:'strong',a:'fragile',f:'resilience',c:'The character remains ___ despite repeated setbacks.'}
+];
+
+let round=[],index=0,score=0,streak=0,answered=0,locked=false,wrongWords=[],responses=[];
+const el=id=>document.getElementById(id),shuffle=a=>[...a].sort(()=>Math.random()-.5),choice=a=>a[Math.floor(Math.random()*a.length)];
+function pool(){const l=el('level').value;return bank.filter(x=>l==='ALL'||x.l===l)}
+function distract(key,item,p){return shuffle(p.filter(x=>x.w!==item.w).map(x=>x[key]).filter(Boolean)).slice(0,3)}
+function build(item,mode,p){
+ let kind=mode==='mixed'?choice(['definition','context','synonym','antonym','family']):mode;
+ let prompt='',correct='',label='';
+ if(kind==='definition'){prompt='Choose the best definition of this word.';correct=item.d;label=item.w}
+ if(kind==='context'){prompt=item.c.replace('___','_____');correct=item.w;label='Complete the sentence'}
+ if(kind==='synonym'){prompt='Choose the closest synonym.';correct=item.s;label=item.w}
+ if(kind==='antonym'){prompt='Choose the best antonym.';correct=item.a;label=item.w}
+ if(kind==='family'){prompt='Choose a related word from the same word family.';correct=item.f;label=item.w}
+ const key=kind==='definition'?'d':kind==='context'?'w':kind==='synonym'?'s':kind==='antonym'?'a':'f';
+ return {item,kind,label,prompt,correct,options:shuffle([correct,...distract(key,item,p)])};
+}
+function newRound(){
+ const p=pool(),n=Math.min(Number(el('length').value),p.length);round=shuffle(p).slice(0,n).map(x=>build(x,el('mode').value,p));index=0;score=0;streak=0;answered=0;wrongWords=[];responses=[];locked=false;el('result').classList.remove('show');updateStats();render();
+}
+function render(){
+ if(index>=round.length){finish();return}
+ const q=round[index];el('card').innerHTML='<div class="qhead"><span>Question '+(index+1)+' of '+round.length+'</span><span>'+q.item.l+' • '+q.kind+'</span></div><div class="question"><div class="word">'+q.label+'</div><div class="prompt">'+q.prompt+'</div><div class="options">'+q.options.map(o=>'<button class="option" type="button" data-v="'+o.replace(/"/g,'&quot;')+'">'+o+'</button>').join('')+'</div><div class="feedback" id="feedback">Choose one answer.</div><div class="actions"><button class="next" id="next" type="button" disabled>Next →</button><button class="finish" id="end" type="button">End round</button></div></div>';
+ document.querySelectorAll('.option').forEach(b=>b.addEventListener('click',()=>answer(b)));el('next').addEventListener('click',()=>{index++;locked=false;render()});el('end').addEventListener('click',finish);
+}
+function answer(btn){
+ if(locked)return;locked=true;answered++;const q=round[index],ok=btn.dataset.v===q.correct;if(ok){score++;streak++;btn.classList.add('correct');el('feedback').textContent='Correct — '+q.item.d+'.'}else{streak=0;btn.classList.add('wrong');wrongWords.push(q.item.w);document.querySelectorAll('.option').forEach(b=>{if(b.dataset.v===q.correct)b.classList.add('correct')});el('feedback').textContent='Not quite. Correct answer: '+q.correct+'. '+q.item.d+'.'}responses.push({q:index+1,word:q.item.w,level:q.item.l,kind:q.kind,response:btn.dataset.v,correct:q.correct,result:ok?'Correct':'Incorrect'});el('next').disabled=false;updateStats();renderMissed();
+}
+function updateStats(){el('score').textContent=score;el('answered').textContent=answered;el('accuracy').textContent=(answered?Math.round(score/answered*100):0)+'%';el('streak').textContent=streak}
+function renderMissed(){const u=[...new Set(wrongWords)];el('missed').innerHTML=u.length?u.map(w=>'<span class="chip">'+w+'</span>').join(''):'<span class="chip">None yet — keep going!</span>'}
+async function finish(){
+ if(!round.length)return;el('finalScore').textContent=score+'/'+answered;el('finalText').textContent=answered?('Accuracy: '+Math.round(score/answered*100)+'%. Generate another round whenever you are ready.'):'No questions answered yet.';el('result').classList.add('show');
+ if(!profile.code||String(profile.classroom||'').toLowerCase()==='teacher'||!responses.length)return;
+ const payload={submissionId:'VOCAB-'+profile.code+'-'+Date.now(),studentCode:profile.code,studentName:profile.name,classroom:profile.classroom,lesson:'Vocabulary Arena',lessonTitle:'Vocabulary Arena '+el('level').value+' '+el('mode').value,xp:score,autoCorrect:score,autoTotal:answered,autoPercentage:answered?score/answered:0,itemResponses:responses.map(r=>({activity:'Generated Round',itemId:'Q'+r.q+'-'+r.word,skill:'Vocabulary '+r.kind,response:r.response,expectedAnswer:r.correct,autoResult:r.result,attempts:1,remedialFocus:r.word})),answers:{}};
+ try{await fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}
+}
+el('start').addEventListener('click',newRound);el('again').addEventListener('click',newRound);
+</script>
+</body>
+</html>
