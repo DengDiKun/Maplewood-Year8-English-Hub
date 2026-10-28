@@ -2,12 +2,31 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function hasActiveRole(role) {
+      return request.auth != null
+             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active == true
+             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
     match /users/{userId} {
       allow get: if request.auth != null
                  && request.auth.uid == userId
                  && resource.data.active == true;
 
       allow list, create, update, delete: if false;
+    }
+
+    match /classes/{classId} {
+      // Administrators can review every class, including inactive classes.
+      // Teachers can read only active classes explicitly assigned to their UID.
+      allow get, list: if hasActiveRole('admin')
+                       || (hasActiveRole('teacher')
+                           && resource.data.active == true
+                           && resource.data.teacherUids is list
+                           && request.auth.uid in resource.data.teacherUids);
+
+      // Class creation and assignment changes still use the Firebase Console.
+      allow create, update, delete: if false;
     }
 
     match /{document=**} {

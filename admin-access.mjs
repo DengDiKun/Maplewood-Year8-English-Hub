@@ -43,6 +43,56 @@ export async function signInAdministrator(client, email, password) {
   }
 }
 
+export async function loadAdministratorClasses(profile, loadClasses) {
+  if (!profile || profile.role !== 'admin' || typeof profile.uid !== 'string' ||
+      !profile.uid.trim() || profile.uid.includes('/')) {
+    throw new AccessError('access/denied', 'An administrator account is required.');
+  }
+  // The caller uses getDocsFromServer. Firestore rules independently check the
+  // current user's active administrator profile for every collection request.
+  const snapshot = await loadClasses();
+  const classes = [];
+  let invalidCount = 0;
+  for (const document of snapshot.docs) {
+    const data = document.data();
+    if (!data || typeof document.id !== 'string' || !document.id ||
+        typeof data.name !== 'string' || !data.name.trim() ||
+        typeof data.branch !== 'string' || !data.branch.trim() ||
+        !Number.isSafeInteger(data.yearGroup) || data.yearGroup < 1 ||
+        !Number.isSafeInteger(data.academicYear) || data.academicYear < 1 ||
+        typeof data.active !== 'boolean' || !Array.isArray(data.teacherUids) ||
+        !data.teacherUids.every(uid => typeof uid === 'string' && uid.trim() && !uid.includes('/'))) {
+      invalidCount += 1;
+      continue;
+    }
+    classes.push({
+      id: document.id,
+      name: data.name.trim(),
+      branch: data.branch.trim(),
+      yearGroup: data.yearGroup,
+      academicYear: data.academicYear,
+      active: data.active,
+      assignedToYou: data.teacherUids.includes(profile.uid),
+      teacherCount: new Set(data.teacherUids).size
+    });
+  }
+  classes.sort((a, b) => Number(b.active) - Number(a.active) ||
+    a.branch.localeCompare(b.branch) || b.academicYear - a.academicYear ||
+    a.yearGroup - b.yearGroup || a.name.localeCompare(b.name, 'en', { numeric: true }) ||
+    a.id.localeCompare(b.id));
+  return { classes, invalidCount };
+}
+
+export function classErrorMessage(error) {
+  if (error?.code === 'permission-denied' || error?.code === 'access/denied') {
+    return 'Your account can sign in, but class access is not available. Contact your school administrator.';
+  }
+  if (['unavailable', 'deadline-exceeded', 'auth/network-request-failed'].includes(error?.code)) {
+    return 'Classes could not be loaded. Check your connection and try again.';
+  }
+  return 'Classes could not be loaded. Please try again.';
+}
+
 export function errorMessage(error) {
   switch (error?.code) {
     case 'auth/invalid-credential':

@@ -13,6 +13,8 @@
     [hidden] { display:none !important; }
     body { margin:0; min-height:100svh; padding:32px 18px; display:grid; place-items:center; background:radial-gradient(ellipse at 12% 12%,#217681 0,transparent 45%),linear-gradient(135deg,#08293c,#0b4a54); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
     main { width:min(580px,100%); padding:clamp(24px,5vw,44px); border-radius:36px 16px 36px 16px; background:#fffefa; box-shadow:0 24px 72px #001a2b55; }
+    main.signed-in { width:min(960px,100%); }
+    main.signed-in h1 { max-width:720px; font-size:clamp(2rem,6vw,3rem); }
     .brand { display:flex; align-items:center; gap:12px; margin-bottom:30px; }
     .brand-mark { display:grid; place-items:center; flex:none; width:44px; height:44px; background:var(--navy); color:#f2cb73; border-radius:14px 5px 14px 5px; font-family:Georgia,serif; font-weight:bold; font-size:24px; }
     .brand strong { display:block; color:var(--navy); font-size:.94rem; }
@@ -45,6 +47,29 @@
     dt { margin-bottom:5px; color:var(--muted); font-size:.8rem; }
     dd { margin:0; font-weight:650; overflow-wrap:anywhere; }
     .next { color:var(--muted); font-size:.92rem; line-height:1.65; }
+    .account-details { display:flex; flex-wrap:wrap; gap:12px 40px; }
+    .account-details div { border:0; }
+    #classes { margin:28px 0 18px; padding-top:24px; border-top:1px solid var(--line); }
+    .section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h3 { margin:0; color:var(--navy); font-size:1.25rem; }
+    .refresh { width:auto; min-height:44px; margin:0; padding:8px 16px; font-size:.88rem; }
+    .section-intro { color:var(--muted); font-size:.9rem; line-height:1.6; margin:10px 0 18px; }
+    #class-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:16px; }
+    .class-card { min-width:0; border:1px solid var(--line); border-radius:18px; background:#fff; padding:20px; }
+    .class-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    h4 { margin:0; font-family:Georgia,serif; color:var(--navy); font-weight:normal; font-size:1.65rem; overflow-wrap:anywhere; }
+    .class-state { flex:none; padding:5px 9px; border-radius:999px; font-size:.75rem; font-weight:750; }
+    .class-state.active { color:#226b48; background:#e4f1e9; }
+    .class-state.inactive { color:#596f7b; background:#edf0f2; }
+    .class-card dl { margin:16px 0 12px; }
+    .class-card dl div { display:flex; justify-content:space-between; gap:12px; padding:10px 0; }
+    .class-card dt { margin:0; }
+    .class-card dd { font-size:.88rem; text-align:right; }
+    .assignment { color:var(--muted); margin:16px 0 0; font-size:.85rem; line-height:1.5; }
+    .assignment.assigned { color:#126b73; font-weight:750; }
+    #class-status { color:var(--muted); font-size:.88rem; line-height:1.6; margin:16px 0 0; overflow-wrap:anywhere; }
+    #class-status[data-kind=error] { color:#a2293a; }
+    #class-status[data-kind=warning] { color:#80580d; }
     @media (max-width:380px) { body { padding:16px 10px; } main { padding:24px 20px; } .brand { gap:9px; } }
   </style>
 </head>
@@ -55,8 +80,8 @@
       <div><strong>Maplewood English Learning</strong><span>Maplewood International School</span></div>
     </header>
     <p class="eyebrow">Staff access</p>
-    <h1>Administrator sign-in</h1>
-    <p class="intro">Sign in with your administrator email address and password.</p>
+    <h1 id="page-heading">Administrator sign-in</h1>
+    <p class="intro" id="intro">Sign in with your administrator email address and password.</p>
     <form id="login-form">
       <fieldset id="login-fields" disabled>
         <legend hidden>Administrator credentials</legend>
@@ -69,16 +94,22 @@
     <section id="account" aria-labelledby="account-heading" hidden>
       <span class="verified"><span aria-hidden="true">✓</span> Administrator profile verified</span>
       <h2 id="account-heading" tabindex="-1">Welcome, <span id="account-name"></span></h2>
-      <dl>
+      <dl class="account-details">
         <div><dt>Email address</dt><dd id="account-email"></dd></div>
         <div><dt>Account role</dt><dd id="account-role"></dd></div>
       </dl>
-      <p class="next">Your login is connected. Class management and teacher assignments will be added in the next setup stage.</p>
+      <section id="classes" aria-labelledby="classes-heading" aria-busy="false">
+        <div class="section-heading"><h3 id="classes-heading">Classes</h3><button class="secondary refresh" id="refresh-classes" type="button">Refresh classes</button></div>
+        <p class="section-intro">Review your school's classes and see which ones you teach.</p>
+        <div id="class-list"></div>
+        <p id="class-status" role="status" aria-live="polite"></p>
+      </section>
+      <p class="next">Student records and results will be connected in a later stage.</p>
       <button class="secondary" id="sign-out" type="button">Sign out</button>
     </section>
     <p id="status" role="status" aria-live="polite">Connecting to Maplewood sign-in…</p>
     <button class="secondary" id="retry" type="button" hidden>Reload page</button>
-    <div class="notice">This page checks your login and administrator profile. Student records and results will be connected in a later stage. Sign in again after reloading this page.</div>
+    <div class="notice" id="notice">Sign in with your school administrator account. You will need to sign in again after reloading this page.</div>
     <a class="back" href="index.html">Return to the Learning Hub</a>
     <noscript><p>JavaScript is needed to sign in. Enable JavaScript, then reload this page.</p></noscript>
   </main>
