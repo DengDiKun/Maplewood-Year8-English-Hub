@@ -2,12 +2,14 @@ import { before, after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
+import * as firestoreSDK from 'firebase/firestore';
+import { teachingClassesQuery } from '../admin-access.mjs';
 import { doc, collection, query, where, getDocFromServer as getDoc, getDocsFromServer as getDocs, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 let environment;
 const classData = { name: '8 Daisy', branch: 'TM', yearGroup: 8, academicYear: 2026, active: true, teacherUids: ['teacher', 'admin'] };
 const db = (uid, claims) => environment.authenticatedContext(uid, claims).firestore();
-const assignedQuery = (database, uid) => query(collection(database, 'classes'), where('active', '==', true), where('teacherUids', 'array-contains', uid));
+const assignedQuery = (database, uid) => teachingClassesQuery(firestoreSDK, database, uid);
 
 before(async () => {
   environment = await initializeTestEnvironment({
@@ -21,6 +23,7 @@ before(async () => {
       admin: { active: true, role: 'admin' },
       teacher: { active: true, role: 'teacher' },
       other: { active: true, role: 'teacher' },
+      unassigned: { active: true, role: 'teacher' },
       student: { active: true, role: 'student' },
       inactive: { active: false, role: 'admin' },
       'inactive-teacher': { active: false, role: 'teacher' },
@@ -91,6 +94,16 @@ test('teacher queries require both the active filter and their own UID membershi
   await assertFails(getDocs(assignedQuery(database, 'other')));
   await assertFails(getDocs(query(collection(database, 'classes'), where('active', '==', true), where('teacherUids', '==', { teacher: true }))));
   await assertFails(getDocs(query(collection(database, 'classes'), where('active', '==', true), where('teacherUids', '==', 'teacher'))));
+});
+
+test('the production teaching query also limits an administrator to assigned active classes', async () => {
+  const result = await assertSucceeds(getDocs(assignedQuery(db('admin'), 'admin')));
+  assert.deepEqual(result.docs.map(item => item.id), ['daisy']);
+});
+
+test('an active teacher with no assignments gets an empty class list', async () => {
+  const result = await assertSucceeds(getDocs(assignedQuery(db('unassigned'), 'unassigned')));
+  assert.equal(result.size, 0);
 });
 
 test('student, absent, inactive and malformed profiles cannot read class data', async () => {

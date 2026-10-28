@@ -5,6 +5,7 @@ on:
     paths:
       - 'admin-*.mjs'
       - 'admin-login.html'
+      - 'teacher-login.*'
       - 'firestore.rules'
       - 'firebase.emulators.json'
       - 'package*.json'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'admin-*.mjs'
       - 'admin-login.html'
+      - 'teacher-login.*'
       - 'firestore.rules'
       - 'firebase.emulators.json'
       - 'package*.json'
@@ -43,4 +45,5 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm test
       - run: node --check admin-login.mjs
+      - run: node --check teacher-login.mjs
       - run: npm run test:rules

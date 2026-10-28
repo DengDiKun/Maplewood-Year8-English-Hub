@@ -17,25 +17,37 @@ export function validateConfig(config) {
   return config;
 }
 
-export async function verifyAdministrator(user, loadProfile) {
-  if (!user || typeof user.uid !== 'string' || !user.uid.trim() || user.uid.includes('/')) {
-    throw new AccessError('access/denied', 'An administrator account is required.');
+function validUid(uid) {
+  return typeof uid === 'string' && uid.trim().length > 0 && !uid.includes('/');
+}
+
+async function verifyProfile(user, loadProfile, allowedRoles) {
+  if (!user || !validUid(user.uid)) {
+    throw new AccessError('access/denied', 'A staff account is required.');
   }
   // The caller must read users/{uid} from the server, never browser storage.
   const snapshot = await loadProfile(user.uid);
   const profile = snapshot.exists() ? snapshot.data() : null;
-  if (!profile || profile.active !== true || profile.role !== 'admin') {
-    throw new AccessError('access/denied', 'This account is not enabled for administrator access.');
+  if (!profile || profile.active !== true || !allowedRoles.includes(profile.role)) {
+    throw new AccessError('access/denied', 'This account is not enabled for this staff page.');
   }
   const name = typeof profile.displayName === 'string' && profile.displayName.trim()
-    ? profile.displayName.trim() : 'Administrator';
-  return Object.freeze({ name, email: user.email || '', uid: user.uid, role: 'admin' });
+    ? profile.displayName.trim() : profile.role === 'admin' ? 'Administrator' : 'Teacher';
+  return Object.freeze({ name, email: user.email || '', uid: user.uid, role: profile.role });
 }
 
-export async function signInAdministrator(client, email, password) {
+export function verifyAdministrator(user, loadProfile) {
+  return verifyProfile(user, loadProfile, ['admin']);
+}
+
+export function verifyTeachingStaff(user, loadProfile) {
+  return verifyProfile(user, loadProfile, ['teacher', 'admin']);
+}
+
+async function signInStaff(client, email, password, verify) {
   const credential = await client.signIn(email.trim(), password);
   try {
-    return await verifyAdministrator(credential.user, client.loadProfile);
+    return await verify(credential.user, client.loadProfile);
   } catch (error) {
     // A Firebase login alone must never reveal the account panel.
     try { await client.signOut(); } catch { /* UI remains closed on any failure. */ }
@@ -43,14 +55,49 @@ export async function signInAdministrator(client, email, password) {
   }
 }
 
+export function signInAdministrator(client, email, password) {
+  return signInStaff(client, email, password, verifyAdministrator);
+}
+
+export function signInTeachingStaff(client, email, password) {
+  return signInStaff(client, email, password, verifyTeachingStaff);
+}
+
 export async function loadAdministratorClasses(profile, loadClasses) {
-  if (!profile || profile.role !== 'admin' || typeof profile.uid !== 'string' ||
-      !profile.uid.trim() || profile.uid.includes('/')) {
+  if (!profile || profile.role !== 'admin' || !validUid(profile.uid)) {
     throw new AccessError('access/denied', 'An administrator account is required.');
   }
   // The caller uses getDocsFromServer. Firestore rules independently check the
   // current user's active administrator profile for every collection request.
   const snapshot = await loadClasses();
+  return classDashboard(snapshot, profile.uid);
+}
+
+export function teachingClassesQuery(sdk, database, uid) {
+  if (!validUid(uid)) {
+    throw new AccessError('access/denied', 'A staff account is required.');
+  }
+  // Both conditions are required by the teacher's server-side read policy.
+  return sdk.query(sdk.collection(database, 'classes'),
+    sdk.where('active', '==', true),
+    sdk.where('teacherUids', 'array-contains', uid));
+}
+
+export async function loadTeachingClasses(profile, loadClasses) {
+  if (!profile || !['teacher', 'admin'].includes(profile.role) || !validUid(profile.uid)) {
+    throw new AccessError('access/denied', 'A staff account is required.');
+  }
+  const snapshot = await loadClasses(profile.uid);
+  const dashboard = classDashboard(snapshot, profile.uid);
+  // Administrators can access all class documents at the backend, but this
+  // teaching view must still show only their assigned active classes.
+  if (dashboard.classes.some(item => !item.active || !item.assignedToYou)) {
+    throw new AccessError('access/class-scope', 'The teaching class query returned unexpected records.');
+  }
+  return dashboard;
+}
+
+function classDashboard(snapshot, uid) {
   const classes = [];
   let invalidCount = 0;
   for (const document of snapshot.docs) {
@@ -72,7 +119,7 @@ export async function loadAdministratorClasses(profile, loadClasses) {
       yearGroup: data.yearGroup,
       academicYear: data.academicYear,
       active: data.active,
-      assignedToYou: data.teacherUids.includes(profile.uid),
+      assignedToYou: data.teacherUids.includes(uid),
       teacherCount: new Set(data.teacherUids).size
     });
   }
@@ -81,6 +128,20 @@ export async function loadAdministratorClasses(profile, loadClasses) {
     a.yearGroup - b.yearGroup || a.name.localeCompare(b.name, 'en', { numeric: true }) ||
     a.id.localeCompare(b.id));
   return { classes, invalidCount };
+}
+
+export function teachingSignInErrorMessage(error) {
+  if (error?.code === 'access/denied' || error?.code === 'permission-denied') {
+    return 'This account does not have an active teacher or administrator profile. Contact the school administrator.';
+  }
+  return errorMessage(error);
+}
+
+export function teachingClassErrorMessage(error) {
+  if (error?.code === 'failed-precondition' || error?.code === 'access/class-scope') {
+    return 'Classes could not be loaded. Please contact your school administrator.';
+  }
+  return classErrorMessage(error);
 }
 
 export function classErrorMessage(error) {
