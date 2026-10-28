@@ -89,6 +89,8 @@ test('teacher queries require both the active filter and their own UID membershi
   await assertFails(getDocs(query(collection(database, 'classes'), where('active', '==', true))));
   await assertFails(getDocs(query(collection(database, 'classes'), where('teacherUids', 'array-contains', 'teacher'))));
   await assertFails(getDocs(assignedQuery(database, 'other')));
+  await assertFails(getDocs(query(collection(database, 'classes'), where('active', '==', true), where('teacherUids', '==', { teacher: true }))));
+  await assertFails(getDocs(query(collection(database, 'classes'), where('active', '==', true), where('teacherUids', '==', 'teacher'))));
 });
 
 test('student, absent, inactive and malformed profiles cannot read class data', async () => {

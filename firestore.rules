@@ -22,8 +22,7 @@ service cloud.firestore {
       allow get, list: if hasActiveRole('admin')
                        || (hasActiveRole('teacher')
                            && resource.data.active == true
-                           && resource.data.teacherUids is list
-                           && request.auth.uid in resource.data.teacherUids);
+                           && resource.data.teacherUids.hasAny([request.auth.uid]));
 
       // Class creation and assignment changes still use the Firebase Console.
       allow create, update, delete: if false;
