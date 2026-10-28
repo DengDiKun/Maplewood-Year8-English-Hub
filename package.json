@@ -2,7 +2,7 @@
   "name": "maplewood-learning-hub-checks",
   "private": true,
   "scripts": {
-    "test": "node --test tests/admin-access.test.mjs tests/admin-classes.test.mjs",
+    "test": "node --test tests/admin-access.test.mjs tests/admin-classes.test.mjs tests/teacher-access.test.mjs",
     "test:rules": "firebase emulators:exec --config firebase.emulators.json --project demo-maplewood-classes --only firestore \"node --test tests/firestore.rules.test.mjs\""
   },
   "devDependencies": {

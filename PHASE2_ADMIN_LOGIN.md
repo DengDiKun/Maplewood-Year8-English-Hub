@@ -15,8 +15,9 @@ records and permission/network failures have separate visible messages. Class
 content is inserted with `textContent`, never interpreted as HTML.
 
 This stage is read-only. Class creation and teacher assignments use the Firebase
-Console. Student records, results, teacher sign-in and password recovery are
-future work. The existing Apps Script and four-digit-code pages have their own
+Console. Student records, results and password recovery are future work.
+Teacher sign-in is described in `PHASE2_TEACHER_LOGIN.md`.
+The existing Apps Script and four-digit-code pages have their own
 authorization and are not secured by these Firestore rules. This page does not
 set legacy login flags or call the legacy backend.
 
@@ -70,8 +71,9 @@ both `where('active', '==', true)` and
 `where('teacherUids', 'array-contains', authenticatedUid)`; an unrestricted class
 query is denied to teachers. The administrator's collection query is permitted
 because their active server profile grants access to every class document.
-Teacher query permissions are tested now; the administrator page continues to
-reject teacher logins until a separate teacher entry point is implemented.
+The administrator page continues to reject teacher logins. Teachers use the
+separate `teacher-login.html` entry point, which uses the constrained query
+above. Administrators may also open that page to see their teaching assignments.
 
 ## Publish and deploy
 
