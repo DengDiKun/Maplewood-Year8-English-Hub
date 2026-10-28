@@ -1,0 +1,46 @@
+name: Firebase access checks
+
+on:
+  pull_request:
+    paths:
+      - 'admin-*.mjs'
+      - 'admin-login.html'
+      - 'firestore.rules'
+      - 'firebase.emulators.json'
+      - 'package*.json'
+      - 'tests/**'
+      - '.github/workflows/firebase-access-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'admin-*.mjs'
+      - 'admin-login.html'
+      - 'firestore.rules'
+      - 'firebase.emulators.json'
+      - 'package*.json'
+      - 'tests/**'
+      - '.github/workflows/firebase-access-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  access-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - run: node --check admin-login.mjs
+      - run: npm run test:rules

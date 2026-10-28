@@ -1,85 +1,149 @@
-# Firebase administrator login pilot
+# Firebase administrator login and class dashboard
 
-The new `admin-login.html` page signs in the existing Firebase Email/Password
-account and reads only `users/{authenticated UID}` from Firestore. The account
-panel appears only when that server document has `active: true` (boolean) and
-`role: "admin"`. No student records, class data, marks or Apps Script endpoints
-are requested by this page.
+`admin-login.html` signs in the existing Firebase Email/Password account and
+checks `users/{authenticated UID}` on the server. Only an active profile with
+`role: "admin"` can open the administrator dashboard. It then loads the root
+`classes` collection from Firestore and marks classes whose `teacherUids` array
+contains this administrator's UID. Administrators retain their `admin` role
+when assigned to teach a class.
 
-The existing teacher and student pages are not part of this change. The pilot
-does not set the old four-digit profile, teacher-mode or progress storage keys.
-This is an account connection test, not the completed administrator dashboard.
+The class view displays name, branch, year group, academic year, active state
+and assignment status. Refresh clears old cards before another server read;
+sign-out clears the name, email and class cards. Responses from an earlier
+session cannot repopulate the page after sign-out. Empty results, invalid class
+records and permission/network failures have separate visible messages. Class
+content is inserted with `textContent`, never interpreted as HTML.
 
-## Deploy and test
+This stage is read-only. Class creation and teacher assignments use the Firebase
+Console. Student records, results, teacher sign-in and password recovery are
+future work. The existing Apps Script and four-digit-code pages have their own
+authorization and are not secured by these Firestore rules. This page does not
+set legacy login flags or call the legacy backend.
 
-1. Copy `admin-login.html`, `admin-login.mjs` and `admin-access.mjs` into the same
-   local Firebase Hosting public directory as the current `index.html`.
-2. From the existing Firebase project directory, deploy Hosting:
+## Data setup
+
+The administrator's profile document ID must equal their Firebase
+Authentication UID:
+
+| Path | Field | Console type | Value |
+| --- | --- | --- | --- |
+| `users/{UID}` | `displayName` | string | Administrator's name |
+| `users/{UID}` | `role` | string | `admin` |
+| `users/{UID}` | `active` | boolean | `true` |
+
+Create `classes` at the database root, beside `users`, not inside the user's
+document. The first class is `classes/tm-y8-daisy-2026`:
+
+| Field | Console type | Value |
+| --- | --- | --- |
+| `name` | string | `8 Daisy` |
+| `branch` | string | `TM` |
+| `yearGroup` | int64 | `8` |
+| `academicYear` | int64 | `2026` |
+| `active` | boolean | `true` |
+| `teacherUids` | array of strings | Copy the assigned teacher's Authentication UID |
+
+Copy UIDs exactly; do not type them from screenshots. An empty `teacherUids`
+array is valid for an unassigned class. Incomplete or incorrectly typed class
+records are counted for review instead of displayed as valid class cards.
+
+## Backend permissions
+
+`firestore.rules` must be published separately from Hosting:
+
+| Requester | Own active profile | Class documents |
+| --- | --- | --- |
+| Signed out | Denied | Denied |
+| Active administrator | Get only | Get/list all classes, including inactive ones |
+| Active teacher | Get only | Get/list only assigned active classes |
+| Active student | Get only | Denied |
+| Inactive or missing profile | Denied | Denied |
+
+All client profile/class writes and profile collection queries remain denied,
+including administrator writes. A user cannot change their own role or assign
+themselves to a class. Role checks read `users/{request.auth.uid}` on the server,
+not browser state or caller-supplied role claims. Other collections and nested
+subcollections remain denied.
+
+Firestore rules do not filter query results. A future teacher page must use
+both `where('active', '==', true)` and
+`where('teacherUids', 'array-contains', authenticatedUid)`; an unrestricted class
+query is denied to teachers. The administrator's collection query is permitted
+because their active server profile grants access to every class document.
+Teacher query permissions are tested now; the administrator page continues to
+reject teacher logins until a separate teacher entry point is implemented.
+
+## Publish and deploy
+
+1. Open Firebase Console for `maplewood-english-learning` → Firestore Database
+   → Rules. Replace the editor contents with this repository's `firestore.rules`
+   and publish. The rules do not create or modify database records.
+2. Copy these three frontend files from the same commit into the existing local
+   Firebase Hosting `public` directory beside the current `index.html`, replacing
+   their previous versions:
+   - `admin-login.html`
+   - `admin-login.mjs`
+   - `admin-access.mjs`
+3. From the existing Firebase project directory, deploy Hosting:
 
    ```sh
    firebase deploy --only hosting --project maplewood-english-learning
    ```
 
-   Keep the existing Hosting configuration. This change does not introduce a
-   replacement `firebase.json` or select a different Hosting public directory.
-3. Open `https://maplewood-english-learning.web.app/admin-login.html`.
-4. Sign in with the Email/Password account already created in Firebase Console.
-5. Confirm the page shows the correct name, email and Administrator role.
-6. Sign out and confirm the credentials form reappears. Reloading also requires
-   a fresh login, because the pilot uses in-memory Firebase Auth persistence.
+Keep the existing Hosting `firebase.json`. The separate
+`firebase.emulators.json` in this repository is only for local tests and is not
+a replacement Hosting configuration. Hosting deployment alone does not publish
+Firestore rules. There is no automatic deployment in this change.
 
-The page obtains the project's public web configuration from the Firebase
-Hosting reserved URL `/__/firebase/init.json`. It checks the project ID and
-Firebase auth domain before initializing the SDK. This works on the existing
-Firebase Hosting domain; serving these files directly on GitHub Pages does not
-provide that reserved URL. No service-account JSON or private key is needed.
+The page loads public web configuration from `/__/firebase/init.json` and checks
+the project ID and auth domain before SDK initialization. Use the existing
+Firebase Hosting domain; Netlify and GitHub Pages do not provide that reserved
+URL. No private key or service-account file is required.
 
-## Account and rules
+## Owner's live verification
 
-The administrator's document ID must equal the Authentication UID. Fields:
+1. Open `https://maplewood-english-learning.web.app/admin-login.html` and sign in
+   with the already-created administrator account.
+2. Confirm the dashboard lists **8 Daisy**, branch **TM**, year group **8**,
+   academic year **2026**, state **Active** and
+   **You are assigned to this class**.
+3. Refresh classes and confirm it reloads successfully.
+4. Sign out. The account and class cards must disappear. Reloading also requires
+   a fresh sign-in because Firebase Auth uses in-memory persistence.
 
-| Field | Type | Required value |
-| --- | --- | --- |
-| `displayName` | string | The administrator's name |
-| `role` | string | `admin` |
-| `active` | boolean | `true` |
-
-`firestore.rules` records the rules published manually during setup. It permits
-only an active user's own profile get and denies collection queries and all
-client writes. A profile with another role may be readable by its owner under
-these rules; the pilot then rejects administrator access and signs out. The
-current rules grant no access to classes, submissions or other collections.
-
-The four Rules Playground checks during setup were:
-
-| Simulation | Expected result |
-| --- | --- |
-| Unauthenticated get of the administrator profile | Denied |
-| Get with the administrator's matching UID | Allowed |
-| Get with another simulated UID | Denied |
-| Delete with the administrator's matching UID | Denied |
-
-Before adding protected data or enabling wider use, implement and test that
-data's backend permission checks. The old Google Apps Script endpoints have
-their own authorization; these Firestore rules do not secure those endpoints.
-Never bridge the new login into old teacher access by writing a browser role
-flag. Teacher assignment and class access require their own server-enforced
-rules.
+If login succeeds but class access fails, check that the new rules were
+published to this same Firebase project. If no classes appear, verify the root
+collection path and field types. Check `teacherUids` against Authentication if
+the class appears without the teaching-assignment message.
 
 ## Local verification
 
+Node 24.12 or newer and Java 21 or newer are required by the pinned test tools.
+The frontend itself remains plain browser modules with no build step.
+
 ```sh
-node --test tests/admin-access.test.mjs
+npm ci --ignore-scripts
+npm test
+npm run test:rules
 node --check admin-login.mjs
 ```
 
-Tests cover denied/malformed roles, strict boolean active state, profile read
-failures, session cleanup, email/password handling and safe error messages.
-They do not use real accounts or credentials. A live login still needs to be
-verified by the account owner after Firebase Hosting deployment.
+The rules tests run against a local Firestore Emulator under the demo-only
+project `demo-maplewood-classes`. They never connect to the live project and
+require no account credentials. They cover unauthenticated access, own-profile
+isolation, active admin access, assigned teacher queries, malformed UID arrays,
+inactive/missing/student profiles, fake role claims, write denial, subcollection
+isolation and access revocation. Unit tests cover login failures, session
+cleanup, safe errors, class parsing and exact UID assignment matching.
+
+The `Firebase access checks` GitHub workflow runs these checks on relevant pull
+requests and main-branch changes with Node 24 and Java 21. It has read-only
+repository permission and does not deploy anything.
 
 Firebase references:
 
 - https://firebase.google.com/docs/auth/web/password-auth
 - https://firebase.google.com/docs/hosting/reserved-urls
 - https://firebase.google.com/docs/firestore/security/rules-conditions
+- https://firebase.google.com/docs/firestore/security/rules-query
+- https://firebase.google.com/docs/rules/unit-tests
