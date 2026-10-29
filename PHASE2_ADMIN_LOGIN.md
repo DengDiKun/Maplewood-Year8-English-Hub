@@ -15,7 +15,8 @@ records and permission/network failures have separate visible messages. Class
 content is inserted with `textContent`, never interpreted as HTML.
 
 This stage is read-only. Class creation and teacher assignments use the Firebase
-Console. Student records and results are future work. Staff password recovery
+Console. Read-only student lists are described in PHASE2_STUDENT_ROSTERS.md.
+Activities and results are future work. Staff password recovery
 is described in `PHASE2_PASSWORD_RECOVERY.md`.
 Teacher sign-in is described in `PHASE2_TEACHER_LOGIN.md`.
 The existing Apps Script and four-digit-code pages have their own
@@ -64,10 +65,10 @@ records are counted for review instead of displayed as valid class cards.
 All client profile/class writes and profile collection queries remain denied,
 including administrator writes. A user cannot change their own role or assign
 themselves to a class. Role checks read `users/{request.auth.uid}` on the server,
-not browser state or caller-supplied role claims. Other collections and nested
-subcollections remain denied.
+not browser state or caller-supplied role claims. Student roster reads have the explicit policy in PHASE2_STUDENT_ROSTERS.md.
+Other collections and unrelated nested subcollections remain denied.
 
-Firestore rules do not filter query results. A future teacher page must use
+Firestore rules do not filter query results. The teacher page uses
 both `where('active', '==', true)` and
 `where('teacherUids', 'array-contains', authenticatedUid)`; an unrestricted class
 query is denied to teachers. The administrator's collection query is permitted

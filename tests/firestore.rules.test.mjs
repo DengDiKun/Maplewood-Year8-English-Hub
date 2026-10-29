@@ -183,6 +183,20 @@ test('all browser roles are denied student creation, edits and deletion', async 
   }
 });
 
+test('deactivating a class revokes teacher roster reads while retaining administrator review', async () => {
+  await environment.withSecurityRulesDisabled(async context => {
+    await updateDoc(doc(context.firestore(), 'classes', 'daisy'), { active: false });
+  });
+  try {
+    await assertFails(getDocs(collection(db('teacher'), 'classes', 'daisy', 'students')));
+    await assertSucceeds(getDocs(collection(db('admin'), 'classes', 'daisy', 'students')));
+  } finally {
+    await environment.withSecurityRulesDisabled(async context => {
+      await updateDoc(doc(context.firestore(), 'classes', 'daisy'), { active: true });
+    });
+  }
+});
+
 test('removing an assignment or disabling a profile revokes subsequent server reads', async () => {
   const teacher = db('teacher');
   const admin = db('admin');
