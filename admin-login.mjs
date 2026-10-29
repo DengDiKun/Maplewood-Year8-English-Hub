@@ -1,3 +1,4 @@
+import { mountRoster, studentCollection } from './student-roster.mjs';
 import { validateConfig, signInAdministrator, loadAdministratorClasses, errorMessage, classErrorMessage, requestPasswordReset, passwordResetErrorMessage } from './admin-access.mjs';
 
 const form = document.getElementById('login-form');
@@ -17,6 +18,7 @@ const refreshButton = document.getElementById('refresh-classes');
 let generation = 0;
 let classGeneration = 0;
 let currentProfile = null;
+let roster = null;
 let resetRetryAt = 0;
 let resetRetryTimer;
 
@@ -32,6 +34,7 @@ function showStatus(message, kind = '') {
 }
 
 function clearAccount() {
+  roster?.clear();
   currentProfile = null;
   classGeneration += 1;
   classList.replaceChildren();
@@ -91,7 +94,13 @@ function renderClasses(dashboard) {
     assignment.textContent = item.assignedToYou ? 'You are assigned to this class' :
       item.teacherCount === 0 ? 'No teacher assigned' :
       `${item.teacherCount} ${item.teacherCount === 1 ? 'teacher' : 'teachers'} assigned`;
-    card.append(top, details, assignment);
+    const open = document.createElement('button');
+    open.className = 'secondary';
+    open.type = 'button';
+    open.textContent = 'View students';
+    open.setAttribute('aria-label', `View students in ${item.name}`);
+    open.addEventListener('click', () => roster?.open(item, open));
+    card.append(top, details, assignment, open);
     return card;
   });
   classList.replaceChildren(...cards);
@@ -136,11 +145,19 @@ async function start() {
       signOut: () => authSDK.signOut(auth)
     };
 
+    roster = mountRoster({
+      root: document.getElementById('roster'), classes: classRegion,
+      load: (classId) => firestoreSDK.getDocsFromServer(studentCollection(firestoreSDK, database, classId)),
+      sessionKey: () => currentProfile && auth.currentUser?.uid === currentProfile.uid
+        ? `${generation}:${currentProfile.uid}` : null
+    });
+
     const isCurrent = (profile, session, request) => generation === session &&
       classGeneration === request && currentProfile?.uid === profile.uid &&
       auth.currentUser?.uid === profile.uid;
 
     async function refreshClasses(profile, session) {
+      roster.clear();
       const request = ++classGeneration;
       classList.replaceChildren();
       classStatus.textContent = 'Loading classes…';

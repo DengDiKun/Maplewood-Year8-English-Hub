@@ -26,14 +26,16 @@ The Firestore Emulator tests import this exact helper, so the frontend query is
 checked against the backend rules. The already-published `firestore.rules`
 policy permits active teachers to read only their assigned active classes.
 Inactive, missing and student profiles cannot read classes, and all client
-class/profile writes remain denied. No rule changes are part of this update.
+class/profile writes remain denied. The roster update adds the student-read
+policy described in PHASE2_STUDENT_ROSTERS.md.
 
 The teaching view also checks returned class cards for exact UID assignment and
 active state. This keeps the administrator teaching view limited to teaching
 assignments even though an administrator is authorized to read all class
 metadata in the administrator dashboard. Unexpected records fail closed.
 
-Teacher access to student records/results is not implemented in this stage.
+Read-only student rosters are available as described in PHASE2_STUDENT_ROSTERS.md.
+Activities and results are not yet connected.
 The existing Apps Script and four-digit-code pages have separate authorization.
 The new teaching login never sets their browser access flags or calls those
 endpoints.
@@ -135,3 +137,8 @@ subcollection isolation and access revocation.
 Tests use the demo-only `demo-maplewood-classes` project and synthetic identities.
 They do not connect to production or need real credentials. GitHub runs them
 with the pinned tools, Node 24 and Java 21.
+
+## Student lists
+
+See PHASE2_STUDENT_ROSTERS.md for the read-only roster update, data schema,
+permissions, deployment order and sample-record checks.

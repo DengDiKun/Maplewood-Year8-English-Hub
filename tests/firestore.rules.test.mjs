@@ -43,6 +43,11 @@ before(async () => {
       ...Object.entries(classes).map(([id, data]) => setDoc(doc(database, 'classes', id), data)),
       setDoc(doc(database, 'users', 'admin', 'classes', 'duplicate'), classData),
       setDoc(doc(database, 'classes', 'daisy', 'students', 'private'), { name: 'Private student' }),
+      ...['other', 'inactive', 'missing-assignment', 'map-assignment', 'string-assignment', 'orphan'].map(id =>
+        setDoc(doc(database, 'classes', id, 'students', 'sample'), { displayName: 'Sample Student', active: true })),
+      setDoc(doc(database, 'classes', 'daisy', 'students', 'inactive'), { displayName: 'Inactive sample', active: false }),
+      setDoc(doc(database, 'classes', 'daisy', 'students', 'private', 'results', 'private'), { mark: 10 }),
+      setDoc(doc(database, 'students', 'root-private'), { displayName: 'Root private' }),
       setDoc(doc(database, 'submissions', 'private'), { mark: 10 })
     ]);
   });
@@ -128,13 +133,67 @@ test('no client, including an administrator, can write classes or change role/as
   }
 });
 
-test('class access grants no access to student subcollections, nested duplicates or submissions', async () => {
+test('class access grants no access to nested duplicates, results, root students or submissions', async () => {
   for (const uid of ['admin', 'teacher']) {
     const database = db(uid);
-    await assertFails(getDoc(doc(database, 'classes', 'daisy', 'students', 'private')));
-    await assertFails(getDocs(collection(database, 'classes', 'daisy', 'students')));
+    await assertFails(getDoc(doc(database, 'classes', 'daisy', 'students', 'private', 'results', 'private')));
+    await assertFails(getDocs(collection(database, 'students')));
+    await assertFails(getDoc(doc(database, 'students', 'root-private')));
+    await assertFails(getDocs(firestoreSDK.collectionGroup(database, 'students')));
     await assertFails(getDoc(doc(database, 'users', 'admin', 'classes', 'duplicate')));
     await assertFails(getDoc(doc(database, 'submissions', 'private')));
+  }
+});
+
+test('administrators read rosters in every existing class, including inactive classes', async () => {
+  const database = db('admin');
+  for (const id of ['daisy', 'other', 'inactive']) {
+    await assertSucceeds(getDocs(collection(database, 'classes', id, 'students')));
+  }
+  await assertSucceeds(getDoc(doc(database, 'classes', 'daisy', 'students', 'private')));
+  await assertFails(getDocs(collection(database, 'classes', 'orphan', 'students')));
+});
+
+test('teachers read only their assigned active class roster, including inactive students', async () => {
+  const database = db('teacher');
+  const result = await assertSucceeds(getDocs(collection(database, 'classes', 'daisy', 'students')));
+  assert.equal(result.size, 2);
+  await assertSucceeds(getDoc(doc(database, 'classes', 'daisy', 'students', 'inactive')));
+  for (const id of ['other', 'inactive', 'missing-assignment', 'map-assignment', 'string-assignment', 'orphan']) {
+    await assertFails(getDocs(collection(database, 'classes', id, 'students')));
+    await assertFails(getDoc(doc(database, 'classes', id, 'students', 'sample')));
+  }
+});
+
+test('anonymous, student, unassigned, missing and disabled profiles cannot read rosters', async () => {
+  for (const uid of [null, 'student', 'unassigned', 'missing', 'inactive', 'inactive-teacher', 'string-active', 'wrong-role']) {
+    const database = uid ? db(uid) : environment.unauthenticatedContext().firestore();
+    await assertFails(getDocs(collection(database, 'classes', 'daisy', 'students')));
+    await assertFails(getDoc(doc(database, 'classes', 'daisy', 'students', 'private')));
+  }
+  await assertFails(getDocs(collection(db('student', { role: 'admin' }), 'classes', 'daisy', 'students')));
+});
+
+test('all browser roles are denied student creation, edits and deletion', async () => {
+  for (const uid of ['admin', 'teacher', 'student']) {
+    const database = db(uid);
+    await assertFails(setDoc(doc(database, 'classes', 'daisy', 'students', 'new'), { displayName: 'New', active: true }));
+    await assertFails(updateDoc(doc(database, 'classes', 'daisy', 'students', 'private'), { displayName: 'Changed' }));
+    await assertFails(deleteDoc(doc(database, 'classes', 'daisy', 'students', 'private')));
+  }
+});
+
+test('deactivating a class revokes teacher roster reads while retaining administrator review', async () => {
+  await environment.withSecurityRulesDisabled(async context => {
+    await updateDoc(doc(context.firestore(), 'classes', 'daisy'), { active: false });
+  });
+  try {
+    await assertFails(getDocs(collection(db('teacher'), 'classes', 'daisy', 'students')));
+    await assertSucceeds(getDocs(collection(db('admin'), 'classes', 'daisy', 'students')));
+  } finally {
+    await environment.withSecurityRulesDisabled(async context => {
+      await updateDoc(doc(context.firestore(), 'classes', 'daisy'), { active: true });
+    });
   }
 });
 
@@ -142,14 +201,17 @@ test('removing an assignment or disabling a profile revokes subsequent server re
   const teacher = db('teacher');
   const admin = db('admin');
   await assertSucceeds(getDoc(doc(teacher, 'classes', 'daisy')));
+  await assertSucceeds(getDocs(collection(teacher, 'classes', 'daisy', 'students')));
   await environment.withSecurityRulesDisabled(async context => {
     await updateDoc(doc(context.firestore(), 'classes', 'daisy'), { teacherUids: ['admin'] });
   });
   await assertFails(getDoc(doc(teacher, 'classes', 'daisy')));
+  await assertFails(getDocs(collection(teacher, 'classes', 'daisy', 'students')));
   const result = await assertSucceeds(getDocs(assignedQuery(teacher, 'teacher')));
   assert.equal(result.size, 0);
   await environment.withSecurityRulesDisabled(async context => {
     await updateDoc(doc(context.firestore(), 'users', 'admin'), { active: false });
   });
   await assertFails(getDocs(collection(admin, 'classes')));
+  await assertFails(getDocs(collection(admin, 'classes', 'daisy', 'students')));
 });
