@@ -2,8 +2,9 @@
   "name": "maplewood-learning-hub-checks",
   "private": true,
   "scripts": {
-    "test": "node --test tests/admin-access.test.mjs tests/admin-classes.test.mjs tests/teacher-access.test.mjs",
-    "test:rules": "firebase emulators:exec --config firebase.emulators.json --project demo-maplewood-classes --only firestore \"node --test tests/firestore.rules.test.mjs\""
+    "test": "node --test tests/admin-access.test.mjs tests/admin-classes.test.mjs tests/teacher-access.test.mjs tests/password-reset.test.mjs",
+    "test:rules": "firebase emulators:exec --config firebase.emulators.json --project demo-maplewood-classes --only firestore \"node --test tests/firestore.rules.test.mjs\"",
+    "test:auth": "firebase emulators:exec --config firebase.emulators.json --project demo-maplewood-classes --only auth \"node --test tests/password-reset-auth.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "6.0.0",

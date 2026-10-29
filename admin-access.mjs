@@ -8,6 +8,41 @@ export class AccessError extends Error {
   }
 }
 
+export const PASSWORD_RESET_MESSAGE = 'If that email address is registered, you will receive password reset instructions. Check your inbox and spam folder.';
+
+export async function requestPasswordReset(sendResetEmail, address) {
+  if (typeof address !== 'string' || !address.trim()) {
+    throw new AccessError('reset/invalid-email', 'An email address is required.');
+  }
+  try {
+    await sendResetEmail(address.trim());
+  } catch (error) {
+    // Keep the UI response neutral even for projects/emulators that return an
+    // account-specific error. Do not look up profiles or sign the user in.
+    if (!['auth/user-not-found', 'auth/user-disabled'].includes(error?.code)) throw error;
+  }
+  return PASSWORD_RESET_MESSAGE;
+}
+
+export function passwordResetErrorMessage(error) {
+  switch (error?.code) {
+    case 'reset/invalid-email':
+    case 'auth/invalid-email':
+      return 'Enter a valid email address above, then choose Forgot password.';
+    case 'auth/too-many-requests':
+    case 'auth/quota-exceeded':
+      return 'Too many reset requests. Please wait a little before trying again.';
+    case 'auth/network-request-failed':
+    case 'unavailable':
+    case 'deadline-exceeded':
+      return 'The request could not be completed. Check your connection and try again.';
+    case 'auth/operation-not-allowed':
+      return 'Password reset is not available. Contact the school administrator.';
+    default:
+      return 'The reset request could not be completed. Please try again later.';
+  }
+}
+
 export function validateConfig(config) {
   if (!config || config.projectId !== PROJECT_ID ||
       typeof config.apiKey !== 'string' || !config.apiKey.trim() ||

@@ -1,4 +1,4 @@
-import { validateConfig, signInAdministrator, loadAdministratorClasses, errorMessage, classErrorMessage } from './admin-access.mjs';
+import { validateConfig, signInAdministrator, loadAdministratorClasses, errorMessage, classErrorMessage, requestPasswordReset, passwordResetErrorMessage } from './admin-access.mjs';
 
 const form = document.getElementById('login-form');
 const fields = document.getElementById('login-fields');
@@ -9,6 +9,7 @@ const account = document.getElementById('account');
 const signOutButton = document.getElementById('sign-out');
 const submit = document.getElementById('sign-in');
 const retry = document.getElementById('retry');
+const resetButton = document.getElementById('reset-password');
 const classList = document.getElementById('class-list');
 const classStatus = document.getElementById('class-status');
 const classRegion = document.getElementById('classes');
@@ -16,6 +17,14 @@ const refreshButton = document.getElementById('refresh-classes');
 let generation = 0;
 let classGeneration = 0;
 let currentProfile = null;
+let resetRetryAt = 0;
+let resetRetryTimer;
+
+function updateResetButton() {
+  resetButton.disabled = Date.now() < resetRetryAt;
+  resetButton.textContent = resetButton.disabled ? 'Email requested' : 'Forgot password?';
+}
+
 
 function showStatus(message, kind = '') {
   status.textContent = message;
@@ -123,6 +132,7 @@ async function start() {
       signIn: (address, secret) => authSDK.signInWithEmailAndPassword(auth, address, secret),
       loadProfile: (uid) => firestoreSDK.getDocFromServer(firestoreSDK.doc(database, 'users', uid)),
       loadClasses: () => firestoreSDK.getDocsFromServer(firestoreSDK.collection(database, 'classes')),
+      sendResetEmail: (address) => authSDK.sendPasswordResetEmail(auth, address),
       signOut: () => authSDK.signOut(auth)
     };
 
@@ -163,6 +173,42 @@ async function start() {
         clearAccount();
       }
       wasSignedIn = Boolean(user);
+    });
+
+    resetButton.addEventListener('click', async () => {
+      if (fields.disabled || resetButton.disabled) return;
+      if (!email.value.trim()) {
+        showStatus('Enter your email address above, then choose Forgot password.');
+        email.focus();
+        return;
+      }
+      if (!email.reportValidity()) {
+        showStatus('Enter a valid email address above, then choose Forgot password.', 'error');
+        return;
+      }
+      const attempt = ++generation;
+      fields.disabled = true;
+      resetButton.textContent = 'Sending…';
+      showStatus('Requesting a password reset email…');
+      try {
+        const message = await requestPasswordReset(client.sendResetEmail, email.value);
+        if (generation !== attempt) return;
+        showStatus(message, 'success');
+        resetRetryAt = Date.now() + 30000;
+        clearTimeout(resetRetryTimer);
+        resetRetryTimer = setTimeout(() => {
+          resetRetryAt = 0;
+          updateResetButton();
+        }, 30000);
+      } catch (error) {
+        if (generation === attempt) showStatus(passwordResetErrorMessage(error), 'error');
+      } finally {
+        password.value = '';
+        password.type = 'password';
+        document.getElementById('show-password').checked = false;
+        fields.disabled = false;
+        updateResetButton();
+      }
     });
 
     form.addEventListener('submit', async (event) => {

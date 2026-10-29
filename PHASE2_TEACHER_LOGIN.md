@@ -43,7 +43,8 @@ endpoints.
 `firestore.indexes.json` records the recommended composite index for the teaching
 query. To create it in the existing Firebase project:
 
-1. Open Firestore Database → Indexes → Composite indexes → Create index.
+1. Open Firestore Database → Indexes → Manual → Create index. Choose
+   Create structured index, then Next.
 2. Enter collection ID `classes` and query scope **Collection**.
 3. Add these fields, then create the index:
 
@@ -88,6 +89,11 @@ Reference: https://firebase.google.com/docs/firestore/query-data/index-overview
 The browser SDK loads public configuration from `/__/firebase/init.json`, checks
 the project ID and auth domain, and reads Firestore from the server. No build
 step or private key is required. Use the Firebase Hosting domain for this test.
+
+## Password recovery
+
+Both staff sign-in pages provide Forgot password. See
+`PHASE2_PASSWORD_RECOVERY.md` for deployment and the owner's recovery test.
 
 ## Add a teacher later
 

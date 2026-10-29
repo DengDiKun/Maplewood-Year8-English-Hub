@@ -34,6 +34,8 @@
     .primary:hover { background:#155568; }
     .secondary { width:100%; margin-top:16px; color:var(--navy); background:#e7f1f1; border:1px solid #c5dcdd; }
     button:disabled { cursor:wait; opacity:.6; }
+    .text-button { display:block; width:fit-content; min-height:44px; margin:10px auto 0; padding:8px 16px; color:var(--teal); background:transparent; text-decoration:underline; text-underline-offset:4px; font-size:.9rem; }
+    .text-button:disabled { cursor:default; }
     #status { margin:18px 0 0; min-height:24px; font-size:.9rem; line-height:1.55; color:var(--muted); overflow-wrap:anywhere; }
     #status[data-kind=error] { color:#a2293a; }
     #status[data-kind=success] { color:#226b48; }
@@ -89,6 +91,7 @@
         <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
         <label class="show-password" for="show-password"><input id="show-password" type="checkbox">Show password</label>
         <button class="primary" id="sign-in" type="submit">Sign in</button>
+        <button class="text-button" id="reset-password" type="button">Forgot password?</button>
       </fieldset>
     </form>
     <section id="account" aria-labelledby="account-heading" hidden>

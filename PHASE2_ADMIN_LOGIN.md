@@ -15,7 +15,8 @@ records and permission/network failures have separate visible messages. Class
 content is inserted with `textContent`, never interpreted as HTML.
 
 This stage is read-only. Class creation and teacher assignments use the Firebase
-Console. Student records, results and password recovery are future work.
+Console. Student records and results are future work. Staff password recovery
+is described in `PHASE2_PASSWORD_RECOVERY.md`.
 Teacher sign-in is described in `PHASE2_TEACHER_LOGIN.md`.
 The existing Apps Script and four-digit-code pages have their own
 authorization and are not secured by these Firestore rules. This page does not

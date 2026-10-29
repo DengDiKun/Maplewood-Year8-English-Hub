@@ -47,3 +47,4 @@ jobs:
       - run: node --check admin-login.mjs
       - run: node --check teacher-login.mjs
       - run: npm run test:rules
+      - run: npm run test:auth
