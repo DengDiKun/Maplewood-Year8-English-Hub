@@ -135,3 +135,8 @@ subcollection isolation and access revocation.
 Tests use the demo-only `demo-maplewood-classes` project and synthetic identities.
 They do not connect to production or need real credentials. GitHub runs them
 with the pinned tools, Node 24 and Java 21.
+
+## Student lists
+
+See PHASE2_STUDENT_ROSTERS.md for the read-only roster update, data schema,
+permissions, deployment order and sample-record checks.

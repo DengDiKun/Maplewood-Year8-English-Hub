@@ -72,6 +72,15 @@
     #class-status { color:var(--muted); font-size:.88rem; line-height:1.6; margin:16px 0 0; overflow-wrap:anywhere; }
     #class-status[data-kind=error] { color:#a2293a; }
     #class-status[data-kind=warning] { color:#80580d; }
+    #roster { margin:28px 0 18px; padding-top:24px; border-top:1px solid var(--line); }
+    #roster h3 { overflow-wrap:anywhere; }
+    #student-list { list-style:none; padding:0; margin:18px 0; }
+    #student-list li { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid var(--line); }
+    #student-list li > span:first-child { min-width:0; overflow-wrap:anywhere; font-weight:650; }
+    #student-status { color:var(--muted); font-size:.9rem; line-height:1.6; }
+    #student-status[data-kind=error] { color:#a2293a; }
+    #student-status[data-kind=warning] { color:#80580d; }
+    #roster .section-heading { flex-wrap:wrap; }
     @media (max-width:380px) { body { padding:16px 10px; } main { padding:24px 20px; } .brand { gap:9px; } }
   </style>
 </head>
@@ -107,7 +116,14 @@
         <div id="class-list"></div>
         <p id="class-status" role="status" aria-live="polite"></p>
       </section>
-      <p class="next">Student records and results will be connected in a later stage.</p>
+      <section id="roster" aria-labelledby="roster-heading" aria-busy="false" hidden>
+        <button class="secondary refresh" id="back-classes" type="button">Back to classes</button>
+        <div class="section-heading" style="margin-top:20px"><h3 id="roster-heading" tabindex="-1"></h3><button class="secondary refresh" id="refresh-students" type="button">Refresh students</button></div>
+        <p class="section-intro" id="roster-context"></p>
+        <ul id="student-list" aria-label="Students"></ul>
+        <p id="student-status" role="status" aria-live="polite"></p>
+      </section>
+      <p class="next">Student lists are read-only. Activities and results will be connected in a later stage.</p>
       <button class="secondary" id="sign-out" type="button">Sign out</button>
     </section>
     <p id="status" role="status" aria-live="polite">Connecting to Maplewood sign-in…</p>

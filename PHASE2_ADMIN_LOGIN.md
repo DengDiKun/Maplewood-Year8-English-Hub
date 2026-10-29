@@ -150,3 +150,8 @@ Firebase references:
 - https://firebase.google.com/docs/firestore/security/rules-conditions
 - https://firebase.google.com/docs/firestore/security/rules-query
 - https://firebase.google.com/docs/rules/unit-tests
+
+## Student lists
+
+See PHASE2_STUDENT_ROSTERS.md for the read-only roster update, data schema,
+permissions, deployment order and sample-record checks.
