@@ -4,6 +4,7 @@ import importlib.util
 import io
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('provision',Path(__file__).parents[1]/'scripts/provision_students.py')
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 def row(i=0):
@@ -26,6 +27,22 @@ class FakeAPI:
   self.profiles[uid]={'fields':m.encode(m.profile(r))}
   self.rosters[r['rosterDocumentId']]['fields']['authUid']={'stringValue':uid}
 class Tests(unittest.TestCase):
+ def test_rest_requests_name_the_quota_project_without_changing_destinations(self):
+  api=m.API.__new__(m.API);api.token='synthetic-test-token'
+  requests=[]
+  class Opener:
+   def open(self,req,timeout):
+    requests.append(req)
+    return io.StringIO('{}')
+  with patch.object(m.urllib.request,'build_opener',return_value=Opener()):
+   api.request('db',m.PARENT)
+   api.request('auth','projects/'+m.PROJECT+'/accounts:lookup',{'localId':['synthetic']})
+  self.assertEqual(len(requests),2)
+  for req in requests:
+   self.assertEqual(req.get_header('X-goog-user-project'),m.PROJECT)
+   self.assertEqual(req.get_header('Authorization'),'Bearer synthetic-test-token')
+  self.assertEqual(requests[0].full_url,'https://firestore.googleapis.com/v1/'+m.PARENT)
+  self.assertTrue(requests[1].full_url.startswith('https://identitytoolkit.googleapis.com/v1/projects/'+m.PROJECT+'/'))
  def test_manifest_scope_and_duplicates(self):
   rows=[row(i) for i in range(23)]; payload={'projectId':m.PROJECT,'classId':m.CLASS,'students':rows}
   self.assertEqual(m.manifest(payload),rows)
