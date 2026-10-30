@@ -13,10 +13,11 @@ labelled as still in progress. This step adds reading responses, not grading.
 ## Deploy after merging
 
 1. Publish the complete updated firestore.rules in Firebase Console.
-2. Copy these six files from the merged main branch into the existing Hosting
+2. Copy these eight files from the merged main branch into the existing Hosting
    public folder, replacing the previous versions where present:
    student-login.html, student-login.mjs, activity-responses.mjs,
-   student-roster.mjs, teacher-login.mjs, admin-login.mjs.
+   student-roster.mjs, teacher-login.mjs, admin-login.mjs,
+   teacher-login.html, admin-login.html.
 3. Deploy the existing Firebase Hosting project:
    firebase deploy --only hosting --project maplewood-english-learning
 4. Reload student-login.html and the staff login pages to load the new modules.

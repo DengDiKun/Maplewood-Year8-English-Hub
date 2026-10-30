@@ -49,6 +49,7 @@ export function mountStudentActivity({root, open, load, save, sessionKey}) {
     root.hidden = true; open.disabled = false;
     for (const id of QUESTION_IDS) root.querySelector('#'+id).value = '';
     root.querySelectorAll('.hintbox').forEach(box => box.classList.remove('show'));
+    root.querySelectorAll('.hint').forEach(button => button.setAttribute('aria-expanded', 'false'));
     message(''); lock(false);
   };
   root.querySelectorAll('.hint').forEach(button => button.addEventListener('click', () => {
