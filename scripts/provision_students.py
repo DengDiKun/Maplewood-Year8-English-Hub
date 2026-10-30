@@ -93,7 +93,8 @@ class API:
         else: raise RuntimeError('Unexpected service.')
         raw = None if payload is None else json.dumps(payload).encode()
         req = urllib.request.Request(hosts[service] + path, data=raw,
-              headers={'Authorization': 'Bearer ' + self.token, 'Content-Type': 'application/json'})
+              headers={'Authorization': 'Bearer ' + self.token, 'Content-Type': 'application/json',
+                       'X-Goog-User-Project': PROJECT})
         class NoRedirect(urllib.request.HTTPRedirectHandler):
             def redirect_request(self, *args, **kwargs): return None
         try:

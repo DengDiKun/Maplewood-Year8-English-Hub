@@ -121,3 +121,15 @@ References:
 - https://firebase.google.com/docs/auth/admin/manage-users
 - https://docs.cloud.google.com/identity-platform/docs/reference/rest/v1/projects/accounts
 - https://firebase.google.com/docs/firestore/reference/rest/v1/projects.databases.documents/commit
+
+## Cloud Shell quota-project fix
+
+Google user credentials need an explicit quota project on Authentication REST
+requests. The script now sends X-Goog-User-Project: maplewood-english-learning
+on its Google requests; selecting the project in Cloud Shell alone does not add
+that header to urllib calls. This is request attribution, not an IAM change or
+a Firebase plan upgrade. If preview previously stopped with the missing quota
+project HTTP 403, replace the script with this version and rerun preview before
+--apply. No website redeploy or Firestore rule change is needed for this fix.
+
+Reference: https://docs.cloud.google.com/docs/quotas/set-quota-project
