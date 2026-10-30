@@ -24,7 +24,7 @@ before(async () => {
       teacher: { active: true, role: 'teacher' },
       other: { active: true, role: 'teacher' },
       unassigned: { active: true, role: 'teacher' },
-      student: { active: true, role: 'student' },
+      student: { active: true, role: 'student', classId:'daisy', studentId:'own' },
       inactive: { active: false, role: 'admin' },
       'inactive-teacher': { active: false, role: 'teacher' },
       'string-active': { active: 'true', role: 'admin' },
@@ -45,6 +45,7 @@ before(async () => {
       setDoc(doc(database, 'classes', 'daisy', 'students', 'private'), { name: 'Private student' }),
       ...['other', 'inactive', 'missing-assignment', 'map-assignment', 'string-assignment', 'orphan'].map(id =>
         setDoc(doc(database, 'classes', id, 'students', 'sample'), { displayName: 'Sample Student', active: true })),
+      setDoc(doc(database, 'classes', 'daisy', 'students', 'own'), {displayName:'Sample Learner',active:true,authUid:'student'}),
       setDoc(doc(database, 'classes', 'daisy', 'students', 'inactive'), { displayName: 'Inactive sample', active: false }),
       setDoc(doc(database, 'classes', 'daisy', 'students', 'private', 'results', 'private'), { mark: 10 }),
       setDoc(doc(database, 'students', 'root-private'), { displayName: 'Root private' }),
@@ -157,7 +158,7 @@ test('administrators read rosters in every existing class, including inactive cl
 test('teachers read only their assigned active class roster, including inactive students', async () => {
   const database = db('teacher');
   const result = await assertSucceeds(getDocs(collection(database, 'classes', 'daisy', 'students')));
-  assert.equal(result.size, 2);
+  assert.equal(result.size, 3);
   await assertSucceeds(getDoc(doc(database, 'classes', 'daisy', 'students', 'inactive')));
   for (const id of ['other', 'inactive', 'missing-assignment', 'map-assignment', 'string-assignment', 'orphan']) {
     await assertFails(getDocs(collection(database, 'classes', id, 'students')));
@@ -194,6 +195,37 @@ test('deactivating a class revokes teacher roster reads while retaining administ
     await environment.withSecurityRulesDisabled(async context => {
       await updateDoc(doc(context.firestore(), 'classes', 'daisy'), { active: true });
     });
+  }
+});
+
+test('students read only their own active linked profile, never classes or roster records', async () => {
+  const database=db('student');
+  await assertSucceeds(getDoc(doc(database,'users','student')));
+  await assertFails(getDoc(doc(database,'users','teacher')));
+  await assertFails(getDocs(collection(database,'users')));
+  await assertFails(getDoc(doc(database,'classes','daisy')));
+  await assertFails(getDoc(doc(database,'classes','daisy','students','own')));
+  await assertFails(getDocs(collection(database,'classes','daisy','students')));
+  await assertFails(getDocs(firestoreSDK.collectionGroup(database,'students')));
+  await assertFails(updateDoc(doc(database,'users','student'),{role:'admin'}));
+  await assertFails(updateDoc(doc(database,'classes','daisy','students','own'),{authUid:'student'}));
+});
+
+test('student profile reads fail after class, roster or UID binding is revoked', async () => {
+  const database=db('student');
+  const modify=async (path,change)=>environment.withSecurityRulesDisabled(async context=>updateDoc(doc(context.firestore(),...path),change));
+  for (const [path,change,restore] of [
+    [['classes','daisy'],{active:false},{active:true}],
+    [['classes','daisy','students','own'],{active:false},{active:true}],
+    [['classes','daisy','students','own'],{authUid:'another'},{authUid:'student'}],
+    [['users','student'],{classId:'missing'},{classId:'daisy'}],
+    [['users','student'],{studentId:'private'},{studentId:'own'}],
+    [['users','student'],{active:false},{active:true}]
+  ]) {
+    await modify(path,change);
+    await assertFails(getDoc(doc(database,'users','student')));
+    await modify(path,restore);
+    await assertSucceeds(getDoc(doc(database,'users','student')));
   }
 });
 
