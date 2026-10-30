@@ -46,7 +46,9 @@ async function start() {
     };
     let wasSignedIn = false;
     authSDK.onAuthStateChanged(auth, user => {
-      if (!user && wasSignedIn) { generation++; clear(); fields.disabled = false; }
+      if (!user && wasSignedIn && current) {
+        generation++; clear(); fields.disabled = false; message('You have signed out.');
+      }
       wasSignedIn = Boolean(user);
     });
     form.addEventListener('submit', async event => {
