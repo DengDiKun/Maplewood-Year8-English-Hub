@@ -8,10 +8,18 @@ service cloud.firestore {
              && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
 
+    function studentEnrollmentIsActive(profile) {
+      return profile.classId is string && profile.studentId is string
+             && get(/databases/$(database)/documents/classes/$(profile.classId)).data.active == true
+             && get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data.active == true
+             && get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data.authUid == request.auth.uid;
+    }
+
     match /users/{userId} {
       allow get: if request.auth != null
                  && request.auth.uid == userId
-                 && resource.data.active == true;
+                 && resource.data.active == true
+                 && (resource.data.role != 'student' || studentEnrollmentIsActive(resource.data));
 
       allow list, create, update, delete: if false;
     }
