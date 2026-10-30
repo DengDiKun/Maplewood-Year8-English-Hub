@@ -4,7 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
 import * as firestoreSDK from 'firebase/firestore';
 import { teachingClassesQuery } from '../admin-access.mjs';
-import { doc, collection, query, where, getDocFromServer as getDoc, getDocsFromServer as getDocs, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, collection, query, where, getDocFromServer as getDoc, getDocsFromServer as getDocs, setDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import {responseDocument, responsePayload, QUESTION_IDS} from '../activity-responses.mjs';
 
 let environment;
 const classData = { name: '8 Daisy', branch: 'TM', yearGroup: 8, academicYear: 2026, active: true, teacherUids: ['teacher', 'admin'] };
@@ -227,6 +228,68 @@ test('student profile reads fail after class, roster or UID binding is revoked',
     await modify(path,restore);
     await assertSucceeds(getDoc(doc(database,'users','student')));
   }
+});
+
+const responseRef = (database, studentId='own', classId='daisy') => responseDocument(firestoreSDK,database,classId,studentId);
+const response = (status='draft') => responsePayload(Object.fromEntries(QUESTION_IDS.map(id=>[id,'Evidence\nand explanation.'])),status,serverTimestamp());
+test('student saves, reopens and submits only their own responses; final submissions cannot change',async()=>{
+  const database=db('student'), ref=responseRef(database);
+  await assertSucceeds(setDoc(ref,response()));
+  assert.equal((await assertSucceeds(getDoc(ref))).data().status,'draft');
+  await assertSucceeds(setDoc(ref,{...response(),answers:{...response().answers,q1:''}}));
+  await assertFails(setDoc(ref,{...response('submitted'),answers:{...response().answers,q1:' \n\t '}}));
+  await assertSucceeds(setDoc(ref,response('submitted')));
+  await assertFails(setDoc(ref,response()));
+  await assertFails(setDoc(ref,response('submitted')));
+  await assertFails(deleteDoc(ref));
+  await assertFails(getDocs(collection(database,'classes','daisy','students','own','responses')));
+});
+test('response writes reject spoofed ownership, unknown activities, marks and invalid schemas',async()=>{
+  const database=db('student');
+  await environment.withSecurityRulesDisabled(async c=>deleteDoc(responseRef(c.firestore())));
+  for(const data of [
+    {...response(),mark:100}, {...response(),uid:'student'}, {...response(),status:'graded'},
+    {...response(),version:2}, {...response(),updatedAt:Timestamp.fromMillis(0)},
+    {...response(),answers:{...response().answers,q1:3}},
+    {...response(),answers:{...response().answers,q1:'x'.repeat(4001)}},
+    {...response(),answers:{q1:'only one'}},
+    {...response(),answers:{...response().answers,extra:'bad'}}
+  ]) await assertFails(setDoc(responseRef(database),data));
+  for(const [studentId,classId] of [['private','daisy'],['sample','other']]) {
+    await assertFails(getDoc(responseRef(database,studentId,classId)));
+    await assertFails(setDoc(responseRef(database,studentId,classId),response()));
+  }
+  await assertFails(setDoc(doc(database,'classes','daisy','students','own','responses','unknown'),response()));
+  for(const uid of ['teacher','admin','unassigned','inactive','missing']) await assertFails(setDoc(responseRef(db(uid)),response()));
+  await assertFails(setDoc(responseRef(environment.unauthenticatedContext().firestore()),response()));
+  await assertSucceeds(setDoc(responseRef(database),response()));
+});
+test('teachers review assigned class responses; administrators review existing classes; nobody lists responses',async()=>{
+  for(const uid of ['teacher','admin']) await assertSucceeds(getDoc(responseRef(db(uid))));
+  for(const uid of ['other','unassigned','inactive','inactive-teacher','missing']) await assertFails(getDoc(responseRef(db(uid))));
+  await assertFails(getDoc(responseRef(environment.unauthenticatedContext().firestore())));
+  for(const uid of ['teacher','admin','student']) await assertFails(getDocs(collection(db(uid),'classes','daisy','students','own','responses')));
+  await assertFails(getDoc(responseRef(db('student',{role:'admin'}),'private')));
+});
+test('profile, roster, class and binding changes revoke the next student response read and write',async()=>{
+  const modify=async(path,data)=>environment.withSecurityRulesDisabled(async c=>updateDoc(doc(c.firestore(),...path),data));
+  for(const [path,change,restore] of [
+    [['users','student'],{active:false},{active:true}],
+    [['classes','daisy'],{active:false},{active:true}],
+    [['classes','daisy','students','own'],{active:false},{active:true}],
+    [['classes','daisy','students','own'],{authUid:'another'},{authUid:'student'}],
+    [['users','student'],{studentId:'private'},{studentId:'own'}]
+  ]) {
+    await modify(path,change);
+    await assertFails(getDoc(responseRef(db('student'))));
+    await assertFails(setDoc(responseRef(db('student')),response()));
+    await modify(path,restore);
+    await assertSucceeds(getDoc(responseRef(db('student'))));
+  }
+  await modify(['classes','daisy'],{teacherUids:['admin'],active:false});
+  await assertFails(getDoc(responseRef(db('teacher'))));
+  await assertSucceeds(getDoc(responseRef(db('admin'))));
+  await modify(['classes','daisy'],{teacherUids:['teacher','admin'],active:true});
 });
 
 test('removing an assignment or disabling a profile revokes subsequent server reads', async () => {

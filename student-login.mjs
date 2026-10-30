@@ -1,11 +1,14 @@
 import { validateConfig } from './admin-access.mjs';
 import { signInStudent, studentProfile, studentError } from './student-access.mjs';
+import { mountStudentActivity, responseDocument } from './activity-responses.mjs';
 const $ = id => document.getElementById(id);
 const form = $('login-form'), fields = $('login-fields'), account = $('account');
 const username = $('username'), password = $('password'), status = $('status');
 let generation = 0, current = null;
+let activity = null;
 const message = (text, kind = '') => { status.textContent = text; status.dataset.kind = kind; };
 function clear() {
+  activity?.clear();
   current = null; account.hidden = true; form.hidden = false;
   document.querySelector('main').classList.remove('signed-in');
   for (const id of ['student-name', 'student-username', 'student-class', 'student-branch', 'student-year', 'student-academic-year']) $(id).textContent = '';
@@ -44,6 +47,14 @@ async function start() {
       loadProfile:uid => dbSDK.getDocFromServer(dbSDK.doc(db, 'users', uid)),
       signOut:() => authSDK.signOut(auth)
     };
+    activity = mountStudentActivity({
+      root:$('writers-effect'), open:$('open-activity'),
+      load:profile => dbSDK.getDocFromServer(responseDocument(dbSDK, db, profile.classId, profile.studentId)),
+      save:(profile, payload) => dbSDK.setDoc(responseDocument(dbSDK, db, profile.classId, profile.studentId),
+        {...payload, updatedAt:dbSDK.serverTimestamp()}),
+      sessionKey:() => current && auth.currentUser?.uid === current.uid ? generation + ':' + current.uid : null
+    });
+    $('open-activity').addEventListener('click', () => {if (current) void activity.open(current);});
     let wasSignedIn = false;
     authSDK.onAuthStateChanged(auth, user => {
       if (!user && wasSignedIn && current) {
@@ -67,6 +78,7 @@ async function start() {
     });
     $('refresh-profile').addEventListener('click', async () => {
       if (!current || $('refresh-profile').disabled) return;
+      if (activity.hasUnsavedChanges() && !confirm('Refresh your profile and discard unsaved changes?')) return;
       const previous = current, request = ++generation;
       // Remove previous personal data before every server refresh.
       clear(); form.hidden = true; fields.disabled = true; message('Checking your student profile…');
@@ -80,6 +92,7 @@ async function start() {
       } finally { if (request === generation) fields.disabled = false; }
     });
     $('sign-out').addEventListener('click', async () => {
+      if (activity.hasUnsavedChanges() && !confirm('Sign out and discard unsaved changes?')) return;
       generation++; clear(); fields.disabled = true; message('Signing out…');
       try { await client.signOut(); fields.disabled = false; message('You have signed out.'); username.focus(); }
       catch { message('Reload this page to clear your sign-in.', 'error'); $('retry').hidden = false; }

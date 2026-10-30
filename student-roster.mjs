@@ -1,4 +1,5 @@
 import { AccessError } from './admin-access.mjs';
+import { parseResponse, QUESTION_IDS } from './activity-responses.mjs';
 
 export function studentCollection(sdk, database, classId) {
   if (typeof classId !== 'string' || !classId.trim() || classId.includes('/')) {
@@ -60,7 +61,7 @@ export function createRosterLoader({ load, sessionKey, pending, success, failure
   };
 }
 
-export function mountRoster({ root, classes, load, sessionKey }) {
+export function mountRoster({ root, classes, load, loadResponse, sessionKey }) {
   const heading = root.querySelector('#roster-heading');
   const context = root.querySelector('#roster-context');
   const list = root.querySelector('#student-list');
@@ -69,8 +70,42 @@ export function mountRoster({ root, classes, load, sessionKey }) {
   const back = root.querySelector('#back-classes');
   let selected = null;
   let trigger = null;
+  let responseGeneration = 0;
+  const review = document.createElement('section');
+  review.setAttribute('aria-live', 'polite');
+  root.append(review);
+  const clearReview = () => {responseGeneration++; review.replaceChildren();};
+  async function openResponse(student) {
+    const request = ++responseGeneration, session = sessionKey(), classId = selected?.id;
+    if (!session || !classId) return;
+    review.replaceChildren();
+    const title = document.createElement('h3');
+    title.textContent = student.name + ' — Writer’s Effect';
+    title.tabIndex = -1;
+    const message = document.createElement('p');
+    message.textContent = 'Loading saved responses…';
+    review.append(title, message); title.focus();
+    try {
+      const response = parseResponse(await loadResponse(classId, student.id));
+      if (request !== responseGeneration || session !== sessionKey()) return;
+      message.textContent = !response ? 'No saved work yet.' :
+        (response.status === 'draft' ? 'Draft — still in progress' : 'Submitted — awaiting teacher review') +
+        ' · Last saved: ' + response.date.toLocaleString('en-MY');
+      if (response) for (const id of QUESTION_IDS) {
+        const label = document.createElement('h4'), answer = document.createElement('p');
+        label.textContent = 'Question ' + id.slice(1);
+        answer.textContent = response.answers[id] || '(No answer yet)';
+        answer.style.whiteSpace = 'pre-wrap'; answer.style.overflowWrap = 'anywhere';
+        review.append(label, answer);
+      }
+    } catch {
+      if (request === responseGeneration && session === sessionKey()) message.textContent =
+        'Responses could not be loaded. Check your connection and class access, then choose View Writer’s Effect again.';
+    }
+  }
   const loader = createRosterLoader({ load, sessionKey,
     pending() {
+      clearReview();
       list.replaceChildren();
       status.textContent = 'Loading students…';
       status.dataset.kind = '';
@@ -86,6 +121,17 @@ export function mountRoster({ root, classes, load, sessionKey }) {
         state.className = `class-state ${student.active ? 'active' : 'inactive'}`;
         state.textContent = student.active ? 'Active' : 'Inactive';
         row.append(name, state);
+        if (loadResponse) {
+          const action = document.createElement('button');
+          action.type = 'button'; action.className = 'secondary refresh';
+          action.textContent = 'View Writer’s Effect';
+          action.setAttribute('aria-label', 'View Writer’s Effect responses for ' + student.name);
+          action.addEventListener('click', () => void openResponse(student));
+          const actions = document.createElement('span');
+          actions.style.display = 'flex'; actions.style.flexWrap = 'wrap'; actions.style.gap = '8px';
+          actions.append(state, action); row.append(actions);
+          row.style.flexWrap = 'wrap';
+        }
         return row;
       });
       list.replaceChildren(...rows);
@@ -102,6 +148,7 @@ export function mountRoster({ root, classes, load, sessionKey }) {
     settled() { refresh.disabled = false; root.setAttribute('aria-busy', 'false'); }
   });
   const clear = () => {
+    clearReview();
     loader.cancel();
     selected = null;
     list.replaceChildren();

@@ -5,7 +5,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { initializeApp,deleteApp } from 'firebase/app';
 import { initializeAuth,inMemoryPersistence,connectAuthEmulator,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut } from 'firebase/auth';
-import { getFirestore,connectFirestoreEmulator,doc,getDocFromServer,getDocsFromServer,collection,setDoc,updateDoc } from 'firebase/firestore';
+import { getFirestore,connectFirestoreEmulator,doc,getDocFromServer,getDocsFromServer,collection,setDoc,updateDoc,serverTimestamp } from 'firebase/firestore';
+import * as firestoreSDK from 'firebase/firestore';
+import {responseDocument,responsePayload,parseResponse,QUESTION_IDS} from '../activity-responses.mjs';
 import { initializeTestEnvironment,assertFails } from '@firebase/rules-unit-testing';
 import { studentEmail,signInStudent } from '../student-access.mjs';
 let app,auth,db,environment,uid;
@@ -35,6 +37,21 @@ test('actual SDK username sign-in verifies the linked own profile and cannot rea
   await assertFails(getDocsFromServer(collection(db,'classes')));
   await assertFails(getDocsFromServer(collection(db,'classes','daisy','students')));
   await signOut(auth);
+});
+test('a real student session saves a draft, signs in again, reopens and submits with server acknowledgment',async()=>{
+  let profile=await signInStudent(client(),username,password);
+  const ref=responseDocument(firestoreSDK,db,profile.classId,profile.studentId);
+  const answers=Object.fromEntries(QUESTION_IDS.map(id=>[id,'Synthetic response\nwith explanation']));
+  await setDoc(ref,responsePayload(answers,'draft',serverTimestamp()));
+  await signOut(auth);
+  profile=await signInStudent(client(),username,password);
+  const draft=parseResponse(await getDocFromServer(ref));
+  assert.equal(draft.status,'draft'); assert.deepEqual(draft.answers,answers);
+  await setDoc(ref,responsePayload(answers,'submitted',serverTimestamp()));
+  assert.equal(parseResponse(await getDocFromServer(ref)).status,'submitted');
+  await assertFails(setDoc(ref,responsePayload({...answers,q1:'changed'},'draft',serverTimestamp())));
+  await signOut(auth);
+  await assertFails(getDocFromServer(ref));
 });
 test('wrong password is rejected and a disabled enrollment denies the next login with session cleanup',async()=>{
   await assert.rejects(signInStudent(client(),username,'incorrect-password'));
