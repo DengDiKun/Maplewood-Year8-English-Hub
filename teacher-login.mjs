@@ -1,4 +1,5 @@
 import { mountRoster, studentCollection } from './student-roster.mjs';
+import { responseDocument } from './activity-responses.mjs';
 import { validateConfig, signInTeachingStaff, loadTeachingClasses, teachingClassesQuery, teachingSignInErrorMessage, teachingClassErrorMessage, requestPasswordReset, passwordResetErrorMessage } from './admin-access.mjs';
 
 const form = document.getElementById('login-form');
@@ -148,6 +149,7 @@ async function start() {
     roster = mountRoster({
       root: document.getElementById('roster'), classes: classRegion,
       load: (classId) => firestoreSDK.getDocsFromServer(studentCollection(firestoreSDK, database, classId)),
+      loadResponse: (classId, studentId) => firestoreSDK.getDocFromServer(responseDocument(firestoreSDK, database, classId, studentId)),
       sessionKey: () => currentProfile && auth.currentUser?.uid === currentProfile.uid
         ? `${generation}:${currentProfile.uid}` : null
     });

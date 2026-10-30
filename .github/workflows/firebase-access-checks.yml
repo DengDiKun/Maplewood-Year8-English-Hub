@@ -7,6 +7,7 @@ on:
       - 'admin-login.html'
       - 'teacher-login.*'
       - 'student-roster.mjs'
+      - 'activity-responses.mjs'
       - 'student-login.*'
       - 'student-access.mjs'
       - 'scripts/provision_students.py'
@@ -22,6 +23,7 @@ on:
       - 'admin-login.html'
       - 'teacher-login.*'
       - 'student-roster.mjs'
+      - 'activity-responses.mjs'
       - 'student-login.*'
       - 'student-access.mjs'
       - 'scripts/provision_students.py'
@@ -58,5 +60,6 @@ jobs:
       - run: npm run test:rules
       - run: npm run test:auth
       - run: node --check student-login.mjs
+      - run: node --check activity-responses.mjs
       - run: python3 -m unittest discover -s tests -p "test_provision_students.py"
       - run: npm run test:student

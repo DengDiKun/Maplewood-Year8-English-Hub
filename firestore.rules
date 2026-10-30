@@ -15,6 +15,41 @@ service cloud.firestore {
              && get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data.authUid == request.auth.uid;
     }
 
+
+    function ownsEnrollment(classId, studentId) {
+      let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return hasActiveRole('student') && profile.classId == classId && profile.studentId == studentId
+             && studentEnrollmentIsActive(profile);
+    }
+    function canReviewResponses(classId) {
+      return exists(/databases/$(database)/documents/classes/$(classId))
+             && (hasActiveRole('admin') || (hasActiveRole('teacher')
+                 && get(/databases/$(database)/documents/classes/$(classId)).data.active == true
+                 && get(/databases/$(database)/documents/classes/$(classId)).data.teacherUids.hasAny([request.auth.uid])));
+    }
+    function validAnswer(answer, status) {
+      return answer is string && answer.size() <= 4000
+             && (status == 'draft' || answer.matches('(?s).*\\S.*'));
+    }
+    function validResponse(data) {
+      return data.keys().hasAll(['version', 'status', 'answers', 'updatedAt'])
+             && data.keys().hasOnly(['version', 'status', 'answers', 'updatedAt'])
+             && data.version == 1 && data.status in ['draft', 'submitted']
+             && data.updatedAt == request.time && data.answers is map
+             && data.answers.keys().hasAll(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11'])
+             && data.answers.keys().hasOnly(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11'])
+             && validAnswer(data.answers.q1, data.status)
+             && validAnswer(data.answers.q2, data.status)
+             && validAnswer(data.answers.q3, data.status)
+             && validAnswer(data.answers.q4, data.status)
+             && validAnswer(data.answers.q5, data.status)
+             && validAnswer(data.answers.q6, data.status)
+             && validAnswer(data.answers.q7, data.status)
+             && validAnswer(data.answers.q8, data.status)
+             && validAnswer(data.answers.q9, data.status)
+             && validAnswer(data.answers.q10, data.status)
+             && validAnswer(data.answers.q11, data.status);
+    }
     match /users/{userId} {
       allow get: if request.auth != null
                  && request.auth.uid == userId
@@ -40,6 +75,16 @@ service cloud.firestore {
                                  && get(/databases/$(database)/documents/classes/$(classId)).data.active == true
                                  && get(/databases/$(database)/documents/classes/$(classId)).data.teacherUids.hasAny([request.auth.uid])));
         allow create, update, delete: if false;
+        match /responses/{activityId} {
+          allow get: if activityId == 'writers-effect-v1' && request.auth != null
+                     && (ownsEnrollment(classId, studentId) || canReviewResponses(classId));
+          allow create: if activityId == 'writers-effect-v1' && request.auth != null
+                        && ownsEnrollment(classId, studentId) && validResponse(request.resource.data);
+          allow update: if activityId == 'writers-effect-v1' && request.auth != null
+                        && ownsEnrollment(classId, studentId) && resource.data.status == 'draft'
+                        && validResponse(request.resource.data);
+          allow list, delete: if false;
+        }
       }
 
       // Class creation and assignment changes still use the Firebase Console.
