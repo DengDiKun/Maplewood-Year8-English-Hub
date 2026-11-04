@@ -31,6 +31,24 @@ service cloud.firestore {
       return answer is string && answer.size() <= 4000
              && (status == 'draft' || answer.matches('(?s).*\\S.*'));
     }
+    function submittedActivity(classId, studentId, activityId) {
+      return activityId.matches('[a-z0-9][a-z0-9-]{0,63}')
+             && exists(/databases/$(database)/documents/classes/$(classId)/students/$(studentId))
+             && get(/databases/$(database)/documents/classes/$(classId)/students/$(studentId)/responses/$(activityId)).data.status == 'submitted';
+    }
+    function validMarking(data, classId, studentId, activityId) {
+      return data.keys().hasAll(['version', 'score', 'maxScore', 'feedback', 'reviewerUid', 'updatedAt', 'submissionUpdatedAt'])
+             && data.keys().hasOnly(['version', 'score', 'maxScore', 'feedback', 'reviewerUid', 'updatedAt', 'submissionUpdatedAt'])
+             && data.version == 1
+             && data.score is int && data.maxScore is int
+             && data.maxScore >= 1 && data.maxScore <= 1000
+             && data.score >= 0 && data.score <= data.maxScore
+             && data.feedback is string && data.feedback.size() <= 4000
+             && data.reviewerUid == request.auth.uid
+             && data.updatedAt == request.time
+             && data.submissionUpdatedAt is timestamp
+             && data.submissionUpdatedAt == get(/databases/$(database)/documents/classes/$(classId)/students/$(studentId)/responses/$(activityId)).data.updatedAt;
+    }
     function validResponse(data) {
       return data.keys().hasAll(['version', 'status', 'answers', 'updatedAt'])
              && data.keys().hasOnly(['version', 'status', 'answers', 'updatedAt'])
@@ -83,6 +101,27 @@ service cloud.firestore {
           allow update: if activityId == 'writers-effect-v1' && request.auth != null
                         && ownsEnrollment(classId, studentId) && resource.data.status == 'draft'
                         && validResponse(request.resource.data);
+          allow list, delete: if false;
+        }
+        // Shared marking storage for submitted activities in every unit.
+        // Only the existing response rules decide which activities students can submit.
+        match /markingDrafts/{activityId} {
+          allow get: if request.auth != null && canReviewResponses(classId)
+                     && submittedActivity(classId, studentId, activityId);
+          allow create, update: if request.auth != null && canReviewResponses(classId)
+                                && submittedActivity(classId, studentId, activityId)
+                                && validMarking(request.resource.data, classId, studentId, activityId);
+          allow list, delete: if false;
+        }
+        match /feedback/{activityId} {
+          allow get: if request.auth != null && submittedActivity(classId, studentId, activityId)
+                     && (canReviewResponses(classId)
+                         || (ownsEnrollment(classId, studentId)
+                             && (!exists(/databases/$(database)/documents/classes/$(classId)/students/$(studentId)/feedback/$(activityId))
+                                 || resource.data.submissionUpdatedAt == get(/databases/$(database)/documents/classes/$(classId)/students/$(studentId)/responses/$(activityId)).data.updatedAt)));
+          allow create, update: if request.auth != null && canReviewResponses(classId)
+                                && submittedActivity(classId, studentId, activityId)
+                                && validMarking(request.resource.data, classId, studentId, activityId);
           allow list, delete: if false;
         }
       }
