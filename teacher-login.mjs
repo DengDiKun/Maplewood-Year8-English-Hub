@@ -1,6 +1,6 @@
-import { mountRoster, studentCollection } from './student-roster.mjs?v=feedback-1';
-import { responseDocument } from './activity-responses.mjs?v=feedback-1';
-import { createMarkingClient } from './marking-data.mjs?v=feedback-1';
+import { mountRoster, studentCollection } from './student-roster.mjs?v=units-1-9-v1';
+import { responseDocument } from './activity-responses.mjs?v=units-1-9-v1';
+import { createMarkingClient } from './marking-data.mjs?v=units-1-9-v1';
 import { validateConfig, signInTeachingStaff, loadTeachingClasses, teachingClassesQuery, teachingSignInErrorMessage, teachingClassErrorMessage, requestPasswordReset, passwordResetErrorMessage } from './admin-access.mjs';
 
 const form = document.getElementById('login-form');
@@ -150,7 +150,7 @@ async function start() {
     roster = mountRoster({
       root: document.getElementById('roster'), classes: classRegion,
       load: (classId) => firestoreSDK.getDocsFromServer(studentCollection(firestoreSDK, database, classId)),
-      loadResponse: (classId, studentId) => firestoreSDK.getDocFromServer(responseDocument(firestoreSDK, database, classId, studentId)),
+      loadResponse: (classId, studentId, activityId) => firestoreSDK.getDocFromServer(responseDocument(firestoreSDK, database, classId, studentId, activityId)),
       marking:createMarkingClient(firestoreSDK,database,()=>currentProfile && auth.currentUser?.uid===currentProfile.uid ? currentProfile.uid : null),
       sessionKey: () => currentProfile && auth.currentUser?.uid === currentProfile.uid
         ? `${generation}:${currentProfile.uid}` : null

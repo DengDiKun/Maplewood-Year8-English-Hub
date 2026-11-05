@@ -1,8 +1,8 @@
 import { validateConfig } from './admin-access.mjs';
 import { signInStudent, studentProfile, studentError } from './student-access.mjs';
-import { mountStudentActivity, responseDocument, ACTIVITY_ID } from './activity-responses.mjs?v=feedback-1';
-import { markingRefs } from './marking-data.mjs?v=feedback-1';
-import { mountStudentFeedback } from './marking-ui.mjs?v=feedback-1';
+import {responseDocument} from './activity-responses.mjs?v=units-1-9-v1';
+import {markingRefs} from './marking-data.mjs?v=units-1-9-v1';
+import {mountLearningUnits} from './learning-units.mjs?v=units-1-9-v1';
 const $ = id => document.getElementById(id);
 const form = $('login-form'), fields = $('login-fields'), account = $('account');
 const username = $('username'), password = $('password'), status = $('status');
@@ -26,6 +26,7 @@ function show(profile) {
     'student-class':profile.className, 'student-branch':profile.branch, 'student-year':profile.yearGroup,
     'student-academic-year':profile.academicYear })) $(id).textContent = String(value);
   message('Signed in. Your student profile and class access have been checked.', 'success');
+  activity.show(profile);
   $('account-heading').focus();
 }
 $('show-password').addEventListener('change', event => { password.type = event.target.checked ? 'text' : 'password'; });
@@ -50,23 +51,18 @@ async function start() {
       signOut:() => authSDK.signOut(auth)
     };
     const studentSession=() => current && auth.currentUser?.uid === current.uid ? generation + ':' + current.uid : null;
-    const feedback=mountStudentFeedback({
-      root:$('activity-feedback'), sessionKey:studentSession,
-      load:async profile=>{
-        const refs=markingRefs(dbSDK,db,{...profile,activityId:ACTIVITY_ID});
+    activity=mountLearningUnits({
+      root:$('learning-units'),challengeTemplate:$('challenge-template'),sessionKey:studentSession,
+      load:(profile,activityId)=>dbSDK.getDocFromServer(responseDocument(dbSDK,db,profile.classId,profile.studentId,activityId)),
+      save:(profile,payload,activityId)=>dbSDK.setDoc(responseDocument(dbSDK,db,profile.classId,profile.studentId,activityId),
+        {...payload,updatedAt:dbSDK.serverTimestamp()}),
+      loadFeedback:async(profile,activityId)=>{
+        const refs=markingRefs(dbSDK,db,{...profile,activityId});
         const [submission,snapshot]=await Promise.all([dbSDK.getDocFromServer(refs.response),dbSDK.getDocFromServer(refs.published)]);
         if(!submission.exists() || submission.data().status!=='submitted')throw new Error('A submitted activity is required.');
         return {snapshot,submissionUpdatedAt:submission.data().updatedAt};
       }
     });
-    activity = mountStudentActivity({
-      root:$('writers-effect'), open:$('open-activity'),
-      load:profile => dbSDK.getDocFromServer(responseDocument(dbSDK, db, profile.classId, profile.studentId)),
-      save:(profile, payload) => dbSDK.setDoc(responseDocument(dbSDK, db, profile.classId, profile.studentId),
-        {...payload, updatedAt:dbSDK.serverTimestamp()}),
-      sessionKey:studentSession, feedback
-    });
-    $('open-activity').addEventListener('click', () => {if (current) void activity.open(current);});
     let wasSignedIn = false;
     authSDK.onAuthStateChanged(auth, user => {
       if (!user && wasSignedIn && current) {
@@ -90,7 +86,7 @@ async function start() {
     });
     $('refresh-profile').addEventListener('click', async () => {
       if (!current || $('refresh-profile').disabled) return;
-      if (activity.hasUnsavedChanges() && !confirm('Refresh your profile and discard unsaved changes?')) return;
+      if (!activity.canLeave()) return;
       const previous = current, request = ++generation;
       // Remove previous personal data before every server refresh.
       clear(); form.hidden = true; fields.disabled = true; message('Checking your student profile…');
@@ -104,7 +100,7 @@ async function start() {
       } finally { if (request === generation) fields.disabled = false; }
     });
     $('sign-out').addEventListener('click', async () => {
-      if (activity.hasUnsavedChanges() && !confirm('Sign out and discard unsaved changes?')) return;
+      if (!activity.canLeave()) return;
       generation++; clear(); fields.disabled = true; message('Signing out…');
       try { await client.signOut(); fields.disabled = false; message('You have signed out.'); username.focus(); }
       catch { message('Reload this page to clear your sign-in.', 'error'); $('retry').hidden = false; }
