@@ -31,6 +31,13 @@ service cloud.firestore {
       return answer is string && answer.size() <= 4000
              && (status == 'draft' || answer.matches('(?s).*\\S.*'));
     }
+    function responseSize(activityId) {
+      return activityId == 'writers-effect-v1' ? 11
+             : (activityId.matches('unit-[1-6]-reading-[1-6]-v1')
+                || activityId.matches('unit-[78]-reading-[1-3]-v1')
+                || activityId.matches('unit-9-reading-[1-5]-v1')) ? 3
+             : activityId.matches('unit-[1-9]-(writing|speaking|language)-v1') ? 1 : 0;
+    }
     function submittedActivity(classId, studentId, activityId) {
       return activityId.matches('[a-z0-9][a-z0-9-]{0,63}')
              && exists(/databases/$(database)/documents/classes/$(classId)/students/$(studentId))
@@ -49,24 +56,26 @@ service cloud.firestore {
              && data.submissionUpdatedAt is timestamp
              && data.submissionUpdatedAt == get(/databases/$(database)/documents/classes/$(classId)/students/$(studentId)/responses/$(activityId)).data.updatedAt;
     }
-    function validResponse(data) {
+    function validResponse(data, activityId) {
+      let size = responseSize(activityId);
+      let keys = size == 11 ? ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']
+                 : size == 3 ? ['q1', 'q2', 'q3'] : ['q1'];
       return data.keys().hasAll(['version', 'status', 'answers', 'updatedAt'])
              && data.keys().hasOnly(['version', 'status', 'answers', 'updatedAt'])
              && data.version == 1 && data.status in ['draft', 'submitted']
              && data.updatedAt == request.time && data.answers is map
-             && data.answers.keys().hasAll(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11'])
-             && data.answers.keys().hasOnly(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11'])
+             && size > 0 && data.answers.keys().hasAll(keys) && data.answers.keys().hasOnly(keys)
              && validAnswer(data.answers.q1, data.status)
-             && validAnswer(data.answers.q2, data.status)
-             && validAnswer(data.answers.q3, data.status)
-             && validAnswer(data.answers.q4, data.status)
+             && (size < 3 || (validAnswer(data.answers.q2, data.status)
+                 && validAnswer(data.answers.q3, data.status)))
+             && (size < 11 || (validAnswer(data.answers.q4, data.status)
              && validAnswer(data.answers.q5, data.status)
              && validAnswer(data.answers.q6, data.status)
              && validAnswer(data.answers.q7, data.status)
              && validAnswer(data.answers.q8, data.status)
              && validAnswer(data.answers.q9, data.status)
              && validAnswer(data.answers.q10, data.status)
-             && validAnswer(data.answers.q11, data.status);
+             && validAnswer(data.answers.q11, data.status)));
     }
     match /users/{userId} {
       allow get: if request.auth != null
@@ -94,13 +103,13 @@ service cloud.firestore {
                                  && get(/databases/$(database)/documents/classes/$(classId)).data.teacherUids.hasAny([request.auth.uid])));
         allow create, update, delete: if false;
         match /responses/{activityId} {
-          allow get: if activityId == 'writers-effect-v1' && request.auth != null
+          allow get: if responseSize(activityId) > 0 && request.auth != null
                      && (ownsEnrollment(classId, studentId) || canReviewResponses(classId));
-          allow create: if activityId == 'writers-effect-v1' && request.auth != null
-                        && ownsEnrollment(classId, studentId) && validResponse(request.resource.data);
-          allow update: if activityId == 'writers-effect-v1' && request.auth != null
+          allow create: if responseSize(activityId) > 0 && request.auth != null
+                        && ownsEnrollment(classId, studentId) && validResponse(request.resource.data, activityId);
+          allow update: if responseSize(activityId) > 0 && request.auth != null
                         && ownsEnrollment(classId, studentId) && resource.data.status == 'draft'
-                        && validResponse(request.resource.data);
+                        && validResponse(request.resource.data, activityId);
           allow list, delete: if false;
         }
         // Shared marking storage for submitted activities in every unit.

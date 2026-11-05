@@ -1,6 +1,7 @@
 import { AccessError } from './admin-access.mjs';
-import { parseResponse, QUESTION_IDS, ACTIVITY_ID } from './activity-responses.mjs?v=feedback-1';
-import { mountTeacherMarking } from './marking-ui.mjs?v=feedback-1';
+import {parseResponse,ACTIVITY_ID} from './activity-responses.mjs?v=units-1-9-v1';
+import {mountTeacherMarking} from './marking-ui.mjs?v=units-1-9-v1';
+import {UNITS,getUnit,getActivity} from './learning-catalogue.mjs?v=units-1-9-v1';
 
 export function studentCollection(sdk, database, classId) {
   if (typeof classId !== 'string' || !classId.trim() || classId.includes('/')) {
@@ -78,34 +79,60 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
   review.setAttribute('aria-live', 'polite');
   root.append(review);
   const clearReview = () => {responseGeneration++; editor?.clear(); editor=null; review.replaceChildren();};
+  const filters=document.createElement('div');filters.className='learning-filter';
+  const unitLabel=document.createElement('label'),activityLabel=document.createElement('label');
+  unitLabel.textContent='Unit';activityLabel.textContent='Activity to review';
+  const unitSelect=document.createElement('select'),activitySelect=document.createElement('select');
+  for(const unit of UNITS){const option=document.createElement('option');option.value=String(unit.number);option.textContent='Unit '+unit.number+' — '+unit.title;unitSelect.append(option);}
+  unitLabel.append(unitSelect);activityLabel.append(activitySelect);filters.append(unitLabel,activityLabel);list.before(filters);
+  let chosenActivity=getActivity(ACTIVITY_ID);
+  function chooseUnit(number){
+    const unit=getUnit(number);unitSelect.value=String(number);activitySelect.replaceChildren();
+    for(const activity of unit.activities){const option=document.createElement('option');option.value=activity.id;option.textContent=activity.title;activitySelect.append(option);}
+    chosenActivity=unit.activities[0];activitySelect.value=chosenActivity.id;
+  }
+  chooseUnit(6);
+  unitSelect.addEventListener('change',()=>{
+    if(!canLeave()){unitSelect.value=String(chosenActivity.unit);return;}
+    clearReview();chooseUnit(Number(unitSelect.value));
+  });
+  activitySelect.addEventListener('change',()=>{
+    if(!canLeave()){activitySelect.value=chosenActivity.id;return;}
+    const next=getActivity(activitySelect.value);
+    if(!next || next.unit!==Number(unitSelect.value)){activitySelect.value=chosenActivity.id;return;}
+    clearReview();chosenActivity=next;
+  });
   async function openResponse(student) {
     const session = sessionKey(), classId = selected?.id;
     if (!session || !classId || !canLeave()) return;
     clearReview();
+    const activity=chosenActivity;
     const request=++responseGeneration;
     const title = document.createElement('h3');
-    title.textContent = student.name + ' — Writer’s Effect';
+    title.textContent = student.name + ' — Unit '+activity.unit+' · '+activity.title;
+    title.className='learning-review-heading';
     title.tabIndex = -1;
     const message = document.createElement('p');
     message.textContent = 'Loading saved responses…';
     review.append(title, message); title.focus();
     try {
-      const response = parseResponse(await loadResponse(classId, student.id));
+      const response = parseResponse(await loadResponse(classId, student.id,activity.id),activity.id);
       if (request !== responseGeneration || session !== sessionKey()) return;
       message.textContent = !response ? 'No saved work yet.' :
         (response.status === 'draft' ? 'Draft — still in progress' : 'Submitted') +
         ' · Last saved: ' + response.date.toLocaleString('en-MY');
-      if (response) for (const id of QUESTION_IDS) {
+      if (response) for (const question of activity.questions) {
         const label = document.createElement('h4'), answer = document.createElement('p');
-        label.textContent = 'Question ' + id.slice(1);
-        answer.textContent = response.answers[id] || '(No answer yet)';
+        label.className='learning-question';answer.className='learning-answer';
+        label.textContent = question.label;
+        answer.textContent = response.answers[question.id] || '(No answer yet)';
         answer.style.whiteSpace = 'pre-wrap'; answer.style.overflowWrap = 'anywhere';
         review.append(label, answer);
       }
       if(response && marking) {
         if(response.status==='submitted'){
           const markingRoot=document.createElement('section'); review.append(markingRoot);
-          const scope={classId,studentId:student.id,activityId:ACTIVITY_ID};
+          const scope={classId,studentId:student.id,activityId:activity.id};
           editor=mountTeacherMarking({root:markingRoot,sessionKey,
             load:()=>marking.load(scope,response.updatedAt),
             save:data=>marking.save(scope,{...data,submissionUpdatedAt:response.updatedAt})});
@@ -117,7 +144,7 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
       }
     } catch {
       if (request === responseGeneration && session === sessionKey()) message.textContent =
-        'Responses could not be loaded. Check your connection and class access, then choose View Writer’s Effect again.';
+        'Responses could not be loaded. Check your connection and class access, then choose View activity again.';
     }
   }
   const loader = createRosterLoader({ load, sessionKey,
@@ -141,8 +168,8 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
         if (loadResponse) {
           const action = document.createElement('button');
           action.type = 'button'; action.className = 'secondary refresh';
-          action.textContent = 'View Writer’s Effect';
-          action.setAttribute('aria-label', 'View Writer’s Effect responses for ' + student.name);
+          action.textContent = 'View activity';
+          action.setAttribute('aria-label', 'View selected activity responses for ' + student.name);
           action.addEventListener('click', () => void openResponse(student));
           const actions = document.createElement('span');
           actions.style.display = 'flex'; actions.style.flexWrap = 'wrap'; actions.style.gap = '8px';
@@ -168,6 +195,7 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
     clearReview();
     loader.cancel();
     selected = null;
+    chooseUnit(6);
     list.replaceChildren();
     status.textContent = '';
     heading.textContent = '';

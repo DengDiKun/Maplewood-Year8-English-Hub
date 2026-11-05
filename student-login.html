@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="marking.css?v=feedback-1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="same-origin">
+<link rel="stylesheet" href="marking.css?v=units-1-9-v1"><link rel="stylesheet" href="learning-units.css?v=units-1-9-v1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="same-origin">
 <title>Student Sign-in — Maplewood English Learning</title><style>
     :root { color-scheme: light; --navy:#0b2f47; --teal:#137e88; --ink:#17384b; --muted:#596f7b; --line:#d9e5e7; }
     * { box-sizing:border-box; }
@@ -107,8 +107,9 @@
 <h2 id="account-heading" tabindex="-1">Welcome, <span id="student-name"></span></h2>
 <dl class="account-details"><div><dt>Username</dt><dd id="student-username"></dd></div><div><dt>Class</dt><dd id="student-class"></dd></div><div><dt>Branch</dt><dd id="student-branch"></dd></div><div><dt>Year group</dt><dd id="student-year"></dd></div><div><dt>Academic year</dt><dd id="student-academic-year"></dd></div></dl>
 <section id="activities" aria-labelledby="activities-heading"><h3 id="activities-heading">Your learning activities</h3>
-<p class="section-intro">Read two texts, explore extended metaphors, and explain the writer’s effect.</p>
-<button class="secondary" id="open-activity" type="button">Open Unit 6: Writer’s Effect Challenge</button>
+<p class="section-intro">Explore Units 1–9. Choose an activity, save your draft, and return later using the same login.</p>
+<div id="learning-units"></div>
+<template id="challenge-template">
 <section id="writers-effect" aria-labelledby="activity-heading" hidden>
 <h3 id="activity-heading" tabindex="-1">Writer’s Effect Challenge</h3>
 <p class="section-intro">Unit 6 · AO1 retrieval, AO2 language effects, AO3 comparison. Save a draft to continue later. Submitted work cannot be edited.</p>
@@ -142,9 +143,9 @@
 </fieldset>
 <p data-activity-status role="status" aria-live="polite"></p>
 <div class="activity-actions"><button class="secondary" data-save-draft type="button">Save draft</button><button class="secondary" data-submit type="button">Submit for teacher review</button><button class="text-button" data-close-activity type="button">Close activity</button></div>
-<section id="activity-feedback" aria-label="Teacher feedback" hidden></section>
-</section></section>
+<section data-feedback aria-label="Teacher feedback" hidden></section>
+</section></template></section>
 <button class="secondary" id="refresh-profile" type="button">Refresh my profile</button><button class="secondary" id="sign-out" type="button">Sign out</button></section>
 <p id="status" role="status" aria-live="polite">Connecting to student sign-in…</p><button class="secondary" id="retry" type="button" hidden>Reload page</button>
-<a class="back" href="index.html">Return to the Learning Hub</a><noscript><p>Enable JavaScript to sign in.</p></noscript></main><script type="module" src="student-login.mjs?v=feedback-1"></script></body></html>
+<a class="back" href="index.html">Return to the Learning Hub</a><noscript><p>Enable JavaScript to sign in.</p></noscript></main><script type="module" src="student-login.mjs?v=units-1-9-v1"></script></body></html>
 
