@@ -115,7 +115,7 @@ export function mountStudentActivity({root, open, load, save, sessionKey, feedba
         if (saved) for (const id of ids) root.querySelector('#'+id).value = saved.answers[id];
         submitted = saved?.status === 'submitted';
         if(submitted) feedback?.show(value);
-        message(submitted ? 'Submitted for teacher review. Your responses are read-only.' : saved ? 'Your saved draft is ready.' : 'Read both texts and answer the questions. Save a draft whenever you need a break.');
+        message(submitted ? 'Submitted for teacher review. Your responses are read-only.' : saved ? 'Your saved draft is ready.' : definition(activityId).intro+' Save a draft whenever you need a break.');
         lock(false);
       } catch (error) {
         if (request !== generation || session !== sessionKey()) return;

@@ -96,6 +96,13 @@ Existing authentication, roster, response and marking checks remain required.
 Browser checks use fictional accounts and local fixtures; no real student answer
 or mark is changed by implementation checks.
 
+The full CI suite passes 109 tests. Browser verification covers a saved Unit 1
+reading draft, a separate Unit 9 writing draft saved and reopened after sign-out,
+submission locking, a private staff mark remaining hidden from the student,
+publication followed by student feedback refresh, and preservation of the
+original eleven-answer Unit 6 draft. The unit list fits a 360-pixel phone frame
+without horizontal overflow (345-pixel content viewport including its scrollbar).
+
 For owner verification, use drafts to test several units and reopen them after
 signing in again. Check that the original Writer’s Effect draft is still present.
 Final submission and marking should use genuinely completed work rather than
