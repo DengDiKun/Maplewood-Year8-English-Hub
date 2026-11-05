@@ -3,6 +3,9 @@ name: Firebase access checks
 on:
   pull_request:
     paths:
+      - 'index.html'
+      - 'earlier-hub.html'
+      - 'home-entry.mjs'
       - 'admin-*.mjs'
       - 'admin-login.html'
       - 'teacher-login.*'
@@ -24,6 +27,9 @@ on:
   push:
     branches: [main]
     paths:
+      - 'index.html'
+      - 'earlier-hub.html'
+      - 'home-entry.mjs'
       - 'admin-*.mjs'
       - 'admin-login.html'
       - 'teacher-login.*'
@@ -79,3 +85,4 @@ jobs:
       - run: node --check learning-catalogue.mjs
       - run: node --check learning-units.mjs
       - run: npm run test:units
+      - run: node --check home-entry.mjs
