@@ -8,6 +8,8 @@ on:
       - 'teacher-login.*'
       - 'student-roster.mjs'
       - 'activity-responses.mjs'
+      - 'marking-*.mjs'
+      - 'marking.css'
       - 'student-login.*'
       - 'student-access.mjs'
       - 'scripts/provision_students.py'
@@ -24,6 +26,8 @@ on:
       - 'teacher-login.*'
       - 'student-roster.mjs'
       - 'activity-responses.mjs'
+      - 'marking-*.mjs'
+      - 'marking.css'
       - 'student-login.*'
       - 'student-access.mjs'
       - 'scripts/provision_students.py'
@@ -63,3 +67,6 @@ jobs:
       - run: node --check activity-responses.mjs
       - run: python3 -m unittest discover -s tests -p "test_provision_students.py"
       - run: npm run test:student
+      - run: node --check marking-data.mjs
+      - run: node --check marking-ui.mjs
+      - run: npm run test:marking

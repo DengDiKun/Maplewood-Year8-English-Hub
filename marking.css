@@ -1,0 +1,17 @@
+.marking-panel {margin-top:28px;padding:clamp(16px,4vw,26px);border:1px solid #c5dcdd;border-radius:18px;background:#f3f9f7;min-width:0}
+.marking-panel h3,.marking-panel h4 {margin:0 0 14px;color:#0b2f47}
+.marking-panel p {line-height:1.65;overflow-wrap:anywhere}
+.marking-published {margin:18px 0;padding:0 0 14px;border-bottom:1px solid #c5dcdd}
+.marking-score {font-weight:750;font-size:1.2rem;color:#126b73}
+.marking-comment {white-space:pre-wrap}
+.marking-meta {font-size:.85rem;color:#596f7b}
+.marking-form fieldset {min-width:0;border:0;padding:0;margin:0}
+.marking-form legend {font-weight:750;margin-bottom:18px}
+.marking-form label {display:block;font-weight:650;margin-top:16px}
+.marking-form input[type=number],.marking-form textarea {display:block;width:100%;max-width:100%;min-height:48px;margin-top:8px;padding:12px;border:1px solid #a8bec4;border-radius:12px;background:white;color:#17384b;font:inherit}
+.marking-form input[type=number] {max-width:220px}
+.marking-form textarea {min-height:120px;resize:vertical}
+.marking-actions {display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.marking-actions button {width:auto;margin:0}
+.marking-status {color:#126b73;font-size:.9rem;min-height:24px}
+.marking-panel button:focus-visible,.marking-panel input:focus-visible,.marking-panel textarea:focus-visible {outline:3px solid #d3a347;outline-offset:3px}

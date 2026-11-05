@@ -34,7 +34,7 @@ export function activityError(error) {
 
 // No browser storage, student codes or detached auth session. All requests use
 // the authenticated dashboard's SDK and the current verified profile.
-export function mountStudentActivity({root, open, load, save, sessionKey}) {
+export function mountStudentActivity({root, open, load, save, sessionKey, feedback}) {
   const fields = root.querySelector('fieldset');
   const status = root.querySelector('[data-activity-status]');
   const saveButton = root.querySelector('[data-save-draft]');
@@ -45,6 +45,7 @@ export function mountStudentActivity({root, open, load, save, sessionKey}) {
   const message = text => {status.textContent = text;};
   const lock = value => {busy = value; fields.disabled = value || submitted; saveButton.disabled = value || submitted; submitButton.disabled = value || submitted;};
   const clear = () => {
+    feedback?.clear();
     generation++; profile = null; dirty = false; submitted = false; busy = false;
     root.hidden = true; open.disabled = false;
     for (const id of QUESTION_IDS) root.querySelector('#'+id).value = '';
@@ -76,6 +77,7 @@ export function mountStudentActivity({root, open, load, save, sessionKey}) {
       await save(previous, payload);
       if (request !== generation || session !== sessionKey()) return;
       submitted = statusValue === 'submitted'; dirty = false;
+      if(submitted) feedback?.show(previous);
       message(submitted ? 'Submitted for teacher review. Your responses are now read-only.' : 'Draft saved. You can reopen it after signing in again.');
     } catch (error) {if (request === generation && session === sessionKey()) message(activityError(error));}
     finally {if (request === generation && session === sessionKey()) lock(false);}
@@ -96,6 +98,7 @@ export function mountStudentActivity({root, open, load, save, sessionKey}) {
         if (request !== generation || session !== sessionKey()) return;
         if (saved) for (const id of QUESTION_IDS) root.querySelector('#'+id).value = saved.answers[id];
         submitted = saved?.status === 'submitted';
+        if(submitted) feedback?.show(value);
         message(submitted ? 'Submitted for teacher review. Your responses are read-only.' : saved ? 'Your saved draft is ready.' : 'Read both texts and answer the questions. Save a draft whenever you need a break.');
         lock(false);
       } catch (error) {

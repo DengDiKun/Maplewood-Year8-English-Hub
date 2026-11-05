@@ -1,6 +1,8 @@
 import { validateConfig } from './admin-access.mjs';
 import { signInStudent, studentProfile, studentError } from './student-access.mjs';
-import { mountStudentActivity, responseDocument } from './activity-responses.mjs';
+import { mountStudentActivity, responseDocument, ACTIVITY_ID } from './activity-responses.mjs?v=feedback-1';
+import { markingRefs } from './marking-data.mjs?v=feedback-1';
+import { mountStudentFeedback } from './marking-ui.mjs?v=feedback-1';
 const $ = id => document.getElementById(id);
 const form = $('login-form'), fields = $('login-fields'), account = $('account');
 const username = $('username'), password = $('password'), status = $('status');
@@ -47,12 +49,22 @@ async function start() {
       loadProfile:uid => dbSDK.getDocFromServer(dbSDK.doc(db, 'users', uid)),
       signOut:() => authSDK.signOut(auth)
     };
+    const studentSession=() => current && auth.currentUser?.uid === current.uid ? generation + ':' + current.uid : null;
+    const feedback=mountStudentFeedback({
+      root:$('activity-feedback'), sessionKey:studentSession,
+      load:async profile=>{
+        const refs=markingRefs(dbSDK,db,{...profile,activityId:ACTIVITY_ID});
+        const [submission,snapshot]=await Promise.all([dbSDK.getDocFromServer(refs.response),dbSDK.getDocFromServer(refs.published)]);
+        if(!submission.exists() || submission.data().status!=='submitted')throw new Error('A submitted activity is required.');
+        return {snapshot,submissionUpdatedAt:submission.data().updatedAt};
+      }
+    });
     activity = mountStudentActivity({
       root:$('writers-effect'), open:$('open-activity'),
       load:profile => dbSDK.getDocFromServer(responseDocument(dbSDK, db, profile.classId, profile.studentId)),
       save:(profile, payload) => dbSDK.setDoc(responseDocument(dbSDK, db, profile.classId, profile.studentId),
         {...payload, updatedAt:dbSDK.serverTimestamp()}),
-      sessionKey:() => current && auth.currentUser?.uid === current.uid ? generation + ':' + current.uid : null
+      sessionKey:studentSession, feedback
     });
     $('open-activity').addEventListener('click', () => {if (current) void activity.open(current);});
     let wasSignedIn = false;

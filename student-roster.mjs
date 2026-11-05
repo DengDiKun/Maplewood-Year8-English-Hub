@@ -1,5 +1,6 @@
 import { AccessError } from './admin-access.mjs';
-import { parseResponse, QUESTION_IDS } from './activity-responses.mjs';
+import { parseResponse, QUESTION_IDS, ACTIVITY_ID } from './activity-responses.mjs?v=feedback-1';
+import { mountTeacherMarking } from './marking-ui.mjs?v=feedback-1';
 
 export function studentCollection(sdk, database, classId) {
   if (typeof classId !== 'string' || !classId.trim() || classId.includes('/')) {
@@ -61,7 +62,7 @@ export function createRosterLoader({ load, sessionKey, pending, success, failure
   };
 }
 
-export function mountRoster({ root, classes, load, loadResponse, sessionKey }) {
+export function mountRoster({ root, classes, load, loadResponse, sessionKey, marking }) {
   const heading = root.querySelector('#roster-heading');
   const context = root.querySelector('#roster-context');
   const list = root.querySelector('#student-list');
@@ -71,14 +72,17 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey }) {
   let selected = null;
   let trigger = null;
   let responseGeneration = 0;
+  let editor = null;
+  const canLeave=()=>editor?.canLeave() ?? true;
   const review = document.createElement('section');
   review.setAttribute('aria-live', 'polite');
   root.append(review);
-  const clearReview = () => {responseGeneration++; review.replaceChildren();};
+  const clearReview = () => {responseGeneration++; editor?.clear(); editor=null; review.replaceChildren();};
   async function openResponse(student) {
-    const request = ++responseGeneration, session = sessionKey(), classId = selected?.id;
-    if (!session || !classId) return;
-    review.replaceChildren();
+    const session = sessionKey(), classId = selected?.id;
+    if (!session || !classId || !canLeave()) return;
+    clearReview();
+    const request=++responseGeneration;
     const title = document.createElement('h3');
     title.textContent = student.name + ' — Writer’s Effect';
     title.tabIndex = -1;
@@ -89,7 +93,7 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey }) {
       const response = parseResponse(await loadResponse(classId, student.id));
       if (request !== responseGeneration || session !== sessionKey()) return;
       message.textContent = !response ? 'No saved work yet.' :
-        (response.status === 'draft' ? 'Draft — still in progress' : 'Submitted — awaiting teacher review') +
+        (response.status === 'draft' ? 'Draft — still in progress' : 'Submitted') +
         ' · Last saved: ' + response.date.toLocaleString('en-MY');
       if (response) for (const id of QUESTION_IDS) {
         const label = document.createElement('h4'), answer = document.createElement('p');
@@ -97,6 +101,19 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey }) {
         answer.textContent = response.answers[id] || '(No answer yet)';
         answer.style.whiteSpace = 'pre-wrap'; answer.style.overflowWrap = 'anywhere';
         review.append(label, answer);
+      }
+      if(response && marking) {
+        if(response.status==='submitted'){
+          const markingRoot=document.createElement('section'); review.append(markingRoot);
+          const scope={classId,studentId:student.id,activityId:ACTIVITY_ID};
+          editor=mountTeacherMarking({root:markingRoot,sessionKey,
+            load:()=>marking.load(scope,response.updatedAt),
+            save:data=>marking.save(scope,{...data,submissionUpdatedAt:response.updatedAt})});
+        }else{
+          const note=document.createElement('p');
+          note.textContent='Marking becomes available after the student submits their completed answers.';
+          review.append(note);
+        }
       }
     } catch {
       if (request === responseGeneration && session === sessionKey()) message.textContent =
@@ -160,10 +177,11 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey }) {
     refresh.disabled = false;
     classes.hidden = false;
   };
-  back.addEventListener('click', () => { clear(); trigger?.focus(); trigger = null; });
-  refresh.addEventListener('click', () => { if (selected && !refresh.disabled) void loader.run(selected.id); });
+  back.addEventListener('click', () => { if(!canLeave())return; clear(); trigger?.focus(); trigger = null; });
+  refresh.addEventListener('click', () => { if (selected && !refresh.disabled && canLeave()) void loader.run(selected.id); });
   return {
     clear,
+    canLeave,
     open(item, button) {
       if (!sessionKey()) return;
       selected = item;

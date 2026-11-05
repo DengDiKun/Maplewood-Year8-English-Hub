@@ -1,5 +1,6 @@
-import { mountRoster, studentCollection } from './student-roster.mjs';
-import { responseDocument } from './activity-responses.mjs';
+import { mountRoster, studentCollection } from './student-roster.mjs?v=feedback-1';
+import { responseDocument } from './activity-responses.mjs?v=feedback-1';
+import { createMarkingClient } from './marking-data.mjs?v=feedback-1';
 import { validateConfig, signInAdministrator, loadAdministratorClasses, errorMessage, classErrorMessage, requestPasswordReset, passwordResetErrorMessage } from './admin-access.mjs';
 
 const form = document.getElementById('login-form');
@@ -150,6 +151,7 @@ async function start() {
       root: document.getElementById('roster'), classes: classRegion,
       load: (classId) => firestoreSDK.getDocsFromServer(studentCollection(firestoreSDK, database, classId)),
       loadResponse: (classId, studentId) => firestoreSDK.getDocFromServer(responseDocument(firestoreSDK, database, classId, studentId)),
+      marking:createMarkingClient(firestoreSDK,database,()=>currentProfile && auth.currentUser?.uid===currentProfile.uid ? currentProfile.uid : null),
       sessionKey: () => currentProfile && auth.currentUser?.uid === currentProfile.uid
         ? `${generation}:${currentProfile.uid}` : null
     });
@@ -182,7 +184,7 @@ async function start() {
     }
 
     refreshButton.addEventListener('click', () => {
-      if (currentProfile && !refreshButton.disabled) void refreshClasses(currentProfile, generation);
+      if (currentProfile && !refreshButton.disabled && roster.canLeave()) void refreshClasses(currentProfile, generation);
     });
 
     let wasSignedIn = false;
@@ -255,6 +257,7 @@ async function start() {
     });
 
     signOutButton.addEventListener('click', async () => {
+      if (!roster.canLeave()) return;
       generation += 1;
       clearAccount();
       fields.disabled = true;
