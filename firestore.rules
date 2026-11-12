@@ -65,7 +65,7 @@ service cloud.firestore {
              && answers.q5 in ["", "He values appearance and wealth.", "He is anxious because the wrong choice could cost him Portia.", "He believes he deserves Portia."]
              && answers.q6 in ["", "Choose according to appearance.", "Do not judge only by outward appearance.", "Risk is always a bad idea."]
              && answers.q9 in ["", "A It is clear that Portia wants Bassanio to succeed.", "B Although the men have a choice, Portia does not.", "C The extract shows that love is more important than money."]
-             && answers.q10 in ["", "“I pray you, tarry: pause a day or two / Before you hazard…”", "“for, in choosing wrong, / I lose your company.”", "“Let me choose / For as I am, I live upon the rack.”", "“All that glitters is not gold”", "“You that choose not by the view, / Chance as fair and choose as true!”", "“I will assume desert.”"]
+             && answers.q10 in ["", "\u201cI pray you, tarry: pause a day or two / Before you hazard\u2026\u201d", "\u201cfor, in choosing wrong, / I lose your company.\u201d", "\u201cLet me choose / For as I am, I live upon the rack.\u201d", "\u201cAll that glitters is not gold\u201d", "\u201cYou that choose not by the view, / Chance as fair and choose as true!\u201d", "\u201cI will assume desert.\u201d"]
              && answers.q12 in ["", "💰 Morocco shows that people can be distracted by appearance and wealth.", "🪞 Aragon shows that pride can distort a person’s judgement.", "❤️ Bassanio shows that genuine love looks beyond outward appearance."];
     }
     function validResponse(data, activityId) {

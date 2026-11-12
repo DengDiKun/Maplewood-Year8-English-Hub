@@ -48,6 +48,7 @@ test('a real student SDK session saves a partial lesson draft and restores all t
 });
 test('server rules reject missing fields, unknown choice values, oversized text and client grades while allowing edits to a draft',async()=>{
   const base=responsePayload(complete(),'draft',sdk.serverTimestamp(),activityId);
+  for(const question of MERCHANT_ACTIVITY.questions.filter(q=>q.options))for(const choice of question.options)await assertSucceeds(sdk.setDoc(ref(student.db),{...base,answers:{...base.answers,[question.id]:choice}}));
   for(const question of MERCHANT_ACTIVITY.questions.filter(q=>q.options))await assertFails(sdk.setDoc(ref(student.db),{...base,answers:{...base.answers,[question.id]:'invented choice'}}));
   for(const invalid of [{...base,answers:{q1:base.answers.q1}},{...base,score:100},
     {...base,answers:{...base.answers,extra:'forged'}},
