@@ -1,7 +1,7 @@
 import { AccessError } from './admin-access.mjs';
-import {parseResponse,ACTIVITY_ID} from './activity-responses.mjs?v=units-1-9-v1';
-import {mountTeacherMarking} from './marking-ui.mjs?v=units-1-9-v1';
-import {UNITS,getUnit,getActivity} from './learning-catalogue.mjs?v=units-1-9-v1';
+import {parseResponse,ACTIVITY_ID} from './activity-responses.mjs?v=merchant-1';
+import {mountTeacherMarking} from './marking-ui.mjs?v=merchant-1';
+import {UNITS,getUnit,getActivity} from './learning-catalogue.mjs?v=merchant-1';
 
 export function studentCollection(sdk, database, classId) {
   if (typeof classId !== 'string' || !classId.trim() || classId.includes('/')) {

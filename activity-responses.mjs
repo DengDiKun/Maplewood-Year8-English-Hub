@@ -1,5 +1,5 @@
 import { AccessError } from './admin-access.mjs';
-import {getActivity} from './learning-catalogue.mjs?v=units-1-9-v1';
+import {getActivity} from './learning-catalogue.mjs?v=merchant-1';
 
 export const ACTIVITY_ID = 'writers-effect-v1';
 export const QUESTION_IDS = Object.freeze(Array.from({length:11}, (_, i) => 'q' + (i + 1)));
@@ -16,11 +16,12 @@ export function responseDocument(sdk, db, classId, studentId, activityId=ACTIVIT
   return sdk.doc(db, 'classes', classId, 'students', studentId, 'responses', activityId);
 }
 export function responsePayload(answers, status, updatedAt, activityId=ACTIVITY_ID) {
-  const ids=definition(activityId).questions.map(question=>question.id);
+  const questions=definition(activityId).questions,ids=questions.map(question=>question.id);
   if (!['draft','submitted'].includes(status) || !answers ||
       Object.keys(answers).length !== ids.length ||
-      !ids.every(id => typeof answers[id] === 'string' && answers[id].length <= 4000 &&
-        (status === 'draft' || answers[id].trim().length > 0))) {
+      !questions.every(({id,options}) => typeof answers[id] === 'string' && answers[id].length <= 4000 &&
+        (status === 'draft' || answers[id].trim().length > 0) &&
+        (!options || answers[id]==='' || options.includes(answers[id])))) {
     throw new AccessError('activity/invalid', 'Complete every question before submitting. Each answer can contain up to 4,000 characters.');
   }
   return {version:1, status, answers:Object.fromEntries(ids.map(id => [id, answers[id]])), updatedAt};
@@ -43,7 +44,7 @@ export function activityError(error) {
 
 // No browser storage, student codes or detached auth session. All requests use
 // the authenticated dashboard's SDK and the current verified profile.
-export function mountStudentActivity({root, open, load, save, sessionKey, feedback,activityId=ACTIVITY_ID,onClose}) {
+export function mountStudentActivity({root, open, load, save, sessionKey, feedback,activityId=ACTIVITY_ID,onClose,afterRestore}) {
   const ids=definition(activityId).questions.map(question=>question.id);
   const fields = root.querySelector('fieldset');
   const status = root.querySelector('[data-activity-status]');
@@ -59,11 +60,12 @@ export function mountStudentActivity({root, open, load, save, sessionKey, feedba
     generation++; profile = null; dirty = false; submitted = false; busy = false;
     root.hidden = true; if(open)open.disabled = false;
     for (const id of ids) root.querySelector('#'+id).value = '';
+    afterRestore?.();
     root.querySelectorAll('.hintbox').forEach(box => box.classList.remove('show'));
-    root.querySelectorAll('.hint').forEach(button => button.setAttribute('aria-expanded', 'false'));
+    root.querySelectorAll('button.hint').forEach(button => button.setAttribute('aria-expanded', 'false'));
     message(''); lock(false);
   };
-  root.querySelectorAll('.hint').forEach(button => button.addEventListener('click', () => {
+  root.querySelectorAll('button.hint').forEach(button => button.addEventListener('click', () => {
     const box = button.nextElementSibling;
     button.setAttribute('aria-expanded', String(box.classList.toggle('show')));
   }));
@@ -113,6 +115,7 @@ export function mountStudentActivity({root, open, load, save, sessionKey, feedba
         const saved = parseResponse(await load(value),activityId);
         if (request !== generation || session !== sessionKey()) return;
         if (saved) for (const id of ids) root.querySelector('#'+id).value = saved.answers[id];
+        afterRestore?.();
         submitted = saved?.status === 'submitted';
         if(submitted) feedback?.show(value);
         message(submitted ? 'Submitted for teacher review. Your responses are read-only.' : saved ? 'Your saved draft is ready.' : definition(activityId).intro+' Save a draft whenever you need a break.');
