@@ -78,6 +78,10 @@ export function createRichLesson(definition){
     }
   }
   fields.addEventListener('input',updateWords);
+  if(definition.id==='extra-haze-v1'){
+    const gaps=definition.questions.filter(q=>/^D[1-6] — Clear/.test(q.label)).map(q=>input(q.id));
+    for(const gap of gaps)gap.addEventListener('change',()=>{if(gap.value)for(const other of gaps)if(other!==gap && other.value===gap.value)other.value='';changed();updateWords();});
+  }
   for(const button of fields.querySelectorAll('.hint-btn'))button.addEventListener('click',()=>{const box=button.nextElementSibling;const shown=box.classList.toggle('show');button.setAttribute('aria-expanded',String(shown));});
   root.querySelector('#unlock')?.addEventListener('click',()=>{
     const ok=gateComplete(),lesson=root.querySelector('#lessonContent');lesson.classList.toggle('locked',!ok);lesson.hidden=!ok;

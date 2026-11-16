@@ -121,7 +121,8 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
       message.textContent = !response ? 'No saved work yet.' :
         (response.status === 'draft' ? 'Draft — still in progress' : 'Submitted') +
         ' · Last saved: ' + response.date.toLocaleString('en-MY');
-      if (response) for (const question of activity.questions) {
+      const reviewQuestions=activity.unit===0?[...activity.questions].sort((a,b)=>a.label.localeCompare(b.label,'en',{numeric:true})):activity.questions;
+      if (response) for (const question of reviewQuestions) {
         const label = document.createElement('h4'), answer = document.createElement('p');
         label.className='learning-question';answer.className='learning-answer';
         label.textContent = question.label;

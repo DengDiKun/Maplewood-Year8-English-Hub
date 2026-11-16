@@ -647,7 +647,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q9",
-        "label": "B1 — 1. Participants work with skilled adults from outside the school.Drop",
+        "label": "B1 — 1. Participants work with skilled adults from outside the school.",
         "required": true,
         "correct": "B",
         "options": [
@@ -659,7 +659,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q10",
-        "label": "B2 — 2. This activity helps younger learners become more confident.Drop",
+        "label": "B2 — 2. This activity helps younger learners become more confident.",
         "required": true,
         "correct": "C",
         "options": [
@@ -671,7 +671,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q11",
-        "label": "B3 — 3. Students must sometimes complete work by a fixed time.Drop",
+        "label": "B3 — 3. Students must sometimes complete work by a fixed time.",
         "required": true,
         "correct": "A",
         "options": [
@@ -683,7 +683,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q12",
-        "label": "B4 — 4. The activity may be postponed if outdoor conditions are unsafe.Drop",
+        "label": "B4 — 4. The activity may be postponed if outdoor conditions are unsafe.",
         "required": true,
         "correct": "D",
         "options": [
@@ -695,7 +695,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q13",
-        "label": "B5 — 5. Members learn to make damaged objects useful again.Drop",
+        "label": "B5 — 5. Members learn to make damaged objects useful again.",
         "required": true,
         "correct": "B",
         "options": [
@@ -707,7 +707,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q14",
-        "label": "B6 — 6. Students practise finding information by speaking directly to people.Drop",
+        "label": "B6 — 6. Students practise finding information by speaking directly to people.",
         "required": true,
         "correct": "A",
         "options": [
@@ -719,7 +719,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q15",
-        "label": "B7 — 7. This activity regularly takes place during the school day.Drop",
+        "label": "B7 — 7. This activity regularly takes place during the school day.",
         "required": true,
         "correct": "C",
         "options": [
@@ -731,7 +731,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q16",
-        "label": "B8 — 8. Members use maps as part of an outdoor task.Drop",
+        "label": "B8 — 8. Members use maps as part of an outdoor task.",
         "required": true,
         "correct": "D",
         "options": [
@@ -743,7 +743,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q17",
-        "label": "B9 — 9. The activity has an environmental benefit by reducing waste.Drop",
+        "label": "B9 — 9. The activity has an environmental benefit by reducing waste.",
         "required": true,
         "correct": "B",
         "options": [
@@ -755,7 +755,7 @@ export const RICH_ACTIVITIES = [
       },
       {
         "id": "q18",
-        "label": "B10 — 10. Students choose learning materials or activities suitable for younger children.Drop",
+        "label": "B10 — 10. Students choose learning materials or activities suitable for younger children.",
         "required": true,
         "correct": "C",
         "options": [
