@@ -4,7 +4,8 @@ import {mountStudentFeedback} from './marking-ui.mjs?v=hub-complete-1';
 import {createMerchantLesson} from './merchant-lesson.mjs?v=hub-complete-1';
 import {createRichLesson} from './rich-lessons.mjs?v=hub-complete-1';
 import {createPreLearning} from './pre-learning.mjs?v=hub-complete-1';
-import {mountLearningGames} from './learning-games.mjs?v=hub-complete-1';
+import {mountLearningGames} from './learning-games.mjs?v=anime-1';
+import {chapterSticker,createCompanion} from './hub-art.mjs?v=anime-1';
 
 function node(tag,text,className) {
   const result=document.createElement(tag);
@@ -27,20 +28,26 @@ export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedbac
   const canLeave=()=>editor?.canLeave() ?? true;
   function showHome(focus=true) {
     dispose();root.replaceChildren();
-    const title=heading('Choose a unit');
+    const title=heading('Choose a unit');title.className='unit-section-heading';
+    title.append(node('span','9 chapters · Find your next adventure','section-note'));
+    const banner=node('section',null,'dashboard-banner'),greeting=node('div');
+    greeting.append(node('p','YOUR MAIN STORY','hub-kicker'),node('h3','Small steps. Big stories.'),node('p','Pick a unit. Save your work. Explore a side quest.'));
+    banner.append(greeting,createCompanion('Ready when you are. Tap me for a boost.'));
     const cards=node('div',null,'unit-grid');
     for(const unit of UNITS){
       const card=node('article',null,'unit-card');
-      card.append(node('span','Unit '+unit.number,'unit-number'),node('h4',unit.title),
+      card.dataset.unit=unit.number;
+      const top=node('div',null,'unit-card-top');top.append(node('span','Chapter '+String(unit.number).padStart(2,'0'),'unit-number'),chapterSticker(unit.number));
+      card.append(top,node('h4',unit.title),
         node('p',unit.activities.length+' activities · Reading, writing, speaking and language'),
         button('Open Unit '+unit.number,()=>{if(canLeave())showUnit(unit);}));
       cards.append(card);
     }
-    root.append(title,cards);
-    const extras=node('section',null,'unit-overview');extras.append(heading('Extras · Choose your own challenge'),node('p','Unlimited vocabulary and games are optional extras, available independently of your lessons.'));
+    root.append(banner,title,cards);
+    const extras=node('section',null,'unit-overview hub-extras');extras.append(node('p','THE SIDE QUESTS','hub-kicker'),heading('Extras · Choose your own challenge'),node('p','Unlimited vocabulary and games are optional extras, available independently of your lessons.'));
     const extraCards=node('div',null,'unit-grid');
-    for(const [name,description,open]of [['Unlimited Vocabulary Arena','Endless questions, levels, definitions, sentence gaps, synonyms, antonyms and word families.',()=>openGame('vocabulary')],['Learning Arcade','Block Stacker, Maze Chase and Word Match. Play with a keyboard or touch controls.',()=>openGame('arcade')],['Extra reading practice','Open the complete reading practice papers, save a draft and ask your teacher for feedback.',showExtras]]){
-      const card=node('article',null,'unit-card');card.append(node('h4',name),node('p',description),button('Open '+name,open));extraCards.append(card);
+    for(const [key,name,description,open]of [['vocabulary','Unlimited Vocabulary Arena','Endless questions, levels, definitions, sentence gaps, synonyms, antonyms and word families.',()=>openGame('vocabulary')],['arcade','Learning Arcade','Block Stacker, Maze Chase and Word Match. Play with a keyboard or touch controls.',()=>openGame('arcade')],['reading','Extra reading practice','Open the complete reading practice papers, save a draft and ask your teacher for feedback.',showExtras]]){
+      const card=node('article',null,'unit-card extra-'+key),top=node('div',null,'unit-card-top');top.append(node('span','Optional extra','unit-number'),chapterSticker(key));card.append(top,node('h4',name),node('p',description),button('Open '+name,open));extraCards.append(card);
     }
     extras.append(extraCards);root.append(extras);if(focus)title.focus();
   }
