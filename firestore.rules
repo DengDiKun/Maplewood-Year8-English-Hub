@@ -197,41 +197,12 @@ service cloud.firestore {
              && answers.q33 in ["","wind","shade","rain","noise"]
              && answers.q34 in ["","holidays","assemblies","exams","lunches"]
              && answers.q35 in ["","climate","uniform","building colour","timetable"]
-             && (status == 'draft' || (answers.q1 != ''
-                 && answers.q2 != ''
-                 && answers.q3 in ["Fewer students attended.\nThe average student stayed longer.","Fewer students attended.\nMore students attended.","Fewer students attended.\nThe average student stayed for less time.","The average student stayed longer.\nMore students attended.","The average student stayed longer.\nThe average student stayed for less time.","More students attended.\nThe average student stayed for less time."]
-                 && answers.q4 != ''
-                 && answers.q5 in ["Students needed ways to get home after normal buses left.\nStudents needed access to water or simple food.","Students needed ways to get home after normal buses left.\nThe library did not have enough books.","Students needed ways to get home after normal buses left.\nTeachers refused to help students.","Students needed access to water or simple food.\nThe library did not have enough books.","Students needed access to water or simple food.\nTeachers refused to help students.","The library did not have enough books.\nTeachers refused to help students."]
-                 && answers.q6 != ''
-                 && answers.q7 != ''
-                 && answers.q8 != ''
-                 && answers.q9 != ''
-                 && answers.q10 != ''
-                 && answers.q11 != ''
-                 && answers.q12 != ''
-                 && answers.q13 != ''
-                 && answers.q14 != ''
-                 && answers.q15 != ''
-                 && answers.q16 != ''
-                 && answers.q17 != ''
-                 && answers.q18 != ''
-                 && answers.q19 in ["Attention may weaken even while the student remains at the desk.\nCareless mistakes may become more common.","Attention may weaken even while the student remains at the desk.\nBooks become harder to read after one hour.","Attention may weaken even while the student remains at the desk.\nThe brain completely stops forming memories.","Careless mistakes may become more common.\nBooks become harder to read after one hour.","Careless mistakes may become more common.\nThe brain completely stops forming memories.","Books become harder to read after one hour.\nThe brain completely stops forming memories."]
-                 && answers.q20 != ''
-                 && answers.q21 != ''
-                 && answers.q22 != ''
-                 && answers.q23 in ["It can help the learner return with better attention.\nIt can make repeated mistakes easier to notice.","It can help the learner return with better attention.\nIt allows the learner to avoid difficult work permanently.","It can help the learner return with better attention.\nIt guarantees a perfect score.","It can make repeated mistakes easier to notice.\nIt allows the learner to avoid difficult work permanently.","It can make repeated mistakes easier to notice.\nIt guarantees a perfect score.","It allows the learner to avoid difficult work permanently.\nIt guarantees a perfect score."]
-                 && answers.q24 != ''
-                 && answers.q25 in ["Make deliberate choices about how and when to continue working.\nPay attention to focus and notice mistakes in your own work.","Make deliberate choices about how and when to continue working.\nMeasure success only by the number of hours at the desk.","Make deliberate choices about how and when to continue working.\nFollow one perfect study schedule used by everyone.","Pay attention to focus and notice mistakes in your own work.\nMeasure success only by the number of hours at the desk.","Pay attention to focus and notice mistakes in your own work.\nFollow one perfect study schedule used by everyone.","Measure success only by the number of hours at the desk.\nFollow one perfect study schedule used by everyone."]
-                 && answers.q26 != ''
-                 && answers.q27 != ''
-                 && answers.q28 != ''
-                 && answers.q29 != ''
-                 && answers.q30 != ''
-                 && answers.q31 != ''
-                 && answers.q32 != ''
-                 && answers.q33 != ''
-                 && answers.q34 != ''
-                 && answers.q35 != ''));
+             && (status == 'draft' || (!answers.values().hasAny([''])
+                 && answers.q3.split('\\n').size() == 2
+                 && answers.q5.split('\\n').size() == 2
+                 && answers.q19.split('\\n').size() == 2
+                 && answers.q23.split('\\n').size() == 2
+                 && answers.q25.split('\\n').size() == 2));
     }
     function validRich7(answers, status) {
       return validAnswer(answers.q1, status)
@@ -266,22 +237,9 @@ service cloud.firestore {
              && answers.q30 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
              && answers.q31 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
              && answers.q32 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
-             && (status == 'draft' || (answers.q4 != ''
-                 && answers.q5 != ''
-                 && answers.q14 in ["Schools may reduce outdoor activities.\nFlights can be delayed.","Schools may reduce outdoor activities.\nBooks become difficult to print.","Schools may reduce outdoor activities.\nSchool uniforms change colour.","Flights can be delayed.\nBooks become difficult to print.","Flights can be delayed.\nSchool uniforms change colour.","Books become difficult to print.\nSchool uniforms change colour."]
-                 && answers.q15 in ["Governments\nCompanies\nCommunities","Governments\nCompanies\nTourists only","Governments\nCommunities\nTourists only","Companies\nCommunities\nTourists only"]
-                 && answers.q21 != ''
-                 && answers.q22 != ''
-                 && answers.q23 != ''
-                 && answers.q24 != ''
-                 && answers.q25 != ''
-                 && answers.q26 != ''
-                 && answers.q27 != ''
-                 && answers.q28 != ''
-                 && answers.q29 != ''
-                 && answers.q30 != ''
-                 && answers.q31 != ''
-                 && answers.q32 != ''));
+             && (status == 'draft' || (!answers.values().hasAny([''])
+                 && answers.q14.split('\\n').size() == 2
+                 && answers.q15.split('\\n').size() == 3));
     }
     function validClassicAnswers(answers, activityId, status, size) {
       return validAnswer(answers.q1, status)
