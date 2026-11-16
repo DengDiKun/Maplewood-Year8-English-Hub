@@ -1,6 +1,7 @@
-import {UNITS} from './learning-catalogue.mjs?v=units-1-9-v1';
-import {mountStudentActivity} from './activity-responses.mjs?v=units-1-9-v1';
-import {mountStudentFeedback} from './marking-ui.mjs?v=units-1-9-v1';
+import {UNITS} from './learning-catalogue.mjs?v=merchant-1';
+import {mountStudentActivity} from './activity-responses.mjs?v=merchant-1';
+import {mountStudentFeedback} from './marking-ui.mjs?v=merchant-1';
+import {createMerchantLesson} from './merchant-lesson.mjs?v=merchant-1';
 
 function node(tag,text,className) {
   const result=document.createElement(tag);
@@ -77,8 +78,9 @@ export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedbac
   async function openActivity(unit,definition) {
     if(!profile || !sessionKey() || !canLeave())return;
     dispose();root.replaceChildren(navigation(unit));
-    let activityRoot;
-    if(definition.kind==='challenge')activityRoot=challengeTemplate.content.firstElementChild.cloneNode(true);
+    let activityRoot,merchant;
+    if(definition.kind==='merchant') {merchant=createMerchantLesson();activityRoot=merchant.root;root.append(merchant.host);}
+    else if(definition.kind==='challenge')activityRoot=challengeTemplate.content.firstElementChild.cloneNode(true);
     else {
       activityRoot=node('section',null,'learning-activity');activityRoot.hidden=true;
       activityRoot.append(heading(definition.title),node('p',definition.intro,'section-intro'));
@@ -96,12 +98,12 @@ export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedbac
       const feedback=node('section');feedback.dataset.feedback='';feedback.hidden=true;feedback.setAttribute('aria-label','Teacher feedback');
       activityRoot.append(fields,status,actions,feedback);
     }
-    root.append(activityRoot);
+    if(!merchant)root.append(activityRoot);
     const feedback=mountStudentFeedback({root:activityRoot.querySelector('[data-feedback]'),sessionKey,
       load:value=>loadFeedback(value,definition.id)});
     editor=mountStudentActivity({root:activityRoot,activityId:definition.id,sessionKey,feedback,
       load:value=>load(value,definition.id),save:(value,payload)=>save(value,payload,definition.id),
-      onClose:()=>showUnit(unit,definition.id)});
+      onClose:()=>showUnit(unit,definition.id),afterRestore:merchant?.restore});
     await editor.open(profile);
   }
   return {clear,canLeave,hasUnsavedChanges:()=>editor?.hasUnsavedChanges() ?? false,

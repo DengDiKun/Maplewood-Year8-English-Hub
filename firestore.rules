@@ -32,7 +32,8 @@ service cloud.firestore {
              && (status == 'draft' || answer.matches('(?s).*\\S.*'));
     }
     function responseSize(activityId) {
-      return activityId == 'writers-effect-v1' ? 11
+      return activityId == 'unit-8-merchant-v1' ? 12
+             : activityId == 'writers-effect-v1' ? 11
              : (activityId.matches('unit-[1-6]-reading-[1-6]-v1')
                 || activityId.matches('unit-[78]-reading-[1-3]-v1')
                 || activityId.matches('unit-9-reading-[1-5]-v1')) ? 3
@@ -56,9 +57,21 @@ service cloud.firestore {
              && data.submissionUpdatedAt is timestamp
              && data.submissionUpdatedAt == get(/databases/$(database)/documents/classes/$(classId)/students/$(studentId)/responses/$(activityId)).data.updatedAt;
     }
+    function validMerchantChoices(answers) {
+      return answers.q1 in ["", "He values appearance and wealth.", "He is nervous about losing Portia.", "He believes he deserves Portia."]
+             && answers.q2 in ["", "Appearances can be misleading.", "Love is a reward for people who are already important.", "Only confident people make good choices."]
+             && answers.q3 in ["", "He values appearance and wealth.", "He is nervous about losing Portia.", "He believes he deserves Portia."]
+             && answers.q4 in ["", "People who think too highly of themselves may be foolish.", "Gold always brings happiness.", "Choices should be made quickly."]
+             && answers.q5 in ["", "He values appearance and wealth.", "He is anxious because the wrong choice could cost him Portia.", "He believes he deserves Portia."]
+             && answers.q6 in ["", "Choose according to appearance.", "Do not judge only by outward appearance.", "Risk is always a bad idea."]
+             && answers.q9 in ["", "A It is clear that Portia wants Bassanio to succeed.", "B Although the men have a choice, Portia does not.", "C The extract shows that love is more important than money."]
+             && answers.q10 in ["", "\u201cI pray you, tarry: pause a day or two / Before you hazard\u2026\u201d", "\u201cfor, in choosing wrong, / I lose your company.\u201d", "\u201cLet me choose / For as I am, I live upon the rack.\u201d", "\u201cAll that glitters is not gold\u201d", "\u201cYou that choose not by the view, / Chance as fair and choose as true!\u201d", "\u201cI will assume desert.\u201d"]
+             && answers.q12 in ["", "💰 Morocco shows that people can be distracted by appearance and wealth.", "🪞 Aragon shows that pride can distort a person’s judgement.", "❤️ Bassanio shows that genuine love looks beyond outward appearance."];
+    }
     function validResponse(data, activityId) {
       let size = responseSize(activityId);
-      let keys = size == 11 ? ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']
+      let keys = size == 12 ? ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12']
+                 : size == 11 ? ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']
                  : size == 3 ? ['q1', 'q2', 'q3'] : ['q1'];
       return data.keys().hasAll(['version', 'status', 'answers', 'updatedAt'])
              && data.keys().hasOnly(['version', 'status', 'answers', 'updatedAt'])
@@ -75,7 +88,9 @@ service cloud.firestore {
              && validAnswer(data.answers.q8, data.status)
              && validAnswer(data.answers.q9, data.status)
              && validAnswer(data.answers.q10, data.status)
-             && validAnswer(data.answers.q11, data.status)));
+             && validAnswer(data.answers.q11, data.status)))
+             && (size < 12 || validAnswer(data.answers.q12, data.status))
+             && (activityId != 'unit-8-merchant-v1' || validMerchantChoices(data.answers));
     }
     match /users/{userId} {
       allow get: if request.auth != null

@@ -6,6 +6,8 @@ on:
       - 'index.html'
       - 'earlier-hub.html'
       - 'home-entry.mjs'
+      - 'merchant-*.mjs'
+      - 'unit8-1-core.html'
       - 'admin-*.mjs'
       - 'admin-login.html'
       - 'teacher-login.*'
@@ -30,6 +32,8 @@ on:
       - 'index.html'
       - 'earlier-hub.html'
       - 'home-entry.mjs'
+      - 'merchant-*.mjs'
+      - 'unit8-1-core.html'
       - 'admin-*.mjs'
       - 'admin-login.html'
       - 'teacher-login.*'
@@ -86,3 +90,5 @@ jobs:
       - run: node --check learning-units.mjs
       - run: npm run test:units
       - run: node --check home-entry.mjs
+      - run: node --check merchant-lesson.mjs
+      - run: npm run test:merchant

@@ -22,8 +22,8 @@ test('all nine units retain the existing curriculum titles, reading lessons, ext
   }
 });
 test('every activity has a unique stable document ID and the original Writer’s Effect identity is retained',()=>{
-  assert.equal(ACTIVITIES.length,75);
-  assert.equal(new Set(ACTIVITIES.map(a=>a.id)).size,75);
+  assert.equal(ACTIVITIES.length,76);
+  assert.equal(new Set(ACTIVITIES.map(a=>a.id)).size,76);
   assert.equal(ACTIVITIES.filter(a=>a.kind==='reading').length,47);
   assert.equal(getActivity('writers-effect-v1').questions.length,11);
   assert.equal(getUnit(6).activities[0].id,'writers-effect-v1');
@@ -38,7 +38,7 @@ test('every activity has a unique stable document ID and the original Writer’s
 });
 test('each activity accepts exactly its own answers, with bounded drafts and complete submissions',()=>{
   for(const activity of ACTIVITIES){
-    const answers=Object.fromEntries(activity.questions.map(q=>[q.id,'A supported response.']));
+    const answers=Object.fromEntries(activity.questions.map(q=>[q.id,q.options?.[0] || 'A supported response.']));
     const payload=responsePayload(answers,'submitted',{toDate:()=>new Date(0)},activity.id);
     assert.deepEqual(parseResponse({exists:()=>true,data:()=>payload},activity.id).answers,answers);
     assert.throws(()=>responsePayload({...answers,extra:'not allowed'},'draft',null,activity.id));
