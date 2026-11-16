@@ -27,6 +27,7 @@ export function createRichLesson(definition){
   const fields=node('fieldset');fields.disabled=true;fields.append(node('legend','Save a draft whenever you need a break. Submit when the required responses are complete. Maximum 4,000 characters per response.'));
   // This is checked-in authored material. Answers are never inserted as HTML.
   const template=document.createElement('template');template.innerHTML=material.html;fields.append(template.content.cloneNode(true));
+  fields.addEventListener('submit',event=>event.preventDefault());
   for(const binding of material.bindings){
     if(binding.kind==='checkbox'){
       const control=fields.querySelector('#'+binding.id);control.id=binding.id+'-control';control.dataset.control=binding.id;
