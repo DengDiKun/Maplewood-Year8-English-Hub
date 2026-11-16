@@ -50,12 +50,14 @@ export function createRichLesson(definition){
       const value=input(binding.id),count=value.value.trim()?value.value.trim().split(/\s+/).length:0;
       const counter=value.parentElement.querySelector('.count,.counter');if(counter)counter.textContent=count+(definition.questions.find(q=>q.id===binding.id).minWords?' / 150 words':' words');
     }
+    const progressText=root.querySelector('#progressText'),progressBar=root.querySelector('#progressBar');
+    if(progressText){const required=definition.questions.filter(q=>q.required!==false),complete=required.filter(q=>input(q.id).value.trim() && (!q.minSelections || input(q.id).value.split('\n').length===q.minSelections)).length;progressText.textContent=complete+' / '+required.length+' responses completed';if(progressBar)progressBar.style.width=(complete/required.length*100)+'%';}
   }
   for(const binding of material.bindings){
     const id=binding.id;
     if(binding.kind==='checkbox'){
       const control=fields.querySelector('[data-control="'+id+'"]'),question=definition.questions.find(q=>q.id===id);
-      control.addEventListener('change',()=>{input(id).value=question.options[control.checked?0:1];changed();if(!gateComplete())root.querySelector('#lessonContent')?.classList.add('locked');});
+      control.addEventListener('change',()=>{input(id).value=question.options[control.checked?0:1];changed();if(!gateComplete()){const lesson=root.querySelector('#lessonContent');if(lesson){lesson.classList.add('locked');lesson.hidden=true;}}});
     }else if(['radio','checks'].includes(binding.kind)){
       for(const control of controls(id))control.addEventListener('change',()=>{
         if(binding.kind==='checks'){
@@ -63,7 +65,7 @@ export function createRichLesson(definition){
           if(selected.length>maximum)control.checked=false;
           input(id).value=controls(id).filter(e=>e.checked).map(e=>e.dataset.choice).join('\n');
         }else input(id).value=control.value;
-        changed();if(!gateComplete())root.querySelector('#lessonContent')?.classList.add('locked');
+        changed();if(!gateComplete()){const lesson=root.querySelector('#lessonContent');if(lesson){lesson.classList.add('locked');lesson.hidden=true;}}
       });
     }else if(['multi','choice'].includes(binding.kind)){
       for(const button of controls(id))button.addEventListener('click',()=>{
@@ -78,7 +80,7 @@ export function createRichLesson(definition){
   fields.addEventListener('input',updateWords);
   for(const button of fields.querySelectorAll('.hint-btn'))button.addEventListener('click',()=>{const box=button.nextElementSibling;const shown=box.classList.toggle('show');button.setAttribute('aria-expanded',String(shown));});
   root.querySelector('#unlock')?.addEventListener('click',()=>{
-    const ok=gateComplete();root.querySelector('#lessonContent').classList.toggle('locked',!ok);
+    const ok=gateComplete(),lesson=root.querySelector('#lessonContent');lesson.classList.toggle('locked',!ok);lesson.hidden=!ok;
     preStatus().textContent=ok?'Pre-learning complete. The lesson is unlocked. Choose Save draft to keep these answers.':'Complete the video or fallback scenario and check all three quiz answers, then try again.';
     preStatus().className='pre-status '+(ok?'good':'bad');
   });
@@ -95,7 +97,7 @@ export function createRichLesson(definition){
         }
       }
     }
-    if(material.gate.length){const complete=gateComplete();root.querySelector('#lessonContent').classList.toggle('locked',!complete);preStatus().textContent=complete?'Your completed pre-learning answers are restored.':'Watch the video or read the scenario, then complete the quick check.';}
+    if(material.gate.length){const complete=gateComplete();root.querySelector('#lessonContent').classList.toggle('locked',!complete);root.querySelector('#lessonContent').hidden=!complete;preStatus().textContent=complete?'Your completed pre-learning answers are restored.':'Watch the video or read the scenario, then complete the quick check.';}
     updateWords();
   }
   function stateChanged({submitted}){

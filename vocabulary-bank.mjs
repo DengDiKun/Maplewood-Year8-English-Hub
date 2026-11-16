@@ -177,7 +177,7 @@ export const VOCABULARY = [
     "d": "a particular way of viewing a situation",
     "s": "viewpoint",
     "a": "certainty",
-    "f": "perspectival",
+    "f": "perspectives",
     "c": "The story is told from the child’s ___."
   },
   {
@@ -186,7 +186,7 @@ export const VOCABULARY = [
     "d": "to communicate an idea, feeling or meaning",
     "s": "communicate",
     "a": "conceal",
-    "f": "conveyance",
+    "f": "conveyed",
     "c": "The writer uses imagery to ___ fear."
   },
   {
@@ -366,7 +366,7 @@ export const VOCABULARY = [
     "d": "an argument that opposes another argument",
     "s": "objection",
     "a": "support",
-    "f": "counter",
+    "f": "counterarguments",
     "c": "A balanced response may address a ___."
   },
   {

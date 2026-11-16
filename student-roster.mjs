@@ -125,7 +125,7 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
         const label = document.createElement('h4'), answer = document.createElement('p');
         label.className='learning-question';answer.className='learning-answer';
         label.textContent = question.label;
-        answer.textContent = response.answers[question.id] || '(No answer yet)';
+        answer.textContent = response.answers[question.id] || (question.required===false?'(Optional — not selected)':'(No answer yet)');
         answer.style.whiteSpace = 'pre-wrap'; answer.style.overflowWrap = 'anywhere';
         review.append(label, answer);
       }

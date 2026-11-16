@@ -34,7 +34,7 @@ export function createPreLearning(unit,activity){
   challenge.append(choices,feedback);layout.append(visual,challenge);inside.append(layout);
   const video=node('details');video.className='video';video.append(node('summary','Watch / listen · '+unit.video.label));
   if(unit.video.kind==='youtube'){
-    const frame=node('iframe');frame.src='https://www.youtube-nocookie.com/embed/'+unit.video.id+'?rel=0';frame.title=unit.video.label;frame.loading='lazy';frame.allow='accelerometer; encrypted-media; gyroscope; picture-in-picture';frame.setAttribute('allowfullscreen','');video.append(frame);
+    const frame=node('iframe');frame.src='https://www.youtube-nocookie.com/embed/'+unit.video.id+'?rel=0';frame.title=unit.video.label;frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='accelerometer; encrypted-media; gyroscope; picture-in-picture';frame.setAttribute('allowfullscreen','');video.append(frame);
   }
   const link=node('a','Open the video or learning resource');link.href=unit.video.kind==='youtube'?'https://www.youtube.com/watch?v='+unit.video.id:unit.video.url;link.target='_blank';link.rel='noopener noreferrer';video.append(link);
   video.append(node('p','If the video is unavailable, use the picture challenge and discuss one prediction about “'+activity.title+'”.'));

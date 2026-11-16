@@ -17,6 +17,13 @@ export function responseDocument(sdk, db, classId, studentId, activityId=ACTIVIT
 }
 export function responsePayload(answers, status, updatedAt, activityId=ACTIVITY_ID) {
   const questions=definition(activityId).questions,ids=questions.map(question=>question.id);
+  if(status==='submitted' && answers && typeof answers==='object'){
+    const short=questions.find(q=>q.minWords && typeof answers[q.id]==='string' && answers[q.id].trim().split(/\s+/).filter(Boolean).length<q.minWords);
+    if(short)throw new AccessError('activity/invalid','Write at least '+short.minWords+' words for “'+short.label+'” before submitting.');
+    if(questions.some(q=>q.submitEquals!==undefined && answers[q.id]!==q.submitEquals))throw new AccessError('activity/invalid','Complete the pre-learning check correctly before submitting the lesson.');
+    const selection=questions.find(q=>q.minSelections && typeof answers[q.id]==='string' && answers[q.id].split('\n').filter(Boolean).length!==q.minSelections);
+    if(selection)throw new AccessError('activity/invalid','Choose '+selection.minSelections+' options for “'+selection.label+'” before submitting.');
+  }
   if (!['draft','submitted'].includes(status) || !answers ||
       Object.keys(answers).length !== ids.length ||
       !questions.every(({id,options,required=true,minWords=0,minSelections=0,submitEquals}) => typeof answers[id] === 'string' && answers[id].length <= 4000 &&

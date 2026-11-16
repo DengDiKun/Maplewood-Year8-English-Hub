@@ -115,17 +115,17 @@ export const RICH_ACTIVITIES = [
     "questions": [
       {
         "id": "q1",
-        "label": "Activity 2 — long I stoodAnd looked down one as far as I could",
+        "label": "Activity 2 — long I stood / And looked down one as far as I could",
         "required": true
       },
       {
         "id": "q2",
-        "label": "Activity 2 — knowing how way leads on to way,I doubted if I should ever come back.",
+        "label": "Activity 2 — knowing how way leads on to way, / I doubted if I should ever come back.",
         "required": true
       },
       {
         "id": "q3",
-        "label": "Activity 2 — I took the one less traveled by,And that has made all the difference.",
+        "label": "Activity 2 — I took the one less traveled by, / And that has made all the difference.",
         "required": true
       },
       {

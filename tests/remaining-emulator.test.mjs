@@ -56,7 +56,7 @@ test('server rules validate all text and choice fields, exact shapes, pre-learni
       if(question.minWords)await assertFails(sdk.setDoc(path,{...base,status:'submitted',answers:{...base.answers,[question.id]:'word '.repeat(question.minWords-1).trim()}}));
       if(question.minSelections)await assertFails(sdk.setDoc(path,{...base,status:'submitted',answers:{...base.answers,[question.id]:question.options.find(v=>v.split('\n').length<question.minSelections)}}));
     }
-    for(const invalid of [{...base,score:100},{...base,answers:{q1:'only one'}},{...base,answers:{...base.answers,extra:'forged'}}])await assertFails(sdk.setDoc(path,invalid));
+    for(const invalid of [{...base,score:100},{...base,answers:{}},{...base,answers:{...base.answers,extra:'forged'}}])await assertFails(sdk.setDoc(path,invalid));
     await assertSucceeds(sdk.setDoc(path,base));
   }
 });
