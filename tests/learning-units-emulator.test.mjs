@@ -51,7 +51,7 @@ test('every registered activity validates answer shape, permits a complete submi
   for(const activity of ACTIVITIES){
     const value=responsePayload(answers(activity),'submitted',sdk.serverTimestamp(),activity.id);
     await assertFails(sdk.setDoc(ref(db,activity.id),{...value,answers:{...value.answers,extra:'forged'}}));
-    await assertSucceeds(sdk.setDoc(ref(db,activity.id),value));
+    await assertSucceeds(sdk.setDoc(ref(db,activity.id),value)).catch(error=>{throw new Error(activity.id+' submission: '+error.message);});
     await assertFails(sdk.setDoc(ref(db,activity.id),responsePayload(answers(activity),'draft',sdk.serverTimestamp(),activity.id)));
   }
 });

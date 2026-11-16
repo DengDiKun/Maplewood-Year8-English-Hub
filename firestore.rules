@@ -3,22 +3,25 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function hasActiveRole(role) {
+      let profile = request.auth != null
+                    ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data : {};
       return request.auth != null
-             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active == true
-             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+             && profile.active == true && profile.role == role;
     }
 
     function studentEnrollmentIsActive(profile) {
+      let classData = get(/databases/$(database)/documents/classes/$(profile.classId)).data;
+      let roster = get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data;
       return profile.classId is string && profile.studentId is string
-             && get(/databases/$(database)/documents/classes/$(profile.classId)).data.active == true
-             && get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data.active == true
-             && get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data.authUid == request.auth.uid;
+             && classData.active == true && roster.active == true
+             && roster.authUid == request.auth.uid;
     }
 
 
     function ownsEnrollment(classId, studentId) {
       let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-      return hasActiveRole('student') && profile.classId == classId && profile.studentId == studentId
+      return profile.active == true && profile.role == 'student'
+             && profile.classId == classId && profile.studentId == studentId
              && studentEnrollmentIsActive(profile);
     }
     function canReviewResponses(classId) {
