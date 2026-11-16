@@ -52,7 +52,7 @@ html{scroll-behavior:smooth}html.motion-reduced{--hub-decoration-play-state:paus
 .hub-home .site-footer{max-width:1240px;margin:auto;padding:10px 32px 36px;color:var(--muted);font-size:.73rem;display:flex;gap:15px;justify-content:space-between}.site-footer p{margin:0}
 /* The sign-in and dashboard share the same world, with quiet lesson reading. */
 .hub-student{display:block;padding:32px 24px}
-.hub-student main{position:relative;width:min(1080px,100%);min-width:0;min-height:660px;margin:auto;padding:36px 50% 32px 42px;background:var(--paper);border:2px solid var(--navy);border-radius:22px;box-shadow:8px 8px 0 #a6bcb2}
+.hub-student main{position:relative;width:min(1080px,100%);min-width:0;min-height:660px;margin:auto;padding:36px clamp(300px,47vw,520px) 32px 42px;background:var(--paper);border:2px solid var(--navy);border-radius:22px;box-shadow:8px 8px 0 #a6bcb2}
 .hub-student main>.brand{margin-bottom:60px;width:calc(200% - 80px);max-width:calc(100vw - 140px);gap:12px}
 .hub-student main>.brand strong{font-size:.86rem}.hub-student .brand-actions{gap:8px}.hub-student main>h1{font:900 clamp(2.5rem,4vw,3.6rem)/1.08 system-ui;letter-spacing:-.055em;color:var(--navy);max-width:100%;margin:12px 0 18px}.hub-student .intro{font-size:.94rem;line-height:1.75}
 .signin-stage{position:absolute;right:4%;top:150px;width:40%;min-width:0;padding:16px;border-radius:24px;background:#d6eee6;transform:rotate(2deg);border:2px solid var(--navy);box-shadow:5px 5px 0 #83ac9b}

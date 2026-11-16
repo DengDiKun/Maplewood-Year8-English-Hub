@@ -21,12 +21,11 @@ The image is served locally as `assets/maple-mascot.webp` (about 75 KB). The
 original was created with the built-in image generator, then resized and encoded
 to WebP for delivery, preserving transparency.
 
-Asset brief: one original, friendly anime-inspired chibi orange fox student
-with cream muzzle and tail tip, amber eyes and a playful wink; navy varsity
-jacket with teal trim, a golden maple-leaf pin and teal sneakers; waving while
-holding an open teal-and-gold book. Clean dark-navy outlines, cel shading, a
-complete readable silhouette and transparent background, with no readable text,
-watermarks or surrounding scene. Intended for students aged 12–14.
+Final image prompt (built-in generator):
+
+```text
+Use case: stylized-concept. Asset type: transparent cutout mascot sticker for the Maplewood Year 8 English Learning Hub. Create one original, delightful anime-inspired chibi fox student mascot named Maple, with warm orange fur, cream muzzle and tail tip, large expressive amber eyes, a playful wink, clean bold dark-navy outlines and polished cel shading. Maple wears a navy varsity jacket with teal trim, a tiny golden maple-leaf pin and simple teal sneakers. Floating in a cheerful seated pose, one paw waves towards the viewer and the other holds an open teal-and-gold book with tiny abstract marks rather than readable text. A large fluffy fox tail curls around the body. Friendly and cool for 12–14-year-old students, suitable for a school learning and retro arcade dashboard. Full character completely inside the canvas, centered with a little breathing room, strong readable silhouette and carefully drawn paws. Transparent background with no rectangle, no scenery, no ground, no drop shadow, no surrounding text, no watermark, no logos. Crisp high-quality 2D anime game sticker illustration, not photorealistic or 3D.
+```
 
 ## Existing work
 
