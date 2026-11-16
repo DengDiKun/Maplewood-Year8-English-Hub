@@ -3,53 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0b2f47">
+  <meta name="theme-color" content="#087e83">
   <meta name="referrer" content="same-origin">
-  <meta name="description" content="Maplewood Year 8 English Learning Hub. Sign in to open Units 1–9, continue your saved work or review your classes.">
-  <title>Maplewood English Learning — Year 8 Learning Hub</title>
-  <style>
-    :root{color-scheme:light;--navy:#0b2f47;--teal:#137e88;--ink:#17384b;--muted:#526a77;--line:#d8e5e7;--cream:#fffdf8;--gold:#d6a13c}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(155deg,#fffdf8 15%,#edf7f6 72%,#fff7e9);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--teal);text-underline-offset:4px}a:focus-visible,summary:focus-visible{outline:3px solid var(--navy);outline-offset:5px}a:hover{text-decoration-thickness:2px}
-    .skip{position:absolute;left:16px;top:-80px;padding:12px;background:white;z-index:5}.skip:focus{top:12px}.site-header{border-bottom:1px solid var(--line);background:#fffdf8e8}.header-inner{max-width:1120px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy);min-width:0}.brand-mark{width:46px;height:46px;flex:none;display:grid;place-items:center;background:var(--navy);color:#f2cb73;font:bold 27px Georgia,serif;border-radius:15px 5px 15px 5px}.brand strong{display:block;font-size:.98rem}.brand small{display:block;color:var(--muted);font-size:.8rem;margin-top:4px}.header-link{flex:none;min-height:44px;display:inline-flex;align-items:center;font-weight:650;font-size:.88rem}
-    main{max-width:1120px;margin:auto;padding:58px 24px 36px}.intro{max-width:760px}.eyebrow{color:var(--teal);font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:0 0 16px}h1{font:normal clamp(2.4rem,5.4vw,4.1rem)/1.08 Georgia,"Times New Roman",serif;color:var(--navy);margin:0 0 22px;max-width:740px}h1 span{color:var(--teal)}.intro>p:last-child{font-size:1.04rem;line-height:1.75;color:var(--muted);max-width:650px;margin:0}.access-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:34px 0}.access-card{min-width:0;background:#fffefa;border:1px solid var(--line);border-radius:26px 12px 26px 12px;padding:30px;display:flex;flex-direction:column;align-items:flex-start;box-shadow:0 12px 32px #0b2f4709}.access-card.student{border-top:4px solid var(--teal)}.access-card.staff{border-top:4px solid var(--gold)}.access-card .eyebrow{margin:0 0 12px}.access-card h2{font:normal 1.85rem/1.18 Georgia,serif;margin:0 0 14px;color:var(--navy)}.access-card p{line-height:1.7;margin:0 0 18px;color:var(--muted)}.subjects{font-size:.86rem;color:var(--teal)!important;font-weight:650}.card-actions{margin-top:auto;width:100%}.button{display:inline-flex;justify-content:center;align-items:center;min-height:50px;padding:13px 24px;border-radius:999px;background:var(--navy);color:white;text-decoration:none;font-weight:750;text-align:center;line-height:1.4}.button:hover{background:#12556a;text-decoration:none}.student .button{background:var(--teal)}.student .button:hover{background:#0b6570}.admin-link{display:block;width:fit-content;margin-top:14px;min-height:44px;padding-top:10px;font-size:.88rem}.card-actions .button{width:100%}.student .card-actions{padding-bottom:58px}
-    .help{color:var(--muted);font-size:.91rem;line-height:1.65;margin:0 0 28px}.help strong{color:var(--ink)}.earlier{border:1px solid var(--line);border-radius:18px;background:#ffffffb8;padding:4px 20px}.earlier summary{min-height:58px;padding:17px 0;cursor:pointer;font-weight:650;color:var(--navy);line-height:1.5}.earlier p{max-width:740px;line-height:1.7;color:var(--muted);margin:0 0 16px}.earlier .button{background:#e6f1f1;color:var(--navy);border:1px solid #cbdfe1;margin-bottom:20px}.site-footer{max-width:1120px;margin:auto;padding:10px 24px 38px;color:var(--muted);font-size:.82rem;line-height:1.65}.site-footer p{margin:0}
-    @media(max-width:650px){.access-grid{grid-template-columns:1fr;gap:18px}.header-inner{padding:16px 20px;gap:12px}.brand strong{font-size:.86rem}.brand small{font-size:.74rem}.brand-mark{width:40px;height:40px;font-size:24px}.header-link{font-size:.8rem}main{padding:36px 20px 26px}.access-card{padding:25px}.student .card-actions{padding-bottom:0}.access-card h2{font-size:1.65rem}.intro>p:last-child{font-size:.98rem}.site-footer{padding:10px 20px 28px}}@media(max-width:360px){.header-inner{flex-wrap:wrap}.header-link{margin-left:52px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-  </style>
+  <meta name="description" content="Your next chapter awaits. Explore Year 8 English Units 1–9, save your work and discover the separate Vocabulary Arena and Learning Arcade.">
+  <title>Maplewood English Learning — Your Next Chapter</title>
+  <link rel="stylesheet" href="hub-theme.css?v=anime-1">
   <script type="module" src="home-entry.mjs?v=home-1"></script>
+  <script type="module" src="hub-visuals.mjs?v=anime-1"></script>
 </head>
-<body>
+<body class="hub-home">
   <a class="skip" href="#main">Skip to main content</a>
   <header class="site-header"><div class="header-inner">
-    <a class="brand" href="index.html" aria-label="Maplewood English Learning homepage"><span class="brand-mark" aria-hidden="true">M</span><span><strong>Maplewood English Learning</strong><small>Maplewood International School</small></span></a>
-    <a class="header-link" href="#earlier-lessons">Earlier lessons</a>
+    <a class="brand" href="index.html?v=anime-1" aria-label="Maplewood English Learning homepage"><span class="brand-mark" aria-hidden="true">M</span><span><strong>Maplewood English Learning</strong><small>Maplewood International School</small></span></a>
+    <div class="header-actions"><a class="header-link" href="#explore">Explore the Hub</a><button class="motion-toggle" type="button" data-motion-toggle aria-pressed="false" disabled>Reduce motion</button></div>
   </div></header>
   <main id="main">
-    <section class="intro" aria-labelledby="page-heading">
-      <p class="eyebrow">Year 8 English · Units 1–9</p>
-      <h1 id="page-heading">Your English learning<br><span>starts here.</span></h1>
-      <p>Sign in to continue your activities, save your work and read your teacher’s feedback.</p>
+    <section class="home-hero" aria-labelledby="page-heading">
+      <div class="hero-copy">
+        <p class="eyebrow hero-label">Year 8 English / Your next adventure</p>
+        <h1 id="page-heading">Your next<br><em>chapter awaits.</em></h1>
+        <p class="hero-description">Build your English. Find your voice. Make room for a little adventure. Your lessons, saved work and extra challenges are all right here.</p>
+        <div class="hero-actions"><a class="button" href="student-login.html?v=anime-1">Student sign-in <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><a href="#staff-access">Here to teach? <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-footnote">Your school username + Learning Hub password. You know the way.</p>
+      </div>
+      <aside class="hero-poster" aria-label="Meet Maple, your learning companion">
+        <div class="poster-top"><span>Meet your study sidekick</span><span class="poster-tag">LET’S GO!</span></div>
+        <div data-maple="Plot twist: you’ve got this."><img src="assets/maple-mascot.webp" width="585" height="640" alt="Maple, an anime-style fox with an open book" style="display:block;width:100%;height:auto"></div>
+        <span class="star-sticker" aria-hidden="true">✦</span>
+        <div class="poster-footer"><span>MAPLE / LEARNING COMPANION</span><span>Tap for a little boost ↑</span></div>
+      </aside>
     </section>
-    <section class="access-grid" aria-label="Choose your sign-in">
-      <article class="access-card student" aria-labelledby="student-heading">
-        <p class="eyebrow">Student access</p><h2 id="student-heading">Continue your learning</h2>
-        <p>Open Units 1–9 with your school username and Learning Hub password. Your saved drafts and submitted work are waiting inside. Explore picture and video warm-ups, then visit the separate Vocabulary Arena and Learning Arcade for extra practice.</p>
-        <p class="subjects">Reading · Writing · Speaking · Language</p>
-        <div class="card-actions"><a class="button" href="student-login.html?v=hub-complete-1">Student sign-in</a></div>
-      </article>
-      <article class="access-card staff" aria-labelledby="staff-heading">
-        <p class="eyebrow">Staff access</p><h2 id="staff-heading">Review and guide</h2>
-        <p>Open your classes, review student responses and share marks and feedback. Sign in with your teacher email address and password.</p>
-        <div class="card-actions"><a class="button" href="teacher-login.html?v=hub-complete-1">Teacher sign-in</a><a class="admin-link" href="admin-login.html?v=hub-complete-1">Administrator sign-in</a></div>
-      </article>
+    <div class="chapter-strip" aria-label="Inside the Learning Hub"><span><b>09</b> ENGLISH UNITS</span><span><b>∞</b> VOCABULARY ROUNDS</span><span><b>03</b> ARCADE GAMES</span><span>READ. THINK. CREATE. REPEAT.</span></div>
+    <section id="explore" aria-labelledby="explore-heading">
+      <div class="section-title"><h2 id="explore-heading">A little study. A little side quest.</h2><p>Sign in to open your lessons, then explore the extras at your own pace.</p></div>
+      <div class="adventure-grid">
+        <article class="adventure-card"><span>THE MAIN STORY / UNITS 1–9</span><h3>Choose your next chapter.</h3><p>Picture and video warm-ups, reading, writing and speaking. Save a draft and pick up where you left off.</p><div data-chapter-sticker="9" aria-hidden="true"></div></article>
+        <article class="adventure-card"><span>OPTIONAL EXTRA / VOCABULARY</span><h3>Words are your superpower.</h3><p>Try sentence gaps, word families and more. Pick a level and keep going with unlimited practice rounds.</p><div data-chapter-sticker="vocabulary" aria-hidden="true"></div></article>
+        <article class="adventure-card"><span>OPTIONAL EXTRA / LEARNING ARCADE</span><h3>Take the playful route.</h3><p>Stack blocks. Chase the maze. Match meanings. Three retro-style games, separate from your lessons.</p><div data-chapter-sticker="arcade" aria-hidden="true"></div></article>
+      </div>
     </section>
-    <p class="help"><strong>Need help signing in?</strong> Ask your teacher for your Learning Hub login. Your Edupage password is separate.</p>
-    <details class="earlier" id="earlier-lessons">
-      <summary>Earlier lessons and activities</summary>
-      <p>Use the earlier Hub for lessons, games and exam practice your teacher has assigned there. These activities use your existing four-digit Student Code.</p>
-      <a class="button" href="earlier-hub.html">Open the earlier Hub</a>
-    </details>
-    <noscript><p>The sign-in links above work without JavaScript. If you followed an earlier lesson link, open the earlier Hub and choose your lesson there.</p></noscript>
+    <section class="staff-panel" id="staff-access" aria-labelledby="staff-heading"><div><p class="eyebrow">Behind every great chapter</p><h2 id="staff-heading">Teachers, this is your entrance.</h2><p>Open your classes, review student responses and share marks and feedback. Use your teacher email address and password.</p></div><div class="staff-actions"><a class="button" href="teacher-login.html?v=hub-complete-1">Teacher sign-in <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><a class="admin-link" href="admin-login.html?v=hub-complete-1">Administrator sign-in</a></div></section>
+    <p class="help"><strong>Need your login?</strong> Ask your teacher for your Learning Hub username and password. Your Edupage password is separate.</p>
+    <details class="earlier" id="earlier-lessons"><summary>Looking for an earlier lesson or activity?</summary><p>Use the earlier Hub for lessons, games and exam practice your teacher has assigned there. These activities use your existing four-digit Student Code.</p><a class="button" href="earlier-hub.html">Open the earlier Hub <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></details>
+    <noscript><p>Use Student sign-in to open your lessons. Maple’s animated features need JavaScript; the sign-in links above still work.</p></noscript>
   </main>
-  <footer class="site-footer"><p>Maplewood International School · Year 8 English</p><p>Read boldly. Think deeply. Create beautifully.</p></footer>
+  <footer class="site-footer"><p>Maplewood International School · Year 8 English</p><p>Small steps. Big stories.</p></footer>
 </body>
 </html>
