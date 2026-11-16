@@ -1,8 +1,8 @@
 import { validateConfig } from './admin-access.mjs';
 import { signInStudent, studentProfile, studentError } from './student-access.mjs';
-import {responseDocument} from './activity-responses.mjs?v=merchant-1';
-import {markingRefs} from './marking-data.mjs?v=merchant-1';
-import {mountLearningUnits} from './learning-units.mjs?v=merchant-1';
+import {responseDocument} from './activity-responses.mjs?v=hub-complete-1';
+import {markingRefs} from './marking-data.mjs?v=hub-complete-1';
+import {mountLearningUnits} from './learning-units.mjs?v=hub-complete-1';
 const $ = id => document.getElementById(id);
 const form = $('login-form'), fields = $('login-fields'), account = $('account');
 const username = $('username'), password = $('password'), status = $('status');

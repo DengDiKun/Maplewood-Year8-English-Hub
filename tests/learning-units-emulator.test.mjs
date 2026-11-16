@@ -10,7 +10,7 @@ let environment;
 const projectId='demo-maplewood-classes';
 const context=uid=>uid?environment.authenticatedContext(uid).firestore():environment.unauthenticatedContext().firestore();
 const ref=(db,id,studentId='own')=>responseDocument(sdk,db,'daisy',studentId,id);
-const answers=activity=>Object.fromEntries(activity.questions.map(q=>[q.id,q.options?.[0] || 'Synthetic evidence for '+activity.id]));
+const answers=activity=>Object.fromEntries(activity.questions.map(q=>[q.id,q.options?.[0] || (q.minWords?'word '.repeat(q.minWords).trim():'Synthetic evidence for '+activity.id)]));
 before(async()=>{
   assert.equal(process.env.FIRESTORE_EMULATOR_HOST,'127.0.0.1:8080');
   environment=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:await readFile(new URL('../firestore.rules',import.meta.url),'utf8')}});
@@ -51,7 +51,7 @@ test('every registered activity validates answer shape, permits a complete submi
   for(const activity of ACTIVITIES){
     const value=responsePayload(answers(activity),'submitted',sdk.serverTimestamp(),activity.id);
     await assertFails(sdk.setDoc(ref(db,activity.id),{...value,answers:{...value.answers,extra:'forged'}}));
-    await assertSucceeds(sdk.setDoc(ref(db,activity.id),value));
+    await assertSucceeds(sdk.setDoc(ref(db,activity.id),value)).catch(error=>{throw new Error(activity.id+' submission: '+error.message);});
     await assertFails(sdk.setDoc(ref(db,activity.id),responsePayload(answers(activity),'draft',sdk.serverTimestamp(),activity.id)));
   }
 });

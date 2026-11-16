@@ -3,22 +3,25 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function hasActiveRole(role) {
+      let profile = request.auth != null
+                    ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data : {};
       return request.auth != null
-             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active == true
-             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+             && profile.active == true && profile.role == role;
     }
 
     function studentEnrollmentIsActive(profile) {
+      let classData = get(/databases/$(database)/documents/classes/$(profile.classId)).data;
+      let roster = get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data;
       return profile.classId is string && profile.studentId is string
-             && get(/databases/$(database)/documents/classes/$(profile.classId)).data.active == true
-             && get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data.active == true
-             && get(/databases/$(database)/documents/classes/$(profile.classId)/students/$(profile.studentId)).data.authUid == request.auth.uid;
+             && classData.active == true && roster.active == true
+             && roster.authUid == request.auth.uid;
     }
 
 
     function ownsEnrollment(classId, studentId) {
       let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-      return hasActiveRole('student') && profile.classId == classId && profile.studentId == studentId
+      return profile.active == true && profile.role == 'student'
+             && profile.classId == classId && profile.studentId == studentId
              && studentEnrollmentIsActive(profile);
     }
     function canReviewResponses(classId) {
@@ -32,7 +35,8 @@ service cloud.firestore {
              && (status == 'draft' || answer.matches('(?s).*\\S.*'));
     }
     function responseSize(activityId) {
-      return activityId == 'unit-8-merchant-v1' ? 12
+      return activityId in ["unit-2-mountains-v1","unit-3-oak-island-v1","unit-6-below-ground-v1","unit-7-ochuko-v1","unit-8-life-choices-v1","unit-8-decisions-v1","extra-reading-exam-v1","extra-haze-v1"] ? {"unit-2-mountains-v1":4,"unit-3-oak-island-v1":4,"unit-6-below-ground-v1":1,"unit-7-ochuko-v1":4,"unit-8-life-choices-v1":27,"unit-8-decisions-v1":27,"extra-reading-exam-v1":35,"extra-haze-v1":32}[activityId]
+             : activityId == 'unit-8-merchant-v1' ? 12
              : activityId == 'writers-effect-v1' ? 11
              : (activityId.matches('unit-[1-6]-reading-[1-6]-v1')
                 || activityId.matches('unit-[78]-reading-[1-3]-v1')
@@ -68,29 +72,213 @@ service cloud.firestore {
              && answers.q10 in ["", "\u201cI pray you, tarry: pause a day or two / Before you hazard\u2026\u201d", "\u201cfor, in choosing wrong, / I lose your company.\u201d", "\u201cLet me choose / For as I am, I live upon the rack.\u201d", "\u201cAll that glitters is not gold\u201d", "\u201cYou that choose not by the view, / Chance as fair and choose as true!\u201d", "\u201cI will assume desert.\u201d"]
              && answers.q12 in ["", "💰 Morocco shows that people can be distracted by appearance and wealth.", "🪞 Aragon shows that pride can distort a person’s judgement.", "❤️ Bassanio shows that genuine love looks beyond outward appearance."];
     }
+    function validRich0(answers, status) {
+      return validAnswer(answers.q1, status)
+             && validAnswer(answers.q2, status)
+             && validAnswer(answers.q3, status)
+             && validAnswer(answers.q4, status);
+    }
+    function validRich1(answers, status) {
+      return validAnswer(answers.q1, status)
+             && validAnswer(answers.q2, status)
+             && validAnswer(answers.q3, status)
+             && validAnswer(answers.q4, status);
+    }
+    function validRich2(answers, status) {
+      return validAnswer(answers.q1, status);
+    }
+    function validRich3(answers, status) {
+      return validAnswer(answers.q1, status)
+             && validAnswer(answers.q2, status)
+             && validAnswer(answers.q3, status)
+             && validAnswer(answers.q4, status);
+    }
+    function validRich4(answers, status) {
+      return validAnswer(answers.q1, status)
+             && validAnswer(answers.q2, status)
+             && validAnswer(answers.q3, status)
+             && validAnswer(answers.q4, status)
+             && validAnswer(answers.q5, status)
+             && validAnswer(answers.q6, status)
+             && validAnswer(answers.q7, status)
+             && validAnswer(answers.q8, status)
+             && validAnswer(answers.q9, status)
+             && validAnswer(answers.q10, status)
+             && validAnswer(answers.q11, status)
+             && validAnswer(answers.q12, status)
+             && validAnswer(answers.q13, status)
+             && validAnswer(answers.q14, status)
+             && validAnswer(answers.q15, status)
+             && answers.q16 in ["","Completed","Not yet"]
+             && answers.q17 in ["","Consider your values, options and possible consequences.","Choose immediately so you do not have to think.","Always copy what other people choose."]
+             && answers.q18 in ["","different options may lead to different consequences.","every choice has exactly the same result.","feelings never affect decisions."]
+             && answers.q19 in ["","uncertainty or careful thought.","that there is no choice to make.","that the decision is unimportant."]
+             && answers.q20 in ["","Checked","Not checked"]
+             && answers.q21 in ["","Checked","Not checked"]
+             && answers.q22 in ["","Checked","Not checked"]
+             && answers.q23 in ["","Checked","Not checked"]
+             && answers.q24 in ["","Checked","Not checked"]
+             && answers.q25 in ["","hesitation","uncertainty","curiosity","hesitation\nuncertainty","hesitation\ncuriosity","uncertainty\ncuriosity","hesitation\nuncertainty\ncuriosity"]
+             && answers.q26 in ["","uncertainty","realism","regret","uncertainty\nrealism","uncertainty\nregret","realism\nregret","uncertainty\nrealism\nregret"]
+             && answers.q27 in ["","reflection","confidence","acceptance","reflection\nconfidence","reflection\nacceptance","confidence\nacceptance","reflection\nconfidence\nacceptance"]
+             && (status == 'draft' || (answers.q16 == "Completed"
+                 && answers.q17 == "Consider your values, options and possible consequences."
+                 && answers.q18 == "different options may lead to different consequences."
+                 && answers.q19 == "uncertainty or careful thought."));
+    }
+    function validRich5(answers, status) {
+      return validAnswer(answers.q1, status)
+             && validAnswer(answers.q2, status)
+             && validAnswer(answers.q3, status)
+             && validAnswer(answers.q4, status)
+             && validAnswer(answers.q5, status)
+             && validAnswer(answers.q6, status)
+             && validAnswer(answers.q7, status)
+             && validAnswer(answers.q8, status)
+             && validAnswer(answers.q9, status)
+             && validAnswer(answers.q10, status)
+             && validAnswer(answers.q11, status)
+             && validAnswer(answers.q12, status)
+             && validAnswer(answers.q13, status)
+             && validAnswer(answers.q14, status)
+             && answers.q15 in ["","Completed","Not yet"]
+             && answers.q16 in ["","Consider the options and possible outcomes.","Ignore the consequences.","Choose the first idea every time."]
+             && answers.q17 in ["","They may offer another perspective or useful information.","It guarantees there is only one correct answer.","It means you never need to think for yourself."]
+             && answers.q18 in ["","evaluating ideas before choosing.","refusing to listen to anyone.","avoiding every decision."]
+             && answers.q19 in ["","Checked","Not checked"]
+             && answers.q20 in ["","Checked","Not checked"]
+             && answers.q21 in ["","Checked","Not checked"]
+             && answers.q22 in ["","Checked","Not checked"]
+             && answers.q23 in ["","Checked","Not checked"]
+             && answers.q24 in ["","Checked","Not checked"]
+             && answers.q25 in ["","Checked","Not checked"]
+             && answers.q26 in ["","Checked","Not checked"]
+             && answers.q27 in ["","Rich people should share their wealth with poor people.","The whole world should stop eating meat.","Cars should be banned.","Children should start school at the age of eight."]
+             && (status == 'draft' || (answers.q14.matches('(?s)\\s*\\S+(\\s+\\S+){119,}\\s*')
+                 && answers.q15 == "Completed"
+                 && answers.q16 == "Consider the options and possible outcomes."
+                 && answers.q17 == "They may offer another perspective or useful information."
+                 && answers.q18 == "evaluating ideas before choosing."
+                 && answers.q27 != ''));
+    }
+    function validRich6(answers, status) {
+      return answers.q1 in ["","The school wanted every student to study three extra hours.","Some students did not have suitable study conditions at home.","Teachers wanted to replace homework with library lessons.","Parents complained that the library closed too late."]
+             && answers.q2 in ["","The silent upstairs area","The downstairs group-work area","The supervised entrance","Only the help desk"]
+             && answers.q3 in ["","Fewer students attended.\nThe average student stayed longer.","Fewer students attended.\nMore students attended.","Fewer students attended.\nThe average student stayed for less time.","The average student stayed longer.\nMore students attended.","The average student stayed longer.\nThe average student stayed for less time.","More students attended.\nThe average student stayed for less time.","Fewer students attended.","The average student stayed longer.","More students attended.","The average student stayed for less time."]
+             && answers.q4 in ["","Students had forgotten where the library was.","The first excitement about trying something new had decreased.","Students were no longer interested in examinations.","The school had stopped advertising the trial."]
+             && answers.q5 in ["","Students needed ways to get home after normal buses left.\nStudents needed access to water or simple food.","Students needed ways to get home after normal buses left.\nThe library did not have enough books.","Students needed ways to get home after normal buses left.\nTeachers refused to help students.","Students needed access to water or simple food.\nThe library did not have enough books.","Students needed access to water or simple food.\nTeachers refused to help students.","The library did not have enough books.\nTeachers refused to help students.","Students needed ways to get home after normal buses left.","Students needed access to water or simple food.","The library did not have enough books.","Teachers refused to help students."]
+             && answers.q6 in ["","To support different ways of studying without them disturbing one another","To separate teachers from students","To make the building look larger","To punish students who spoke"]
+             && answers.q7 in ["","The trial failed because attendance was lower.","A smaller but more committed group was using the library for longer.","Students had become slower at completing work.","Most students stayed for exactly seventy-one minutes."]
+             && answers.q8 in ["","All schools should keep libraries open every night.","Students work best only when they are supervised.","Extra study support works best when it is designed around students\u2019 real needs.","Libraries should replace studying at home."]
+             && answers.q9 in ["","A","B","C","D"]
+             && answers.q10 in ["","A","B","C","D"]
+             && answers.q11 in ["","A","B","C","D"]
+             && answers.q12 in ["","A","B","C","D"]
+             && answers.q13 in ["","A","B","C","D"]
+             && answers.q14 in ["","A","B","C","D"]
+             && answers.q15 in ["","A","B","C","D"]
+             && answers.q16 in ["","A","B","C","D"]
+             && answers.q17 in ["","A","B","C","D"]
+             && answers.q18 in ["","A","B","C","D"]
+             && answers.q19 in ["","Attention may weaken even while the student remains at the desk.\nCareless mistakes may become more common.","Attention may weaken even while the student remains at the desk.\nBooks become harder to read after one hour.","Attention may weaken even while the student remains at the desk.\nThe brain completely stops forming memories.","Careless mistakes may become more common.\nBooks become harder to read after one hour.","Careless mistakes may become more common.\nThe brain completely stops forming memories.","Books become harder to read after one hour.\nThe brain completely stops forming memories.","Attention may weaken even while the student remains at the desk.","Careless mistakes may become more common.","Books become harder to read after one hour.","The brain completely stops forming memories."]
+             && answers.q20 in ["","A break deletes everything the learner has studied.","A short pause can interrupt tired concentration and help the learner return with renewed attention.","Students should restart every task from the beginning.","Electronic devices should be restarted during revision."]
+             && answers.q21 in ["","It introduces lots of new information that may continue competing for attention.","The internet may be too slow.","Friends may dislike the student\u2019s posts.","Using social media is always forbidden."]
+             && answers.q22 in ["","Watching several short videos","Starting a new online game","Stretching or drinking water","Reading dozens of messages"]
+             && answers.q23 in ["","It can help the learner return with better attention.\nIt can make repeated mistakes easier to notice.","It can help the learner return with better attention.\nIt allows the learner to avoid difficult work permanently.","It can help the learner return with better attention.\nIt guarantees a perfect score.","It can make repeated mistakes easier to notice.\nIt allows the learner to avoid difficult work permanently.","It can make repeated mistakes easier to notice.\nIt guarantees a perfect score.","It allows the learner to avoid difficult work permanently.\nIt guarantees a perfect score.","It can help the learner return with better attention.","It can make repeated mistakes easier to notice.","It allows the learner to avoid difficult work permanently.","It guarantees a perfect score."]
+             && answers.q24 in ["","Every learner must take a break at exactly the same time.","Some break activities help attention recover more effectively than others.","Long breaks are always better than short breaks.","Breaks only work for strong students."]
+             && answers.q25 in ["","Make deliberate choices about how and when to continue working.\nPay attention to focus and notice mistakes in your own work.","Make deliberate choices about how and when to continue working.\nMeasure success only by the number of hours at the desk.","Make deliberate choices about how and when to continue working.\nFollow one perfect study schedule used by everyone.","Pay attention to focus and notice mistakes in your own work.\nMeasure success only by the number of hours at the desk.","Pay attention to focus and notice mistakes in your own work.\nFollow one perfect study schedule used by everyone.","Measure success only by the number of hours at the desk.\nFollow one perfect study schedule used by everyone.","Make deliberate choices about how and when to continue working.","Pay attention to focus and notice mistakes in your own work.","Measure success only by the number of hours at the desk.","Follow one perfect study schedule used by everyone."]
+             && answers.q26 in ["","unused","dangerous","crowded","painted"]
+             && answers.q27 in ["","weight","rain","noise","heat"]
+             && answers.q28 in ["","safety rails","doors","lights","shelves"]
+             && answers.q29 in ["","tanks","ponds","classrooms","pipes"]
+             && answers.q30 in ["","soil moisture","traffic","only air temperature","homework"]
+             && answers.q31 in ["","insects","parents","only birds","teachers"]
+             && answers.q32 in ["","herbs","tomatoes only","flowers","water"]
+             && answers.q33 in ["","wind","shade","rain","noise"]
+             && answers.q34 in ["","holidays","assemblies","exams","lunches"]
+             && answers.q35 in ["","climate","uniform","building colour","timetable"]
+             && (status == 'draft' || (!answers.values().hasAny([''])
+                 && answers.q3.split('\\n').size() == 2
+                 && answers.q5.split('\\n').size() == 2
+                 && answers.q19.split('\\n').size() == 2
+                 && answers.q23.split('\\n').size() == 2
+                 && answers.q25.split('\\n').size() == 2));
+    }
+    function validRich7(answers, status) {
+      return validAnswer(answers.q1, status)
+             && validAnswer(answers.q2, status)
+             && validAnswer(answers.q3, status)
+             && answers.q4 in ["","Yong En","Yu Chen","Teacher James","His father"]
+             && answers.q5 in ["","Yu Chen","Yong En","Teacher James","His father"]
+             && validAnswer(answers.q6, status)
+             && validAnswer(answers.q7, status)
+             && validAnswer(answers.q8, status)
+             && validAnswer(answers.q9, status)
+             && validAnswer(answers.q10, status)
+             && validAnswer(answers.q11, status)
+             && validAnswer(answers.q12, status)
+             && validAnswer(answers.q13, status)
+             && answers.q14 in ["","Schools may reduce outdoor activities.\nFlights can be delayed.","Schools may reduce outdoor activities.\nBooks become difficult to print.","Schools may reduce outdoor activities.\nSchool uniforms change colour.","Flights can be delayed.\nBooks become difficult to print.","Flights can be delayed.\nSchool uniforms change colour.","Books become difficult to print.\nSchool uniforms change colour.","Schools may reduce outdoor activities.","Flights can be delayed.","Books become difficult to print.","School uniforms change colour."]
+             && answers.q15 in ["","Governments\nCompanies\nCommunities","Governments\nCompanies\nTourists only","Governments\nCommunities\nTourists only","Companies\nCommunities\nTourists only","Governments\nCompanies","Governments\nCommunities","Governments\nTourists only","Companies\nCommunities","Companies\nTourists only","Communities\nTourists only","Governments","Companies","Communities","Tourists only"]
+             && validAnswer(answers.q16, status)
+             && validAnswer(answers.q17, status)
+             && validAnswer(answers.q18, status)
+             && validAnswer(answers.q19, status)
+             && validAnswer(answers.q20, status)
+             && answers.q21 in ["","heavy rain","thick, unclear air","a crowded car park","cold weather"]
+             && answers.q22 in ["","excited","amused","concerned","proud"]
+             && answers.q23 in ["","metaphor","simile","repetition","onomatopoeia"]
+             && answers.q24 in ["","to tell a funny story","to blame one person for haze","to explain haze, its effects and possible responses","to give instructions for travelling"]
+             && answers.q25 in ["","Paragraph 1","Paragraph 2","Paragraph 3","Paragraph 4"]
+             && answers.q26 in ["","It signals a change from problems towards solutions.","It introduces another example of a fire.","It describes a character.","It repeats paragraph 2."]
+             && answers.q27 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
+             && answers.q28 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
+             && answers.q29 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
+             && answers.q30 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
+             && answers.q31 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
+             && answers.q32 in ["","visibility","peatlands","borders","responsibility","smoke","outdoor"]
+             && (status == 'draft' || (!answers.values().hasAny([''])
+                 && answers.q14.split('\\n').size() == 2
+                 && answers.q15.split('\\n').size() == 3));
+    }
+    function validClassicAnswers(answers, activityId, status, size) {
+      return validAnswer(answers.q1, status)
+             && (size < 3 || (validAnswer(answers.q2, status) && validAnswer(answers.q3, status)))
+             && (size < 11 || (validAnswer(answers.q4, status)
+                 && validAnswer(answers.q5, status) && validAnswer(answers.q6, status)
+                 && validAnswer(answers.q7, status) && validAnswer(answers.q8, status)
+                 && validAnswer(answers.q9, status) && validAnswer(answers.q10, status)
+                 && validAnswer(answers.q11, status)))
+             && (size < 12 || validAnswer(answers.q12, status))
+             && (activityId != 'unit-8-merchant-v1' || validMerchantChoices(answers));
+    }
+    function validAllAnswers(answers, activityId, status, size) {
+      return activityId == 'unit-2-mountains-v1' ? validRich0(answers, status)
+                 : activityId == 'unit-3-oak-island-v1' ? validRich1(answers, status)
+                 : activityId == 'unit-6-below-ground-v1' ? validRich2(answers, status)
+                 : activityId == 'unit-7-ochuko-v1' ? validRich3(answers, status)
+                 : activityId == 'unit-8-life-choices-v1' ? validRich4(answers, status)
+                 : activityId == 'unit-8-decisions-v1' ? validRich5(answers, status)
+                 : activityId == 'extra-reading-exam-v1' ? validRich6(answers, status)
+                 : activityId == 'extra-haze-v1' ? validRich7(answers, status)
+                 : validClassicAnswers(answers, activityId, status, size);
+    }
     function validResponse(data, activityId) {
       let size = responseSize(activityId);
-      let keys = size == 12 ? ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12']
-                 : size == 11 ? ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']
-                 : size == 3 ? ['q1', 'q2', 'q3'] : ['q1'];
+      let keys = size == 35 ? ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12","q13","q14","q15","q16","q17","q18","q19","q20","q21","q22","q23","q24","q25","q26","q27","q28","q29","q30","q31","q32","q33","q34","q35"]
+                 : size == 32 ? ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12","q13","q14","q15","q16","q17","q18","q19","q20","q21","q22","q23","q24","q25","q26","q27","q28","q29","q30","q31","q32"]
+                 : size == 27 ? ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12","q13","q14","q15","q16","q17","q18","q19","q20","q21","q22","q23","q24","q25","q26","q27"]
+                 : size == 12 ? ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12"]
+                 : size == 11 ? ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11"]
+                 : size == 4 ? ["q1","q2","q3","q4"]
+                 : size == 3 ? ["q1","q2","q3"]
+                 : ['q1'];
       return data.keys().hasAll(['version', 'status', 'answers', 'updatedAt'])
              && data.keys().hasOnly(['version', 'status', 'answers', 'updatedAt'])
              && data.version == 1 && data.status in ['draft', 'submitted']
              && data.updatedAt == request.time && data.answers is map
              && size > 0 && data.answers.keys().hasAll(keys) && data.answers.keys().hasOnly(keys)
-             && validAnswer(data.answers.q1, data.status)
-             && (size < 3 || (validAnswer(data.answers.q2, data.status)
-                 && validAnswer(data.answers.q3, data.status)))
-             && (size < 11 || (validAnswer(data.answers.q4, data.status)
-             && validAnswer(data.answers.q5, data.status)
-             && validAnswer(data.answers.q6, data.status)
-             && validAnswer(data.answers.q7, data.status)
-             && validAnswer(data.answers.q8, data.status)
-             && validAnswer(data.answers.q9, data.status)
-             && validAnswer(data.answers.q10, data.status)
-             && validAnswer(data.answers.q11, data.status)))
-             && (size < 12 || validAnswer(data.answers.q12, data.status))
-             && (activityId != 'unit-8-merchant-v1' || validMerchantChoices(data.answers));
+             && validAllAnswers(data.answers, activityId, data.status, size);
     }
     match /users/{userId} {
       allow get: if request.auth != null

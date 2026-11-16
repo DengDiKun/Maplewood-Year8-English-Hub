@@ -1,7 +1,10 @@
-import {UNITS} from './learning-catalogue.mjs?v=merchant-1';
-import {mountStudentActivity} from './activity-responses.mjs?v=merchant-1';
-import {mountStudentFeedback} from './marking-ui.mjs?v=merchant-1';
-import {createMerchantLesson} from './merchant-lesson.mjs?v=merchant-1';
+import {UNITS,EXTRA_ACTIVITIES,EXTRA_GROUP} from './learning-catalogue.mjs?v=hub-complete-1';
+import {mountStudentActivity} from './activity-responses.mjs?v=hub-complete-1';
+import {mountStudentFeedback} from './marking-ui.mjs?v=hub-complete-1';
+import {createMerchantLesson} from './merchant-lesson.mjs?v=hub-complete-1';
+import {createRichLesson} from './rich-lessons.mjs?v=hub-complete-1';
+import {createPreLearning} from './pre-learning.mjs?v=hub-complete-1';
+import {mountLearningGames} from './learning-games.mjs?v=hub-complete-1';
 
 function node(tag,text,className) {
   const result=document.createElement(tag);
@@ -18,8 +21,8 @@ function heading(text) {const h=node('h3',text);h.tabIndex=-1;return h;}
 // One verified session, one activity editor at a time. No legacy login keys,
 // detached windows or client-supplied enrollment identifiers are used.
 export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedback,sessionKey}) {
-  let profile=null,editor=null;
-  const dispose=()=>{editor?.destroy();editor=null;};
+  let profile=null,editor=null,game=null;
+  const dispose=()=>{editor?.destroy();editor=null;game?.destroy();game=null;};
   const clear=()=>{dispose();profile=null;root.replaceChildren();};
   const canLeave=()=>editor?.canLeave() ?? true;
   function showHome(focus=true) {
@@ -33,15 +36,32 @@ export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedbac
         button('Open Unit '+unit.number,()=>{if(canLeave())showUnit(unit);}));
       cards.append(card);
     }
-    root.append(title,cards);if(focus)title.focus();
+    root.append(title,cards);
+    const extras=node('section',null,'unit-overview');extras.append(heading('Extras · Choose your own challenge'),node('p','Unlimited vocabulary and games are optional extras, available independently of your lessons.'));
+    const extraCards=node('div',null,'unit-grid');
+    for(const [name,description,open]of [['Unlimited Vocabulary Arena','Endless questions, levels, definitions, sentence gaps, synonyms, antonyms and word families.',()=>openGame('vocabulary')],['Learning Arcade','Block Stacker, Maze Chase and Word Match. Play with a keyboard or touch controls.',()=>openGame('arcade')],['Extra reading practice','Open the complete reading practice papers, save a draft and ask your teacher for feedback.',showExtras]]){
+      const card=node('article',null,'unit-card');card.append(node('h4',name),node('p',description),button('Open '+name,open));extraCards.append(card);
+    }
+    extras.append(extraCards);root.append(extras);if(focus)title.focus();
   }
   function navigation(unit) {
     const nav=node('nav',null,'learning-nav');nav.setAttribute('aria-label','Learning navigation');
     nav.append(button('All units',()=>{if(canLeave())showHome();}));
-    if(unit)nav.append(button('Unit '+unit.number+' activities',()=>{if(canLeave())showUnit(unit);}));
+    if(unit)nav.append(button(unit.number?'Unit '+unit.number+' activities':'Hub extras',()=>{if(canLeave())showUnit(unit);}));
     return nav;
   }
+  function showExtras(){
+    dispose();root.replaceChildren(navigation());const title=heading('Hub extras');
+    const overview=node('section',null,'unit-overview');overview.append(title,node('p','Open vocabulary rounds or games for extra practice, or choose a saved reading activity.'));
+    const actions=node('div',null,'learning-nav');actions.append(button('Unlimited Vocabulary Arena',()=>openGame('vocabulary')),button('Learning Arcade',()=>openGame('arcade')));overview.append(actions);
+    const list=node('ul',null,'unit-activities');for(const definition of EXTRA_ACTIVITIES){const row=node('li');row.append(button(definition.title,()=>void openActivity(EXTRA_GROUP,definition)));list.append(row);}overview.append(list);root.append(overview);title.focus();
+  }
+  function openGame(mode){
+    if(!profile || !sessionKey() || !canLeave())return;
+    dispose();root.replaceChildren(navigation(EXTRA_GROUP));game=mountLearningGames({root,mode,onBack:showExtras});
+  }
   function showUnit(unit,focusId) {
+    if(unit.number===0){showExtras();return;}
     dispose();root.replaceChildren(navigation());
     const title=heading('Unit '+unit.number+' — '+unit.title);
     const overview=node('section',null,'unit-overview');
@@ -52,12 +72,14 @@ export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedbac
     const link=node('a',unit.video.label);
     link.href=unit.video.kind==='youtube'?'https://www.youtube.com/watch?v='+unit.video.id:unit.video.url;
     link.target='_blank';link.rel='noopener noreferrer';outcomes.append(link);overview.append(outcomes);
-    const list=node('ul',null,'unit-activities');
+    const list=node('ul',null,'unit-activities'),courseList=node('ul',null,'unit-activities');
     for(const definition of unit.activities){
       const row=node('li'),open=button(definition.title,()=>void openActivity(unit,definition));
-      open.dataset.activityId=definition.id;row.append(open);list.append(row);
+      open.dataset.activityId=definition.id;row.append(open);(['merchant','rich','challenge'].includes(definition.kind)?list:courseList).append(row);
     }
-    overview.append(node('h4','Activities'),node('p','Save a draft to continue later. Submit only when your answers are complete; submitted answers become read-only.'),list);
+    overview.append(node('h4','Activities'),node('p','Save a draft to continue later. Submit only when your answers are complete; submitted answers become read-only.'));
+    if(list.children.length)overview.append(node('h4','Full lessons'),list);
+    overview.append(node('h4','Course response tasks'),courseList);
     const practice=node('details');practice.append(node('summary','Skill Lab — practice check'));
     practice.append(node('p','Practice only. This check is not saved or submitted to your teacher.'));
     const selects=[];
@@ -72,14 +94,16 @@ export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedbac
       if(selects.some(select=>!select.value)){result.textContent='Choose an answer for each practice question.';return;}
       result.textContent='Practice score: '+selects.filter((select,index)=>select.value===unit.quiz[index][1]).length+' / '+selects.length+'.';
     }),result);overview.append(practice);root.append(overview);
-    const target=focusId && [...list.querySelectorAll('button')].find(b=>b.dataset.activityId===focusId);
+    const target=focusId && [...overview.querySelectorAll('[data-activity-id]')].find(b=>b.dataset.activityId===focusId);
     (target || title).focus();
   }
   async function openActivity(unit,definition) {
     if(!profile || !sessionKey() || !canLeave())return;
     dispose();root.replaceChildren(navigation(unit));
-    let activityRoot,merchant;
-    if(definition.kind==='merchant') {merchant=createMerchantLesson();activityRoot=merchant.root;root.append(merchant.host);}
+    if(unit.number)root.append(createPreLearning(unit,definition));
+    let activityRoot,lesson;
+    if(definition.kind==='merchant') {lesson=createMerchantLesson();activityRoot=lesson.root;root.append(lesson.host);}
+    else if(definition.kind==='rich'){lesson=createRichLesson(definition);activityRoot=lesson.root;root.append(lesson.host);}
     else if(definition.kind==='challenge')activityRoot=challengeTemplate.content.firstElementChild.cloneNode(true);
     else {
       activityRoot=node('section',null,'learning-activity');activityRoot.hidden=true;
@@ -98,12 +122,12 @@ export function mountLearningUnits({root,challengeTemplate,load,save,loadFeedbac
       const feedback=node('section');feedback.dataset.feedback='';feedback.hidden=true;feedback.setAttribute('aria-label','Teacher feedback');
       activityRoot.append(fields,status,actions,feedback);
     }
-    if(!merchant)root.append(activityRoot);
+    if(!lesson)root.append(activityRoot);
     const feedback=mountStudentFeedback({root:activityRoot.querySelector('[data-feedback]'),sessionKey,
       load:value=>loadFeedback(value,definition.id)});
     editor=mountStudentActivity({root:activityRoot,activityId:definition.id,sessionKey,feedback,
       load:value=>load(value,definition.id),save:(value,payload)=>save(value,payload,definition.id),
-      onClose:()=>showUnit(unit,definition.id),afterRestore:merchant?.restore});
+      onClose:()=>showUnit(unit,definition.id),afterRestore:lesson?.restore,onStateChange:lesson?.stateChanged});
     await editor.open(profile);
   }
   return {clear,canLeave,hasUnsavedChanges:()=>editor?.hasUnsavedChanges() ?? false,

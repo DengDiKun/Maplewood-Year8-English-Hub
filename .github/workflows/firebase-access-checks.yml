@@ -7,6 +7,10 @@ on:
       - 'earlier-hub.html'
       - 'home-entry.mjs'
       - 'merchant-*.mjs'
+      - 'rich-*.mjs'
+      - 'pre-learning.mjs'
+      - 'game-logic.mjs'
+      - 'vocabulary-bank.mjs'
       - 'unit8-1-core.html'
       - 'admin-*.mjs'
       - 'admin-login.html'
@@ -33,6 +37,10 @@ on:
       - 'earlier-hub.html'
       - 'home-entry.mjs'
       - 'merchant-*.mjs'
+      - 'rich-*.mjs'
+      - 'pre-learning.mjs'
+      - 'game-logic.mjs'
+      - 'vocabulary-bank.mjs'
       - 'unit8-1-core.html'
       - 'admin-*.mjs'
       - 'admin-login.html'
@@ -92,3 +100,7 @@ jobs:
       - run: node --check home-entry.mjs
       - run: node --check merchant-lesson.mjs
       - run: npm run test:merchant
+      - run: node --check rich-lessons.mjs
+      - run: node --check pre-learning.mjs
+      - run: node --check learning-games.mjs
+      - run: npm run test:remaining
