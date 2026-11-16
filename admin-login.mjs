@@ -1,6 +1,6 @@
-import { mountRoster, studentCollection } from './student-roster.mjs?v=merchant-1';
-import { responseDocument } from './activity-responses.mjs?v=merchant-1';
-import { createMarkingClient } from './marking-data.mjs?v=merchant-1';
+import { mountRoster, studentCollection } from './student-roster.mjs?v=hub-complete-1';
+import { responseDocument } from './activity-responses.mjs?v=hub-complete-1';
+import { createMarkingClient } from './marking-data.mjs?v=hub-complete-1';
 import { validateConfig, signInAdministrator, loadAdministratorClasses, errorMessage, classErrorMessage, requestPasswordReset, passwordResetErrorMessage } from './admin-access.mjs';
 
 const form = document.getElementById('login-form');

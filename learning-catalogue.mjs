@@ -1,4 +1,5 @@
-import {MERCHANT_ACTIVITY} from './merchant-data.mjs?v=merchant-1';
+import {MERCHANT_ACTIVITY} from './merchant-data.mjs?v=hub-complete-1';
+import {RICH_ACTIVITIES} from './rich-lessons-data.mjs?v=hub-complete-1';
 // Curriculum and Hub-created prompts carried over from unit-course.html.
 // This is a content catalogue, never an authorization or identity source.
 const source = {
@@ -557,9 +558,12 @@ export const UNITS=freeze(Object.entries(source.U).map(([key,unit])=>{
   if(number===6)activities.unshift({id:'writers-effect-v1',unit:6,kind:'challenge',
     title:'Writer’s Effect Challenge',intro:'Read two texts and explain their language effects.',questions:challengeQuestions});
   if(number===8)activities.unshift(MERCHANT_ACTIVITY);
+  activities.push(...RICH_ACTIVITIES.filter(activity=>activity.unit===number));
   return {number,...unit,readings,activities,quiz:source.quizData[number]};
 }));
-export const ACTIVITIES=freeze(UNITS.flatMap(unit=>unit.activities));
+export const EXTRA_ACTIVITIES=freeze(RICH_ACTIVITIES.filter(activity=>activity.unit===0));
+export const EXTRA_GROUP=freeze({number:0,title:'Extra practice',activities:EXTRA_ACTIVITIES});
+export const ACTIVITIES=freeze([...UNITS.flatMap(unit=>unit.activities),...EXTRA_ACTIVITIES]);
 const byId=new Map(ACTIVITIES.map(activity=>[activity.id,activity]));
 export function getActivity(id) {return byId.get(id);}
-export function getUnit(number) {return UNITS.find(unit=>unit.number===number);}
+export function getUnit(number) {return number===0?EXTRA_GROUP:UNITS.find(unit=>unit.number===number);}

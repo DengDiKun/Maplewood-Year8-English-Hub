@@ -1,5 +1,5 @@
-import {MERCHANT_MARKUP,MERCHANT_CSS} from './merchant-content.mjs?v=merchant-1';
-import {MERCHANT_CLAIMS,MERCHANT_EVIDENCE,MERCHANT_CORRECT,MERCHANT_EVIDENCE_KEY} from './merchant-data.mjs?v=merchant-1';
+import {MERCHANT_MARKUP,MERCHANT_CSS} from './merchant-content.mjs?v=hub-complete-1';
+import {MERCHANT_CLAIMS,MERCHANT_EVIDENCE,MERCHANT_CORRECT,MERCHANT_EVIDENCE_KEY} from './merchant-data.mjs?v=hub-complete-1';
 
 function element(tag,text) {const node=document.createElement(tag);if(text)node.textContent=text;return node;}
 // Shadow DOM contains only authored lesson content and isolates its established

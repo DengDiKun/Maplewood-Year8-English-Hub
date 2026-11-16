@@ -1,7 +1,7 @@
 import { AccessError } from './admin-access.mjs';
-import {parseResponse,ACTIVITY_ID} from './activity-responses.mjs?v=merchant-1';
-import {mountTeacherMarking} from './marking-ui.mjs?v=merchant-1';
-import {UNITS,getUnit,getActivity} from './learning-catalogue.mjs?v=merchant-1';
+import {parseResponse,ACTIVITY_ID} from './activity-responses.mjs?v=hub-complete-1';
+import {mountTeacherMarking} from './marking-ui.mjs?v=hub-complete-1';
+import {UNITS,EXTRA_GROUP,getUnit,getActivity} from './learning-catalogue.mjs?v=hub-complete-1';
 
 export function studentCollection(sdk, database, classId) {
   if (typeof classId !== 'string' || !classId.trim() || classId.includes('/')) {
@@ -83,7 +83,7 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
   const unitLabel=document.createElement('label'),activityLabel=document.createElement('label');
   unitLabel.textContent='Unit';activityLabel.textContent='Activity to review';
   const unitSelect=document.createElement('select'),activitySelect=document.createElement('select');
-  for(const unit of UNITS){const option=document.createElement('option');option.value=String(unit.number);option.textContent='Unit '+unit.number+' — '+unit.title;unitSelect.append(option);}
+  for(const unit of [...UNITS,EXTRA_GROUP]){const option=document.createElement('option');option.value=String(unit.number);option.textContent=unit.number?'Unit '+unit.number+' — '+unit.title:'Extras — Saved reading practice';unitSelect.append(option);}
   unitLabel.append(unitSelect);activityLabel.append(activitySelect);filters.append(unitLabel,activityLabel);list.before(filters);
   let chosenActivity=getActivity(ACTIVITY_ID);
   function chooseUnit(number){
@@ -109,7 +109,7 @@ export function mountRoster({ root, classes, load, loadResponse, sessionKey, mar
     const activity=chosenActivity;
     const request=++responseGeneration;
     const title = document.createElement('h3');
-    title.textContent = student.name + ' — Unit '+activity.unit+' · '+activity.title;
+    title.textContent = student.name + ' — '+(activity.unit?'Unit '+activity.unit:'Extras')+' · '+activity.title;
     title.className='learning-review-heading';
     title.tabIndex = -1;
     const message = document.createElement('p');

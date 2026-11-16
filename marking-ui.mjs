@@ -1,4 +1,4 @@
-import { markValues, parseMarking, markingError } from './marking-data.mjs?v=merchant-1';
+import { markValues, parseMarking, markingError } from './marking-data.mjs?v=hub-complete-1';
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
