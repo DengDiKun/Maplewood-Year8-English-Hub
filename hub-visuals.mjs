@@ -1,3 +1,4 @@
+import {mountHubMusic} from './hub-music.mjs?v=music-1';
 import {createCompanion,chapterSticker} from './hub-art.mjs?v=anime-1';
 
 // A visual preference only. It never includes an account, response or grade.
@@ -24,3 +25,5 @@ for(const control of controls)control.addEventListener('click',()=>{
 systemMotion.addEventListener('change',syncMotion);syncMotion();
 for(const holder of document.querySelectorAll('[data-maple]'))holder.replaceChildren(createCompanion(holder.dataset.maple || undefined));
 for(const holder of document.querySelectorAll('[data-chapter-sticker]'))holder.replaceChildren(chapterSticker(holder.dataset.chapterSticker));
+
+mountHubMusic();

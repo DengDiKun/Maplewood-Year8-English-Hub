@@ -9,6 +9,7 @@ on:
       - 'hub-*.mjs'
       - 'hub-*.css'
       - 'assets/maple-mascot.webp'
+      - 'assets/maple-study-loop.mp3'
       - 'merchant-*.mjs'
       - 'rich-*.mjs'
       - 'pre-learning.mjs'
@@ -42,6 +43,7 @@ on:
       - 'hub-*.mjs'
       - 'hub-*.css'
       - 'assets/maple-mascot.webp'
+      - 'assets/maple-study-loop.mp3'
       - 'merchant-*.mjs'
       - 'rich-*.mjs'
       - 'pre-learning.mjs'
@@ -106,6 +108,8 @@ jobs:
       - run: node --check home-entry.mjs
       - run: node --check hub-art.mjs
       - run: node --check hub-visuals.mjs
+      - run: node --check hub-music.mjs
+      - run: node --check hub-music-state.mjs
       - run: node --check merchant-lesson.mjs
       - run: npm run test:merchant
       - run: node --check rich-lessons.mjs
